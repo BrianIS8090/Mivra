@@ -13,7 +13,10 @@ function ensureInit() {
   mermaid.initialize({
     startOnLoad: false,
     theme,
+    securityLevel: 'loose',
     fontFamily: "'Segoe UI Variable', 'Segoe UI', sans-serif",
+    flowchart: { htmlLabels: false },
+    sequence: { useMaxWidth: true },
   });
 }
 
