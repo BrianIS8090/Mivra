@@ -101,6 +101,11 @@
   height: auto;
 }
 
+/* Сброс каскада Milkdown reset.css внутри foreignObject */
+.mermaid-preview svg foreignObject * {
+  all: revert;
+}
+
 .mermaid-preview-error {
   color: var(--crepe-color-error, #ba1a1a);
 }

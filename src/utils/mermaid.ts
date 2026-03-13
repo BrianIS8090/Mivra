@@ -22,21 +22,6 @@ export function generateMermaidId(): string {
   return `mermaid-${Date.now()}-${counter++}`;
 }
 
-// Исправляет текст внутри foreignObject, который ломается CSS ProseMirror
-function fixForeignObjectStyles(container: HTMLElement) {
-  container.querySelectorAll('foreignObject div, foreignObject span, foreignObject p').forEach(el => {
-    const htmlEl = el as HTMLElement;
-    if (!htmlEl.style.color) {
-      htmlEl.style.color = '#333';
-    }
-    htmlEl.style.fontSize = '14px';
-    htmlEl.style.lineHeight = '1.4';
-    htmlEl.style.overflow = 'visible';
-    htmlEl.style.whiteSpace = 'normal';
-    htmlEl.style.visibility = 'visible';
-  });
-}
-
 // Рендерит mermaid-диаграмму асинхронно через колбэк applyPreview
 export function renderMermaidPreview(
   content: string,
@@ -52,7 +37,6 @@ export function renderMermaidPreview(
     const container = document.createElement('div');
     container.className = 'mermaid-preview';
     container.innerHTML = svg;
-    fixForeignObjectStyles(container);
     applyPreview(container);
   }).catch(() => {
     const container = document.createElement('div');
