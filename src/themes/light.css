@@ -1,6 +1,6 @@
 /* Светлая тема */
 [data-theme="light"] {
-  --bg-primary: #f3f3f3;
+  --bg-primary: #ffffff;
   --bg-secondary: rgba(255, 255, 255, 0.85);
   --bg-tertiary: rgba(245, 245, 245, 0.9);
   --text-primary: #1a1a1a;
