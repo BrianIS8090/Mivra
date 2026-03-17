@@ -1,8 +1,8 @@
 <div align="center">
 
-<img width="80" src="public/icon.png" alt="Markdown Redactor" />
 
 # Markdown Redactor
+<img width="1376" height="768" alt="lumigen-3ywqhzcw5" src="https://github.com/user-attachments/assets/a4b0fe60-817c-4cea-98b1-685798995da2" />
 
 ### Современный Markdown-редактор для Windows
 
@@ -18,13 +18,15 @@
 
 ---
 
-<img width="100%" alt="Markdown Redactor — скриншот" src="https://github.com/user-attachments/assets/715b7143-da65-48a6-b7ba-d3b7584f7cb2" />
+
 
 ## Зачем ещё один редактор?
 
 Большинство Markdown-редакторов — это либо перегруженные Electron-приложения, съедающие сотни мегабайт оперативной памяти, либо минималистичные текстовые поля без визуального превью.
 
 **Markdown Redactor** — это золотая середина: нативное Windows-приложение на Rust, которое запускается мгновенно, потребляет минимум ресурсов и при этом предоставляет полноценный визуальный редактор.
+
+<img width="1585" height="1126" alt="Снимок экрана 2026-03-17 134743" src="https://github.com/user-attachments/assets/b26250d3-c30d-4c35-8fd1-39655b0d29e4" />
 
 ## Возможности
 
