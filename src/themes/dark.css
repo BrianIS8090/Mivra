@@ -1,6 +1,6 @@
 /* Тёмная тема */
 [data-theme="dark"] {
-  --bg-primary: #202020;
+  --bg-primary: #1e1e1e;
   --bg-secondary: rgba(40, 40, 40, 0.9);
   --bg-tertiary: rgba(50, 50, 50, 0.9);
   --text-primary: #e0e0e0;
