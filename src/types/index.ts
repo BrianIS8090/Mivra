@@ -11,6 +11,7 @@ export interface Settings {
   theme: 'light' | 'dark' | 'system';
   language: Language;
   recent_files: string[];
+  page_width: number;
 }
 
 export type EditorMode = 'visual' | 'source';
@@ -28,6 +29,7 @@ export interface AppState {
   language: Language;
   editorMode: EditorMode;
   recentFiles: string[];
+  pageWidth: number;
 
   // Действия
   setContent: (content: string) => void;
@@ -39,5 +41,6 @@ export interface AppState {
   setLanguage: (language: Language) => void;
   setEditorMode: (mode: EditorMode) => void;
   setRecentFiles: (files: string[]) => void;
+  setPageWidth: (pageWidth: number) => void;
   updateSettings: (settings: Partial<Settings>) => void;
 }

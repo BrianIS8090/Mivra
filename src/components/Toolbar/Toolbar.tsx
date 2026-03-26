@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useFile } from '../../hooks/useFile';
 import { useSettings } from '../../hooks/useSettings';
 import { useTheme } from '../../hooks/useTheme';
@@ -20,7 +20,23 @@ const FONT_OPTIONS = [
 export function Toolbar() {
   const [showHelp, setShowHelp] = useState(false);
   const { open, save, saveAs } = useFile();
-  const { fontFamily, fontSize, language, changeFontFamily, changeFontSize, changeLanguage } = useSettings();
+  const { fontFamily, fontSize, language, pageWidth, changeFontFamily, changeFontSize, changeLanguage, changePageWidth } = useSettings();
+  const [pageWidthDraft, setPageWidthDraft] = useState(String(pageWidth));
+
+  // Синхронизация при внешнем изменении (загрузка настроек)
+  useEffect(() => {
+    setPageWidthDraft(String(pageWidth));
+  }, [pageWidth]);
+
+  const commitPageWidth = () => {
+    const num = parseInt(pageWidthDraft, 10);
+    if (!isNaN(num)) {
+      changePageWidth(num);
+      setPageWidthDraft(String(Math.max(400, Math.min(1600, num))));
+    } else {
+      setPageWidthDraft(String(pageWidth));
+    }
+  };
   const { theme, toggleTheme } = useTheme();
   const editorMode = useAppStore((s) => s.editorMode);
   const setEditorMode = useAppStore((s) => s.setEditorMode);
@@ -83,6 +99,20 @@ export function Toolbar() {
             >
               +
             </button>
+          </div>
+
+          <div className="toolbar-page-width-group">
+            <input
+              className="toolbar-page-width"
+              type="text"
+              inputMode="numeric"
+              value={pageWidthDraft}
+              onChange={(e) => setPageWidthDraft(e.target.value.replace(/[^0-9]/g, ''))}
+              onBlur={commitPageWidth}
+              onKeyDown={(e) => { if (e.key === 'Enter') commitPageWidth(); }}
+              title={t.pageWidthTooltip}
+            />
+            <span className="toolbar-page-width-unit">px</span>
           </div>
         </div>
 

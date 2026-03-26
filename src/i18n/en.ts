@@ -45,6 +45,7 @@ export const en: Translations = {
   fontTooltip: 'Font',
   decreaseFontTooltip: 'Decrease font (Ctrl+-)',
   increaseFontTooltip: 'Increase font (Ctrl++)',
+  pageWidthTooltip: 'Page width (px)',
 
   // Help
   helpTitle: 'Help',

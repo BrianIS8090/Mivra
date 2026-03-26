@@ -43,6 +43,7 @@ export const ru = {
   fontTooltip: 'Шрифт',
   decreaseFontTooltip: 'Уменьшить шрифт (Ctrl+-)',
   increaseFontTooltip: 'Увеличить шрифт (Ctrl++)',
+  pageWidthTooltip: 'Ширина страницы (px)',
 
   // Справка
   helpTitle: 'Справка',

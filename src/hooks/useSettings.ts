@@ -9,10 +9,12 @@ export function useSettings() {
     theme,
     language,
     recentFiles,
+    pageWidth,
     setFontFamily,
     setFontSize,
     setTheme,
     setLanguage,
+    setPageWidth,
     updateSettings,
   } = useAppStore();
 
@@ -34,11 +36,12 @@ export function useSettings() {
         theme,
         language,
         recent_files: recentFiles,
+        page_width: pageWidth,
       });
     } catch (e) {
       console.error('Ошибка сохранения настроек:', e);
     }
-  }, [fontFamily, fontSize, theme, language, recentFiles]);
+  }, [fontFamily, fontSize, theme, language, recentFiles, pageWidth]);
 
   const changeFontFamily = useCallback((family: string) => {
     setFontFamily(family);
@@ -57,13 +60,18 @@ export function useSettings() {
     setLanguage(newLang);
   }, [setLanguage]);
 
+  const changePageWidth = useCallback((width: number) => {
+    const clamped = Math.max(400, Math.min(1600, width));
+    setPageWidth(clamped);
+  }, [setPageWidth]);
+
   // Автосохранение настроек при изменении
   useEffect(() => {
     const timeout = setTimeout(() => {
       persist();
     }, 500);
     return () => clearTimeout(timeout);
-  }, [fontFamily, fontSize, theme, language, persist]);
+  }, [fontFamily, fontSize, theme, language, pageWidth, persist]);
 
   return {
     fontFamily,
@@ -74,5 +82,7 @@ export function useSettings() {
     changeFontSize,
     changeTheme,
     changeLanguage,
+    pageWidth,
+    changePageWidth,
   };
 }

@@ -98,6 +98,38 @@
   color: var(--text-primary);
 }
 
+.toolbar-page-width-group {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-tertiary);
+  overflow: hidden;
+}
+
+.toolbar-page-width-group:focus-within {
+  border-color: var(--accent);
+}
+
+.toolbar-page-width {
+  width: 44px;
+  padding: 4px 4px 4px 6px;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  font-size: 12px;
+  text-align: right;
+  outline: none;
+}
+
+.toolbar-page-width-unit {
+  padding: 0 6px 0 2px;
+  font-size: 11px;
+  color: var(--text-muted);
+  user-select: none;
+}
+
 .toolbar-spacer {
   flex: 1;
 }

@@ -23,6 +23,12 @@
   --toolbar-height: 40px;
   --statusbar-height: 24px;
   --transition: 150ms ease;
+
+  /* Page layout */
+  --page-max-width: 816px;
+  --page-margin-y: 24px;
+  --page-shadow: 0 1px 4px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.06);
+  --desk-bg: #e8e8e8;
 }
 
 /* Crepe переменные для светлой темы (переопределяем в .milkdown) */

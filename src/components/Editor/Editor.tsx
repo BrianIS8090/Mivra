@@ -43,6 +43,7 @@ function createCrepeConfig(defaultValue: string) {
 }
 
 export function Editor() {
+  const containerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<HTMLDivElement>(null);
   const sourceRef = useRef<HTMLTextAreaElement>(null);
   const crepeRef = useRef<Crepe | null>(null);
@@ -51,6 +52,7 @@ export function Editor() {
   const setContent = useAppStore((s) => s.setContent);
   const fontFamily = useAppStore((s) => s.fontFamily);
   const fontSize = useAppStore((s) => s.fontSize);
+  const pageWidth = useAppStore((s) => s.pageWidth);
   const editorMode = useAppStore((s) => s.editorMode);
 
   // Refs для стабильных колбэков
@@ -139,6 +141,13 @@ export function Editor() {
     }
   }, [fontFamily, fontSize]);
 
+  // Динамическое обновление ширины страницы
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.style.setProperty('--page-max-width', `${pageWidth}px`);
+    }
+  }, [pageWidth]);
+
   // Обработка ввода в source-режиме
   const handleSourceChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
@@ -147,7 +156,7 @@ export function Editor() {
   }, []);
 
   return (
-    <div className="editor-container">
+    <div ref={containerRef} className="editor-container">
       <div
         ref={editorRef}
         className="editor-root"

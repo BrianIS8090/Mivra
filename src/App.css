@@ -96,6 +96,10 @@ body {
 
   .editor-root {
     background: white !important;
+    max-width: none !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    min-height: auto !important;
   }
 
   /* Milkdown стили для печати */
@@ -165,6 +169,9 @@ body {
     padding: 0 !important;
     height: auto !important;
     min-height: auto !important;
+    max-width: none !important;
+    margin: 0 !important;
+    box-shadow: none !important;
     font-size: 10pt !important;
     white-space: pre-wrap;
     word-wrap: break-word;

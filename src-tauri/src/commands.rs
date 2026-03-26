@@ -22,6 +22,8 @@ pub struct Settings {
   pub language: String,
   #[serde(default)]
   pub recent_files: Vec<String>,
+  #[serde(default = "default_page_width")]
+  pub page_width: f32,
 }
 
 fn default_font_family() -> String {
@@ -40,6 +42,10 @@ fn default_language() -> String {
   "ru".to_string()
 }
 
+fn default_page_width() -> f32 {
+  816.0
+}
+
 impl Default for Settings {
   fn default() -> Self {
     Settings {
@@ -48,6 +54,7 @@ impl Default for Settings {
       theme: default_theme(),
       language: default_language(),
       recent_files: Vec::new(),
+      page_width: default_page_width(),
     }
   }
 }

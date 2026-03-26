@@ -15,6 +15,7 @@ export const useAppStore = create<AppState>((set) => ({
   language: 'ru' as Language,
   editorMode: 'visual',
   recentFiles: [],
+  pageWidth: 816,
 
   // Действия
   setContent: (content) => set({ content, isDirty: true }),
@@ -26,11 +27,13 @@ export const useAppStore = create<AppState>((set) => ({
   setLanguage: (language) => set({ language }),
   setEditorMode: (editorMode) => set({ editorMode }),
   setRecentFiles: (recentFiles) => set({ recentFiles }),
+  setPageWidth: (pageWidth) => set({ pageWidth }),
   updateSettings: (settings: Partial<Settings>) => set((state) => ({
     fontFamily: settings.font_family ?? state.fontFamily,
     fontSize: settings.font_size ?? state.fontSize,
     theme: settings.theme ?? state.theme,
     language: settings.language ?? state.language,
     recentFiles: settings.recent_files ?? state.recentFiles,
+    pageWidth: settings.page_width ?? state.pageWidth,
   })),
 }));

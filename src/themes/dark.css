@@ -14,6 +14,8 @@
   --hover-bg: rgba(255, 255, 255, 0.06);
   --active-bg: rgba(255, 255, 255, 0.1);
   --shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --desk-bg: #141414;
+  --page-shadow: 0 1px 4px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.06);
 }
 
 /* Crepe переменные для тёмной темы */
