@@ -152,9 +152,10 @@ body {
   }
 
   .editor-root .milkdown .ProseMirror a {
-    color: black !important;
+    color: #1a0dab !important;
     text-decoration: underline;
   }
+
 
   .editor-root .milkdown .ProseMirror pre,
   .editor-root .milkdown .ProseMirror code {

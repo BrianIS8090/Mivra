@@ -40,6 +40,7 @@ export const en: Translations = {
   saveTooltip: 'Save (Ctrl+S)',
   saveAsTooltip: 'Save As (Ctrl+Shift+S)',
   printTooltip: 'Print (Ctrl+P)',
+  reloadTooltip: 'Reload document from disk',
   themeTooltip: 'Toggle theme (Ctrl+Shift+T)',
   modeTooltip: 'Editor mode (Ctrl+/)',
   fontTooltip: 'Font',

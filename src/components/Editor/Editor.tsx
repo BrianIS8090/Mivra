@@ -7,6 +7,14 @@ import { setActiveEditor } from '../../utils/editorBridge';
 import { renderMermaidPreview } from '../../utils/mermaid';
 import './editor.css';
 
+// Извлечь YAML frontmatter из markdown-контента.
+// Возвращает [frontmatter с разделителями, тело без frontmatter].
+function splitFrontmatter(content: string): [string, string] {
+  const match = content.match(/^(---[\t ]*\r?\n[\s\S]*?\r?\n---[\t ]*\r?\n?)/);
+  if (match) return [match[1], content.slice(match[1].length)];
+  return ['', content];
+}
+
 function createCrepeConfig(defaultValue: string) {
   return {
     defaultValue,
@@ -60,17 +68,54 @@ export function Editor() {
   setContentRef.current = setContent;
   const contentRef = useRef(content);
 
+  // Текущий режим редактора (для доступа из listener без пересоздания)
+  const editorModeRef = useRef(editorMode);
+  editorModeRef.current = editorMode;
+
+  // Флаг: пользователь взаимодействовал с visual-редактором после его создания.
+  // Пока false — markdownUpdated игнорируется (защита от нормализации при парсинге).
+  const userInteractedRef = useRef(false);
+  const interactionCleanupRef = useRef<(() => void) | null>(null);
+
+  // Хранение YAML frontmatter отдельно от тела — Milkdown его не трогает
+  const frontmatterRef = useRef('');
+
   // Создание экземпляра Crepe
   const buildCrepe = useCallback((root: HTMLElement, value: string) => {
+    // Очистить предыдущие обработчики взаимодействия
+    interactionCleanupRef.current?.();
+
+    // Сбросить флаг — пока пользователь не начнёт редактировать,
+    // markdownUpdated не будет обновлять store
+    userInteractedRef.current = false;
+
+    // Отслеживать первое взаимодействие пользователя с редактором
+    const onInteraction = () => { userInteractedRef.current = true; };
+    root.addEventListener('keydown', onInteraction);
+    root.addEventListener('pointerdown', onInteraction);
+    interactionCleanupRef.current = () => {
+      root.removeEventListener('keydown', onInteraction);
+      root.removeEventListener('pointerdown', onInteraction);
+    };
+
+    // Извлечь frontmatter — Milkdown получает только тело документа
+    const [fm, body] = splitFrontmatter(value);
+    frontmatterRef.current = fm;
+
     const crepe = new Crepe({
       root,
-      ...createCrepeConfig(value),
+      ...createCrepeConfig(body),
     });
 
     crepe.on((listener) => {
       listener.markdownUpdated((_ctx, markdown) => {
-        contentRef.current = markdown;
-        setContentRef.current(markdown);
+        // Обновлять store только если пользователь реально редактировал в visual-режиме
+        if (!userInteractedRef.current || editorModeRef.current === 'source') return;
+        // Восстановить frontmatter перед записью в store
+        const fullContent = frontmatterRef.current + markdown;
+        if (fullContent === contentRef.current) return;
+        contentRef.current = fullContent;
+        setContentRef.current(fullContent);
       });
     });
 
@@ -89,6 +134,7 @@ export function Editor() {
 
     return () => {
       setActiveEditor(null);
+      interactionCleanupRef.current?.();
       crepe.destroy();
       crepeRef.current = null;
     };

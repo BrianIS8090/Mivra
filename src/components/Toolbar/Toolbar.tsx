@@ -19,7 +19,7 @@ const FONT_OPTIONS = [
 
 export function Toolbar() {
   const [showHelp, setShowHelp] = useState(false);
-  const { open, save, saveAs } = useFile();
+  const { open, save, saveAs, reload, filePath } = useFile();
   const { fontFamily, fontSize, language, pageWidth, changeFontFamily, changeFontSize, changeLanguage, changePageWidth } = useSettings();
   const [pageWidthDraft, setPageWidthDraft] = useState(String(pageWidth));
 
@@ -66,6 +66,14 @@ export function Toolbar() {
           </button>
           <button className="toolbar-btn" onClick={() => window.print()} title={t.printTooltip}>
             {t.print}
+          </button>
+          <button
+            className="toolbar-btn toolbar-btn-icon"
+            onClick={reload}
+            disabled={!filePath}
+            title={t.reloadTooltip}
+          >
+            ↻
           </button>
         </div>
 

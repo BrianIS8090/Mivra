@@ -18,7 +18,9 @@ export const useAppStore = create<AppState>((set) => ({
   pageWidth: 816,
 
   // Действия
-  setContent: (content) => set({ content, isDirty: true }),
+  setContent: (content) => set((state) =>
+    state.content === content ? {} : { content, isDirty: true }
+  ),
   setFilePath: (filePath) => set({ filePath }),
   setDirty: (isDirty) => set({ isDirty }),
   setFontFamily: (fontFamily) => set({ fontFamily }),

@@ -47,5 +47,16 @@ export function useFile() {
     }
   }, [content, setDirty, setFilePath]);
 
-  return { filePath, content, isDirty, open, save, saveAs, setContent };
+  const reload = useCallback(async () => {
+    if (!filePath) return;
+    try {
+      const text = await tauri.readFile(filePath);
+      setContent(text);
+      setDirty(false);
+    } catch (e) {
+      console.error('Ошибка перезагрузки:', e);
+    }
+  }, [filePath, setContent, setDirty]);
+
+  return { filePath, content, isDirty, open, save, saveAs, reload, setContent };
 }

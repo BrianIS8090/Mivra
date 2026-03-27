@@ -38,6 +38,7 @@ export const ru = {
   saveTooltip: 'Сохранить (Ctrl+S)',
   saveAsTooltip: 'Сохранить как (Ctrl+Shift+S)',
   printTooltip: 'Печать (Ctrl+P)',
+  reloadTooltip: 'Обновить документ с диска',
   themeTooltip: 'Переключить тему (Ctrl+Shift+T)',
   modeTooltip: 'Режим редактора (Ctrl+/)',
   fontTooltip: 'Шрифт',
