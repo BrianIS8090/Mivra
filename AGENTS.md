@@ -2,7 +2,7 @@
 
 ## Описание проекта
 
-**Markdown Redactor** — Markdown-редактор для Windows 11, построенный на Tauri 2 (Rust backend + React/TypeScript frontend). Использует Milkdown Crepe для визуального редактирования и Zustand для управления состоянием.
+**Mivra** — Markdown-редактор для Windows 11, построенный на Tauri 2 (Rust backend + React/TypeScript frontend). Использует Milkdown Crepe для визуального редактирования и Zustand для управления состоянием.
 
 ---
 
@@ -242,7 +242,7 @@ vi.mock('@tauri-apps/api/core', () => ({
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **MarkdownRedactor** (158 symbols, 334 relationships, 20 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **Mivra** (158 symbols, 334 relationships, 20 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > If any GitNexus tool warns the index is stale, run `npx gitnexus analyze` in terminal first.
 
@@ -258,7 +258,7 @@ This project is indexed by GitNexus as **MarkdownRedactor** (158 symbols, 334 re
 
 1. `gitnexus_query({query: "<error or symptom>"})` — find execution flows related to the issue
 2. `gitnexus_context({name: "<suspect function>"})` — see all callers, callees, and process participation
-3. `READ gitnexus://repo/MarkdownRedactor/process/{processName}` — trace the full execution flow step by step
+3. `READ gitnexus://repo/Mivra/process/{processName}` — trace the full execution flow step by step
 4. For regressions: `gitnexus_detect_changes({scope: "compare", base_ref: "main"})` — see what your branch changed
 
 ## When Refactoring
@@ -297,10 +297,10 @@ This project is indexed by GitNexus as **MarkdownRedactor** (158 symbols, 334 re
 
 | Resource | Use for |
 |----------|---------|
-| `gitnexus://repo/MarkdownRedactor/context` | Codebase overview, check index freshness |
-| `gitnexus://repo/MarkdownRedactor/clusters` | All functional areas |
-| `gitnexus://repo/MarkdownRedactor/processes` | All execution flows |
-| `gitnexus://repo/MarkdownRedactor/process/{name}` | Step-by-step execution trace |
+| `gitnexus://repo/Mivra/context` | Codebase overview, check index freshness |
+| `gitnexus://repo/Mivra/clusters` | All functional areas |
+| `gitnexus://repo/Mivra/processes` | All execution flows |
+| `gitnexus://repo/Mivra/process/{name}` | Step-by-step execution trace |
 
 ## Self-Check Before Finishing
 

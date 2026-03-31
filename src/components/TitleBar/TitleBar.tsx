@@ -31,7 +31,7 @@ export function TitleBar() {
       <div className="titlebar-title" data-tauri-drag-region>
         {isDirty && <span className="titlebar-dirty">●</span>}
         <span>{fileName}</span>
-        <span className="titlebar-app-name"> — MarkdownRedactor</span>
+        <span className="titlebar-app-name"> — Mivra</span>
       </div>
       <div className="titlebar-controls">
         <button

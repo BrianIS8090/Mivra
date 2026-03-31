@@ -59,9 +59,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tagName: ${{ github.ref_name }}
-          releaseName: 'Markdown Redactor ${{ github.ref_name }}'
+          releaseName: 'Mivra ${{ github.ref_name }}'
           releaseBody: |
-            ## Markdown Redactor ${{ github.ref_name }}
+            ## Mivra ${{ github.ref_name }}
 
             Скачайте установщик для вашей платформы ниже.
 

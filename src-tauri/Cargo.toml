@@ -1,12 +1,12 @@
 [package]
-name = "markdown-redactor"
-version = "0.5.0"
+name = "mivra"
+version = "0.6.0"
 description = "Markdown-редактор для Windows 11"
 authors = ["Brian"]
 edition = "2021"
 
 [lib]
-name = "markdown_redactor_lib"
+name = "mivra_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]

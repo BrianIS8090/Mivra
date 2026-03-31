@@ -2,5 +2,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 fn main() {
-  markdown_redactor_lib::run()
+  mivra_lib::run()
 }

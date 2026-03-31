@@ -40,7 +40,7 @@ git push origin v0.4.0
 После завершения сборки (обычно 5-10 минут) установщики доступны на:
 
 ```
-https://github.com/BrianIS8090/MarkdownRedactor/releases
+https://github.com/BrianIS8090/Mivra/releases
 ```
 
 ## Статус сборки
@@ -48,7 +48,7 @@ https://github.com/BrianIS8090/MarkdownRedactor/releases
 Прогресс сборки можно отслеживать во вкладке **Actions** репозитория:
 
 ```
-https://github.com/BrianIS8090/MarkdownRedactor/actions
+https://github.com/BrianIS8090/Mivra/actions
 ```
 
 ## Локальная сборка (только Windows)
@@ -59,4 +59,4 @@ https://github.com/BrianIS8090/MarkdownRedactor/actions
 npm run tauri build
 ```
 
-Результат: `src-tauri/target/release/bundle/nsis/Markdown Redactor_X.Y.Z_x64-setup.exe`
+Результат: `src-tauri/target/release/bundle/nsis/Mivra_X.Y.Z_x64-setup.exe`

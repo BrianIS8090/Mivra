@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Markdown Redactor",
-  "version": "0.5.0",
-  "identifier": "com.brian.markdown-redactor",
+  "productName": "Mivra",
+  "version": "0.6.0",
+  "identifier": "com.brian.mivra",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "Markdown Redactor",
+        "title": "Mivra",
         "width": 1200,
         "height": 800,
         "minWidth": 800,

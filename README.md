@@ -1,18 +1,18 @@
 <div align="center">
 
 
-# Markdown Redactor
+# Mivra
 <img width="1376" height="768" alt="lumigen-3ywqhzcw5" src="https://github.com/user-attachments/assets/a4b0fe60-817c-4cea-98b1-685798995da2" />
 
 ### Современный Markdown-редактор для Windows
 
-[![Windows](https://img.shields.io/badge/Platform-Windows-0078D4?logo=windows&logoColor=white)](https://github.com/BrianIS8090/MarkdownRedactor/releases)
+[![Windows](https://img.shields.io/badge/Platform-Windows-0078D4?logo=windows&logoColor=white)](https://github.com/BrianIS8090/Mivra/releases)
 [![Tauri 2](https://img.shields.io/badge/Tauri-2.0-FFC131?logo=tauri&logoColor=white)](https://tauri.app)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 **Легковесный, быстрый и удобный редактор Markdown-файлов с нативной производительностью.**
 
-[Скачать](https://github.com/BrianIS8090/MarkdownRedactor/releases) · [Документация для разработчиков](DEVELOPMENT.md)
+[Скачать](https://github.com/BrianIS8090/Mivra/releases) · [Документация для разработчиков](DEVELOPMENT.md)
 
 </div>
 
@@ -24,7 +24,7 @@
 
 Большинство Markdown-редакторов — это либо перегруженные Electron-приложения, съедающие сотни мегабайт оперативной памяти, либо минималистичные текстовые поля без визуального превью.
 
-**Markdown Redactor** — это золотая середина: нативное Windows-приложение на Rust, которое запускается мгновенно, потребляет минимум ресурсов и при этом предоставляет полноценный визуальный редактор.
+**Mivra** — это золотая середина: нативное Windows-приложение на Rust, которое запускается мгновенно, потребляет минимум ресурсов и при этом предоставляет полноценный визуальный редактор.
 
 
 <img width="1623" height="1202" alt="Снимок экрана 2026-03-26 103928" src="https://github.com/user-attachments/assets/9614e90c-645b-4104-ba11-7ac53aed9b67" />
@@ -61,8 +61,8 @@
 
 ## Установка
 
-1. Перейдите на страницу [Releases](https://github.com/BrianIS8090/MarkdownRedactor/releases)
-2. Скачайте `Markdown.Redactor_x.x.x_x64-setup.exe`
+1. Перейдите на страницу [Releases](https://github.com/BrianIS8090/Mivra/releases)
+2. Скачайте `Mivra_x.x.x_x64-setup.exe`
 3. Запустите установщик и следуйте инструкциям
 
 > **Системные требования:** Windows 10/11 (x64). Поддержка macOS и Linux планируется в будущих версиях.
@@ -79,13 +79,13 @@
 
 <div align="center">
 
-# Markdown Redactor
+# Mivra
 
 ### A Modern Markdown Editor for Windows
 
 **A lightweight, fast, and intuitive Markdown file editor with native performance.**
 
-[Download](https://github.com/BrianIS8090/MarkdownRedactor/releases) · [Developer Docs](DEVELOPMENT.md)
+[Download](https://github.com/BrianIS8090/Mivra/releases) · [Developer Docs](DEVELOPMENT.md)
 
 </div>
 
@@ -95,7 +95,7 @@
 
 Most Markdown editors are either bloated Electron apps consuming hundreds of megabytes of RAM, or minimal text fields with no visual preview.
 
-**Markdown Redactor** strikes the perfect balance: a native Windows application built with Rust that launches instantly, uses minimal resources, and still offers a full-featured visual editor.
+**Mivra** strikes the perfect balance: a native Windows application built with Rust that launches instantly, uses minimal resources, and still offers a full-featured visual editor.
 
 ## Features
 
@@ -128,8 +128,8 @@ Most Markdown editors are either bloated Electron apps consuming hundreds of meg
 
 ## Installation
 
-1. Go to the [Releases](https://github.com/BrianIS8090/MarkdownRedactor/releases) page
-2. Download `Markdown.Redactor_x.x.x_x64-setup.exe`
+1. Go to the [Releases](https://github.com/BrianIS8090/Mivra/releases) page
+2. Download `Mivra_x.x.x_x64-setup.exe`
 3. Run the installer and follow the prompts
 
 > **System requirements:** Windows 10/11 (x64). macOS and Linux support is planned for future releases.

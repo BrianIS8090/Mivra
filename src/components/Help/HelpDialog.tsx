@@ -36,7 +36,7 @@ export function HelpDialog({ onClose }: HelpDialogProps) {
             <div className="help-icon">📝</div>
             <div className="help-title">
               <span className="help-eyebrow">{t.helpTitle}</span>
-              <h2>Markdown Redactor</h2>
+              <h2>Mivra</h2>
             </div>
           </div>
           <span className="help-version">{t.version}: {VERSION}</span>
