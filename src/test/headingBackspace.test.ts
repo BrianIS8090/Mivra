@@ -9,7 +9,7 @@ const schema = new Schema({
       content: 'block+',
     },
     paragraph: {
-      content: 'text*',
+      content: '(text | hardbreak)*',
       group: 'block',
       toDOM: () => ['p', 0],
     },
@@ -22,6 +22,12 @@ const schema = new Schema({
       toDOM: (node) => [`h${node.attrs.level}`, 0],
     },
     text: {},
+    hardbreak: {
+      inline: true,
+      group: 'inline',
+      selectable: false,
+      toDOM: () => ['br'],
+    },
   },
 });
 
@@ -62,5 +68,23 @@ describe('createHeadingBackspaceTransaction', () => {
     const tr = createHeadingBackspaceTransaction(state);
 
     expect(tr).toBeNull();
+  });
+
+  it('должен удалять визуально пустую строку между текстом и заголовком', () => {
+    const doc = [
+      schema.node('paragraph', null, [schema.text('Текст')]),
+      schema.node('paragraph', null, [schema.node('hardbreak')]),
+      schema.node('heading', { level: 3 }, [schema.text('Заголовок')]),
+    ];
+    const state = createState(doc, 11);
+
+    const tr = createHeadingBackspaceTransaction(state);
+
+    expect(tr).not.toBeNull();
+    expect(tr?.doc.childCount).toBe(2);
+    expect(tr?.doc.firstChild?.type.name).toBe('paragraph');
+    expect(tr?.doc.firstChild?.textContent).toBe('Текст');
+    expect(tr?.doc.lastChild?.type.name).toBe('heading');
+    expect(tr?.doc.lastChild?.attrs.level).toBe(3);
   });
 });

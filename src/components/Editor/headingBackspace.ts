@@ -1,6 +1,18 @@
 import type { EditorState, Transaction } from 'prosemirror-state';
 import { TextSelection } from 'prosemirror-state';
 
+function isVisuallyEmptyParagraph(state: EditorState, nodeIndex: number, parentDepth: number): boolean {
+  const node = state.selection.$from.node(parentDepth).child(nodeIndex);
+  if (node.type.name !== 'paragraph') return false;
+  if (node.childCount === 0) return true;
+
+  return node.content.content.every((child) => {
+    if (child.type.name === 'hardbreak') return true;
+    if (!child.isText) return false;
+    return child.text?.trim() === '';
+  });
+}
+
 export function createHeadingBackspaceTransaction(state: EditorState): Transaction | null {
   const { selection } = state;
   if (!selection.empty) return null;
@@ -16,11 +28,11 @@ export function createHeadingBackspaceTransaction(state: EditorState): Transacti
   const blockIndex = $from.index(containerDepth);
   if (blockIndex === 0) return null;
 
-  const previousNode = container.child(blockIndex - 1);
-  if (previousNode.type.name !== 'paragraph' || previousNode.content.size !== 0) {
+  if (!isVisuallyEmptyParagraph(state, blockIndex - 1, containerDepth)) {
     return null;
   }
 
+  const previousNode = container.child(blockIndex - 1);
   const currentBlockPos = $from.before(blockDepth);
   const deleteFrom = currentBlockPos - previousNode.nodeSize;
   const deleteTo = currentBlockPos;
