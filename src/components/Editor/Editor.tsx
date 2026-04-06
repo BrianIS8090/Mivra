@@ -66,7 +66,6 @@ export function Editor() {
   const editorRef = useRef<HTMLDivElement>(null);
   const sourceRef = useRef<HTMLTextAreaElement>(null);
   const crepeRef = useRef<Crepe | null>(null);
-  const [sourceContent, setSourceContent] = useState(() => normalizeMarkdownForSource(content));
 
   const content = useAppStore((s) => s.content);
   const baseDir = useAppStore((s) => s.baseDir);
@@ -75,6 +74,7 @@ export function Editor() {
   const fontSize = useAppStore((s) => s.fontSize);
   const pageWidth = useAppStore((s) => s.pageWidth);
   const editorMode = useAppStore((s) => s.editorMode);
+  const [sourceContent, setSourceContent] = useState(() => normalizeMarkdownForSource(content));
 
   // Refs для стабильных колбэков
   const setContentRef = useRef(setContent);
