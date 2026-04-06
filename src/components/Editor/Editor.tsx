@@ -1,11 +1,14 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import { Crepe, CrepeFeature } from '@milkdown/crepe';
 import '@milkdown/crepe/theme/common/style.css';
 import '@milkdown/crepe/theme/frame.css';
+import { editorViewCtx } from '@milkdown/kit/core';
 import { useAppStore } from '../../stores/appStore';
 import { setActiveEditor } from '../../utils/editorBridge';
 import { renderMermaidPreview } from '../../utils/mermaid';
 import { resolveImageSrc } from '../../utils/paths';
+import { createHeadingBackspaceTransaction } from './headingBackspace';
+import { denormalizeMarkdownForEditor, normalizeMarkdownForSource } from './sourceMarkdown';
 import './editor.css';
 
 // Извлечь YAML frontmatter из markdown-контента.
@@ -71,6 +74,7 @@ export function Editor() {
   const fontSize = useAppStore((s) => s.fontSize);
   const pageWidth = useAppStore((s) => s.pageWidth);
   const editorMode = useAppStore((s) => s.editorMode);
+  const [sourceContent, setSourceContent] = useState(() => normalizeMarkdownForSource(content));
 
   // Refs для стабильных колбэков
   const setContentRef = useRef(setContent);
@@ -100,9 +104,29 @@ export function Editor() {
 
     // Отслеживать первое взаимодействие пользователя с редактором
     const onInteraction = () => { userInteractedRef.current = true; };
+    const onBackspaceCapture = (event: KeyboardEvent) => {
+      if (event.key !== 'Backspace') return;
+
+      const handled = crepe.editor.action((ctx) => {
+        const view = ctx.get(editorViewCtx);
+        const tr = createHeadingBackspaceTransaction(view.state);
+        if (!tr) return false;
+
+        userInteractedRef.current = true;
+        view.dispatch(tr);
+        return true;
+      });
+
+      if (!handled) return;
+      event.preventDefault();
+      event.stopPropagation();
+    };
+
+    root.addEventListener('keydown', onBackspaceCapture, true);
     root.addEventListener('keydown', onInteraction);
     root.addEventListener('pointerdown', onInteraction);
     interactionCleanupRef.current = () => {
+      root.removeEventListener('keydown', onBackspaceCapture, true);
       root.removeEventListener('keydown', onInteraction);
       root.removeEventListener('pointerdown', onInteraction);
     };
@@ -110,10 +134,11 @@ export function Editor() {
     // Извлечь frontmatter — Milkdown получает только тело документа
     const [fm, body] = splitFrontmatter(value);
     frontmatterRef.current = fm;
+    const visualBody = denormalizeMarkdownForEditor(body);
 
     const crepe = new Crepe({
       root,
-      ...createCrepeConfig(body, currentBaseDir),
+      ...createCrepeConfig(visualBody, currentBaseDir),
     });
 
     crepe.on((listener) => {
@@ -121,7 +146,7 @@ export function Editor() {
         // Обновлять store только если пользователь реально редактировал в visual-режиме
         if (!userInteractedRef.current || editorModeRef.current === 'source') return;
         // Восстановить frontmatter перед записью в store
-        const fullContent = frontmatterRef.current + markdown;
+        const fullContent = frontmatterRef.current + normalizeMarkdownForSource(markdown);
         if (fullContent === contentRef.current) return;
         contentRef.current = fullContent;
         setContentRef.current(fullContent);
@@ -188,6 +213,11 @@ export function Editor() {
     prevMode.current = editorMode;
   }, [editorMode, baseDir, buildCrepe]);
 
+  useEffect(() => {
+    if (editorMode !== 'source') return;
+    setSourceContent(normalizeMarkdownForSource(content));
+  }, [content, editorMode]);
+
   // Динамическое обновление шрифта и размера через CSS-переменные
   useEffect(() => {
     if (editorRef.current) {
@@ -206,6 +236,7 @@ export function Editor() {
   // Обработка ввода в source-режиме
   const handleSourceChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
+    setSourceContent(value);
     contentRef.current = value;
     setContentRef.current(value);
   }, []);
@@ -221,7 +252,7 @@ export function Editor() {
         <textarea
           ref={sourceRef}
           className="editor-source"
-          value={content}
+          value={sourceContent}
           onChange={handleSourceChange}
           spellCheck={false}
         />
