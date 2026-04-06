@@ -19,6 +19,11 @@ export function normalizeMarkdownForSource(content: string): string {
   let normalized = withUnixEol(content);
 
   normalized = normalized.replace(
+    /^((?:[ \t]*<br\s*\/?>[ \t]*\n\n)+)(?=\S)/gi,
+    (_match, breaks: string) => '\n'.repeat(countHtmlBreaks(breaks)),
+  );
+
+  normalized = normalized.replace(
     /\n\n((?:[ \t]*<br\s*\/?>[ \t]*\n\n)+)(?=[ \t]*#{1,6}[ \t])/gi,
     (_match, breaks: string) => '\n'.repeat(countHtmlBreaks(breaks) + 1),
   );
@@ -35,6 +40,11 @@ export function normalizeMarkdownForSource(content: string): string {
 export function denormalizeMarkdownForEditor(content: string): string {
   const eol = detectEol(content);
   let denormalized = withUnixEol(content);
+
+  denormalized = denormalized.replace(
+    /^(\n+)(?=\S)/g,
+    (newLines: string) => '<br />\n\n'.repeat(newLines.length),
+  );
 
   denormalized = denormalized.replace(
     /\n{2,}(?=[ \t]*#{1,6}[ \t])/g,

@@ -30,4 +30,16 @@ describe('sourceMarkdown', () => {
     expect(normalizeMarkdownForSource(raw)).toBe('тест\n\n\nцитата');
     expect(denormalizeMarkdownForEditor('тест\n\n\nцитата')).toBe('тест\n\n<br />\n\nцитата');
   });
+
+  it('должен убирать ведущий html br в source-представлении', () => {
+    const raw = '<br />\n\nапвп\n\nапвап\n\nвапвап';
+
+    expect(normalizeMarkdownForSource(raw)).toBe('\nапвп\n\nапвап\n\nвапвап');
+  });
+
+  it('должен восстанавливать ведущую пустую строку для visual-редактора', () => {
+    const source = '\nапвп\n\nапвап\n\nвапвап';
+
+    expect(denormalizeMarkdownForEditor(source)).toBe('<br />\n\nапвп\n\nапвап\n\nвапвап');
+  });
 });
