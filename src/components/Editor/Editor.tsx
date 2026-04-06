@@ -2,10 +2,12 @@ import { useEffect, useRef, useCallback } from 'react';
 import { Crepe, CrepeFeature } from '@milkdown/crepe';
 import '@milkdown/crepe/theme/common/style.css';
 import '@milkdown/crepe/theme/frame.css';
+import { editorViewCtx } from '@milkdown/kit/core';
 import { useAppStore } from '../../stores/appStore';
 import { setActiveEditor } from '../../utils/editorBridge';
 import { renderMermaidPreview } from '../../utils/mermaid';
 import { resolveImageSrc } from '../../utils/paths';
+import { createHeadingBackspaceTransaction } from './headingBackspace';
 import './editor.css';
 
 // Извлечь YAML frontmatter из markdown-контента.
@@ -100,9 +102,29 @@ export function Editor() {
 
     // Отслеживать первое взаимодействие пользователя с редактором
     const onInteraction = () => { userInteractedRef.current = true; };
+    const onBackspaceCapture = (event: KeyboardEvent) => {
+      if (event.key !== 'Backspace') return;
+
+      const handled = crepe.editor.action((ctx) => {
+        const view = ctx.get(editorViewCtx);
+        const tr = createHeadingBackspaceTransaction(view.state);
+        if (!tr) return false;
+
+        userInteractedRef.current = true;
+        view.dispatch(tr);
+        return true;
+      });
+
+      if (!handled) return;
+      event.preventDefault();
+      event.stopPropagation();
+    };
+
+    root.addEventListener('keydown', onBackspaceCapture, true);
     root.addEventListener('keydown', onInteraction);
     root.addEventListener('pointerdown', onInteraction);
     interactionCleanupRef.current = () => {
+      root.removeEventListener('keydown', onBackspaceCapture, true);
       root.removeEventListener('keydown', onInteraction);
       root.removeEventListener('pointerdown', onInteraction);
     };
