@@ -1,6 +1,11 @@
 import type { EditorState, Transaction } from 'prosemirror-state';
 import { TextSelection } from 'prosemirror-state';
 
+function isEmptyHtmlBreak(value: string | undefined): boolean {
+  const normalized = value?.trim().toLowerCase();
+  return normalized === '<br />' || normalized === '<br>' || normalized === '<br/>' || normalized === '<br >';
+}
+
 function isVisuallyEmptyParagraph(state: EditorState, nodeIndex: number, parentDepth: number): boolean {
   const node = state.selection.$from.node(parentDepth).child(nodeIndex);
   if (node.type.name !== 'paragraph') return false;
@@ -8,6 +13,7 @@ function isVisuallyEmptyParagraph(state: EditorState, nodeIndex: number, parentD
 
   return node.content.content.every((child) => {
     if (child.type.name === 'hardbreak') return true;
+    if (child.type.name === 'html') return isEmptyHtmlBreak(child.attrs.value);
     if (!child.isText) return false;
     return child.text?.trim() === '';
   });

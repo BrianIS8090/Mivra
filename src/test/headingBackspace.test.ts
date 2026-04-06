@@ -9,7 +9,7 @@ const schema = new Schema({
       content: 'block+',
     },
     paragraph: {
-      content: '(text | hardbreak)*',
+      content: '(text | hardbreak | html)*',
       group: 'block',
       toDOM: () => ['p', 0],
     },
@@ -27,6 +27,15 @@ const schema = new Schema({
       group: 'inline',
       selectable: false,
       toDOM: () => ['br'],
+    },
+    html: {
+      inline: true,
+      group: 'inline',
+      atom: true,
+      attrs: {
+        value: { default: '' },
+      },
+      toDOM: (node) => ['span', node.attrs.value],
     },
   },
 });
@@ -86,5 +95,23 @@ describe('createHeadingBackspaceTransaction', () => {
     expect(tr?.doc.firstChild?.textContent).toBe('Текст');
     expect(tr?.doc.lastChild?.type.name).toBe('heading');
     expect(tr?.doc.lastChild?.attrs.level).toBe(3);
+  });
+
+  it('должен удалять строку с html br между текстом и заголовком', () => {
+    const doc = [
+      schema.node('paragraph', null, [schema.text('тест')]),
+      schema.node('paragraph', null, [schema.node('html', { value: '<br />' })]),
+      schema.node('heading', { level: 1 }, [schema.text('тест')]),
+    ];
+    const state = createState(doc, 10);
+
+    const tr = createHeadingBackspaceTransaction(state);
+
+    expect(tr).not.toBeNull();
+    expect(tr?.doc.childCount).toBe(2);
+    expect(tr?.doc.firstChild?.type.name).toBe('paragraph');
+    expect(tr?.doc.firstChild?.textContent).toBe('тест');
+    expect(tr?.doc.lastChild?.type.name).toBe('heading');
+    expect(tr?.doc.lastChild?.attrs.level).toBe(1);
   });
 });
