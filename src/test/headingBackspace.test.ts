@@ -50,6 +50,17 @@ function createState(doc: Parameters<typeof schema.node>[1], selectionPos: numbe
   });
 }
 
+function getBlockStartPosition(doc: Parameters<typeof schema.node>[1], blockIndex: number): number {
+  const docNode = schema.node('doc', null, doc);
+  let position = 0;
+
+  for (let index = 0; index < blockIndex; index += 1) {
+    position += docNode.child(index).nodeSize;
+  }
+
+  return position + 1;
+}
+
 describe('createHeadingBackspaceTransaction', () => {
   it('должен удалять пустой абзац перед заголовком и сохранять тип heading', () => {
     const doc = [
@@ -113,5 +124,57 @@ describe('createHeadingBackspaceTransaction', () => {
     expect(tr?.doc.firstChild?.textContent).toBe('тест');
     expect(tr?.doc.lastChild?.type.name).toBe('heading');
     expect(tr?.doc.lastChild?.attrs.level).toBe(1);
+  });
+
+  it('должен последовательно удалять несколько пустых строк перед заголовком без downgrade', () => {
+    const doc = [
+      schema.node('paragraph', null, [schema.text('тест')]),
+      schema.node('paragraph', null, [schema.node('html', { value: '<br />' })]),
+      schema.node('paragraph', null, [schema.node('html', { value: '<br />' })]),
+      schema.node('heading', { level: 2 }, [schema.text('заголовок')]),
+    ];
+    const initialState = createState(doc, getBlockStartPosition(doc, 3));
+
+    const firstTr = createHeadingBackspaceTransaction(initialState);
+
+    expect(firstTr).not.toBeNull();
+    expect(firstTr?.doc.childCount).toBe(3);
+    expect(firstTr?.doc.lastChild?.type.name).toBe('heading');
+    expect(firstTr?.doc.lastChild?.attrs.level).toBe(2);
+
+    const secondState = EditorState.create({
+      schema,
+      doc: firstTr!.doc,
+      selection: firstTr!.selection,
+    });
+    const secondTr = createHeadingBackspaceTransaction(secondState);
+
+    expect(secondTr).not.toBeNull();
+    expect(secondTr?.doc.childCount).toBe(2);
+    expect(secondTr?.doc.firstChild?.type.name).toBe('paragraph');
+    expect(secondTr?.doc.firstChild?.textContent).toBe('тест');
+    expect(secondTr?.doc.lastChild?.type.name).toBe('heading');
+    expect(secondTr?.doc.lastChild?.attrs.level).toBe(2);
+  });
+
+  it('должен сохранять heading, если последняя пустая строка хранится в конце предыдущего абзаца', () => {
+    const doc = [
+      schema.node('paragraph', null, [
+        schema.text('тест'),
+        schema.node('hardbreak'),
+        schema.node('hardbreak'),
+      ]),
+      schema.node('heading', { level: 2 }, [schema.text('заголовок')]),
+    ];
+    const state = createState(doc, getBlockStartPosition(doc, 1));
+
+    const tr = createHeadingBackspaceTransaction(state);
+
+    expect(tr).not.toBeNull();
+    expect(tr?.doc.childCount).toBe(2);
+    expect(tr?.doc.firstChild?.type.name).toBe('paragraph');
+    expect(tr?.doc.firstChild?.textContent).toBe('тест');
+    expect(tr?.doc.lastChild?.type.name).toBe('heading');
+    expect(tr?.doc.lastChild?.attrs.level).toBe(2);
   });
 });
