@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import { Crepe, CrepeFeature } from '@milkdown/crepe';
 import '@milkdown/crepe/theme/common/style.css';
 import '@milkdown/crepe/theme/frame.css';
@@ -8,6 +8,7 @@ import { setActiveEditor } from '../../utils/editorBridge';
 import { renderMermaidPreview } from '../../utils/mermaid';
 import { resolveImageSrc } from '../../utils/paths';
 import { createHeadingBackspaceTransaction } from './headingBackspace';
+import { denormalizeMarkdownForEditor, normalizeMarkdownForSource } from './sourceMarkdown';
 import './editor.css';
 
 // Извлечь YAML frontmatter из markdown-контента.
@@ -65,6 +66,7 @@ export function Editor() {
   const editorRef = useRef<HTMLDivElement>(null);
   const sourceRef = useRef<HTMLTextAreaElement>(null);
   const crepeRef = useRef<Crepe | null>(null);
+  const [sourceContent, setSourceContent] = useState(() => normalizeMarkdownForSource(content));
 
   const content = useAppStore((s) => s.content);
   const baseDir = useAppStore((s) => s.baseDir);
@@ -132,10 +134,11 @@ export function Editor() {
     // Извлечь frontmatter — Milkdown получает только тело документа
     const [fm, body] = splitFrontmatter(value);
     frontmatterRef.current = fm;
+    const visualBody = denormalizeMarkdownForEditor(body);
 
     const crepe = new Crepe({
       root,
-      ...createCrepeConfig(body, currentBaseDir),
+      ...createCrepeConfig(visualBody, currentBaseDir),
     });
 
     crepe.on((listener) => {
@@ -143,7 +146,7 @@ export function Editor() {
         // Обновлять store только если пользователь реально редактировал в visual-режиме
         if (!userInteractedRef.current || editorModeRef.current === 'source') return;
         // Восстановить frontmatter перед записью в store
-        const fullContent = frontmatterRef.current + markdown;
+        const fullContent = frontmatterRef.current + normalizeMarkdownForSource(markdown);
         if (fullContent === contentRef.current) return;
         contentRef.current = fullContent;
         setContentRef.current(fullContent);
@@ -210,6 +213,11 @@ export function Editor() {
     prevMode.current = editorMode;
   }, [editorMode, baseDir, buildCrepe]);
 
+  useEffect(() => {
+    if (editorMode !== 'source') return;
+    setSourceContent(normalizeMarkdownForSource(content));
+  }, [content, editorMode]);
+
   // Динамическое обновление шрифта и размера через CSS-переменные
   useEffect(() => {
     if (editorRef.current) {
@@ -228,6 +236,7 @@ export function Editor() {
   // Обработка ввода в source-режиме
   const handleSourceChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
+    setSourceContent(value);
     contentRef.current = value;
     setContentRef.current(value);
   }, []);
@@ -243,7 +252,7 @@ export function Editor() {
         <textarea
           ref={sourceRef}
           className="editor-source"
-          value={content}
+          value={sourceContent}
           onChange={handleSourceChange}
           spellCheck={false}
         />
