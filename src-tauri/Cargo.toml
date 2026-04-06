@@ -1,6 +1,6 @@
 [package]
 name = "mivra"
-version = "0.6.0"
+version = "0.6.1"
 description = "Markdown-редактор для Windows 11"
 authors = ["Brian"]
 edition = "2021"
