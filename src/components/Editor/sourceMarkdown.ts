@@ -10,9 +10,18 @@ function withOriginalEol(content: string, eol: string): string {
   return eol === '\r\n' ? content.replace(/\n/g, '\r\n') : content;
 }
 
+function countHtmlBreaks(content: string): number {
+  return content.match(/<br\s*\/?>/gi)?.length ?? 0;
+}
+
 export function normalizeMarkdownForSource(content: string): string {
   const eol = detectEol(content);
   let normalized = withUnixEol(content);
+
+  normalized = normalized.replace(
+    /\n\n((?:[ \t]*<br\s*\/?>[ \t]*\n\n)+)(?=[ \t]*#{1,6}[ \t])/gi,
+    (_match, breaks: string) => '\n'.repeat(countHtmlBreaks(breaks) + 1),
+  );
 
   while (true) {
     const next = normalized.replace(/\n\n[ \t]*<br\s*\/?>[ \t]*\n\n/gi, '\n\n\n');
@@ -26,6 +35,11 @@ export function normalizeMarkdownForSource(content: string): string {
 export function denormalizeMarkdownForEditor(content: string): string {
   const eol = detectEol(content);
   let denormalized = withUnixEol(content);
+
+  denormalized = denormalized.replace(
+    /\n{2,}(?=[ \t]*#{1,6}[ \t])/g,
+    (newLines: string) => '\n\n' + '<br />\n\n'.repeat(newLines.length - 1),
+  );
 
   while (true) {
     const next = denormalized.replace(/\n\n\n/g, '\n\n<br />\n\n');
