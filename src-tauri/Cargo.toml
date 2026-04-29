@@ -26,7 +26,7 @@ specta-typescript = "=0.0.11"
 tauri-specta = { version = "=2.0.0-rc.24", features = ["derive", "typescript"] }
 tempfile = "3"
 rust-s3 = { version = "0.35", default-features = false, features = ["tokio-rustls-tls"] }
-keyring = "3"
+keyring = { version = "3", features = ["apple-native", "windows-native", "linux-native-sync-persistent", "crypto-rust"] }
 uuid = { version = "1", features = ["v4"] }
 mime_guess = "2"
 
