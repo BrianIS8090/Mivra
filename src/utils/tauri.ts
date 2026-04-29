@@ -1,4 +1,6 @@
-import { commands, type FileData, type Settings } from '../bindings';
+import { commands, type FileData, type Settings, type S3Config } from '../bindings';
+
+export type { S3Config };
 
 // Тонкая обёртка над сгенерированным bindings.ts.
 // 1. Превращает discriminated union {status:'ok'|'error'} в throw-стиль,
@@ -50,4 +52,43 @@ export async function readFile(path: string): Promise<string> {
 // Возвращает null, если приложение запущено без аргументов.
 export async function getPendingFile(): Promise<string | null> {
   return commands.getPendingFile();
+}
+
+// Сохранить Secret Access Key в системный keyring.
+export async function s3SetSecret(secret: string): Promise<void> {
+  await unwrap(commands.s3SetSecret(secret));
+}
+
+// Удалить Secret Access Key из системного keyring.
+export async function s3ClearSecret(): Promise<void> {
+  await unwrap(commands.s3ClearSecret());
+}
+
+// Проверить, сохранён ли Secret Access Key в keyring.
+export async function s3SecretExists(): Promise<boolean> {
+  return unwrap(commands.s3SecretExists());
+}
+
+// Проверить соединение с S3-хранилищем (HEAD-запрос на bucket).
+export async function s3TestConnection(config: S3Config): Promise<void> {
+  await unwrap(commands.s3TestConnection(config));
+}
+
+// Загрузить файл с диска в S3 и вернуть публичный URL.
+export async function s3UploadFile(
+  localPath: string,
+  originalFilename: string,
+  config: S3Config,
+): Promise<string> {
+  return unwrap(commands.s3UploadFile(localPath, originalFilename, config));
+}
+
+// Загрузить байты в S3 и вернуть публичный URL.
+export async function s3UploadBytes(
+  bytes: Uint8Array,
+  originalFilename: string,
+  config: S3Config,
+): Promise<string> {
+  // Tauri 2 принимает Uint8Array как Vec<u8> через числовой массив
+  return unwrap(commands.s3UploadBytes(Array.from(bytes), originalFilename, config));
 }

@@ -1,9 +1,9 @@
 import type { Language } from '../i18n';
-// Settings и FileData теперь генерируются из Rust через specta.
+// Settings, FileData и S3Config теперь генерируются из Rust через specta.
 // Реэкспортируем для обратной совместимости импортов (`import type { Settings } from '../types'`).
-import type { Settings, FileData } from '../bindings';
+import type { Settings, FileData, S3Config } from '../bindings';
 
-export type { Settings, FileData };
+export type { Settings, FileData, S3Config };
 
 export type EditorMode = 'visual' | 'source';
 
