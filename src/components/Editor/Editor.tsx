@@ -4,7 +4,7 @@ import '@milkdown/crepe/theme/common/style.css';
 import '@milkdown/crepe/theme/frame.css';
 import { editorViewCtx } from '@milkdown/kit/core';
 import { useAppStore } from '../../stores/appStore';
-import { setActiveEditor } from '../../utils/editorBridge';
+import { useEditorHandle } from './EditorContext';
 import { renderMermaidPreview } from '../../utils/mermaid';
 import { resolveImageSrc } from '../../utils/paths';
 import { createHeadingBackspaceTransaction } from './headingBackspace';
@@ -66,6 +66,7 @@ export function Editor() {
   const editorRef = useRef<HTMLDivElement>(null);
   const sourceRef = useRef<HTMLTextAreaElement>(null);
   const crepeRef = useRef<Crepe | null>(null);
+  const handleRef = useEditorHandle();
 
   const content = useAppStore((s) => s.content);
   const baseDir = useAppStore((s) => s.baseDir);
@@ -92,6 +93,11 @@ export function Editor() {
 
   // Хранение YAML frontmatter отдельно от тела — Milkdown его не трогает
   const frontmatterRef = useRef('');
+
+  // Generation-counter — защищает от race condition при быстрой смене content/mode/baseDir.
+  // Каждый старт async-цепочки инкрементит счётчик; результат игнорируется,
+  // если за время destroy/create счётчик ушёл вперёд.
+  const genRef = useRef(0);
 
   // Создание экземпляра Crepe
   const buildCrepe = useCallback((root: HTMLElement, value: string, currentBaseDir: string | null) => {
@@ -160,14 +166,21 @@ export function Editor() {
   useEffect(() => {
     if (!editorRef.current) return;
 
+    const gen = ++genRef.current;
     const crepe = buildCrepe(editorRef.current, content, baseDir);
     crepe.create().then(() => {
+      if (gen !== genRef.current) {
+        // Эффект уже размонтирован или вытеснен — уничтожаем осиротевший экземпляр
+        crepe.destroy();
+        return;
+      }
       crepeRef.current = crepe;
-      setActiveEditor(crepe.editor);
+      handleRef.current.editor = crepe.editor;
     });
 
     return () => {
-      setActiveEditor(null);
+      genRef.current++;
+      handleRef.current.editor = null;
       interactionCleanupRef.current?.();
       crepe.destroy();
       crepeRef.current = null;
@@ -182,36 +195,52 @@ export function Editor() {
       const root = editorRef.current;
       if (!root) return;
 
-      setActiveEditor(null);
-      crepeRef.current.destroy().then(() => {
-        const crepe = buildCrepe(root, content, baseDir);
-        crepe.create().then(() => {
-          crepeRef.current = crepe;
-          setActiveEditor(crepe.editor);
+      const gen = ++genRef.current;
+      handleRef.current.editor = null;
+      const oldCrepe = crepeRef.current;
+      oldCrepe.destroy().then(() => {
+        if (gen !== genRef.current) return;
+        const newCrepe = buildCrepe(root, content, baseDir);
+        newCrepe.create().then(() => {
+          if (gen !== genRef.current) {
+            newCrepe.destroy();
+            return;
+          }
+          crepeRef.current = newCrepe;
+          handleRef.current.editor = newCrepe.editor;
         });
       });
     }
-  }, [content, baseDir, buildCrepe]);
+  }, [content, baseDir, buildCrepe, handleRef]);
 
   // Синхронизация source → store при переключении обратно в visual
   const prevMode = useRef(editorMode);
   useEffect(() => {
     if (prevMode.current === 'source' && editorMode === 'visual') {
-      // Пересоздать Crepe с актуальным контентом
       const root = editorRef.current;
-      if (!root || !crepeRef.current) return;
+      if (!root || !crepeRef.current) {
+        prevMode.current = editorMode;
+        return;
+      }
       const currentContent = contentRef.current;
-      setActiveEditor(null);
-      crepeRef.current.destroy().then(() => {
-        const crepe = buildCrepe(root, currentContent, baseDir);
-        crepe.create().then(() => {
-          crepeRef.current = crepe;
-          setActiveEditor(crepe.editor);
+      const gen = ++genRef.current;
+      handleRef.current.editor = null;
+      const oldCrepe = crepeRef.current;
+      oldCrepe.destroy().then(() => {
+        if (gen !== genRef.current) return;
+        const newCrepe = buildCrepe(root, currentContent, baseDir);
+        newCrepe.create().then(() => {
+          if (gen !== genRef.current) {
+            newCrepe.destroy();
+            return;
+          }
+          crepeRef.current = newCrepe;
+          handleRef.current.editor = newCrepe.editor;
         });
       });
     }
     prevMode.current = editorMode;
-  }, [editorMode, baseDir, buildCrepe]);
+  }, [editorMode, baseDir, buildCrepe, handleRef]);
 
   useEffect(() => {
     if (editorMode !== 'source') return;
@@ -241,6 +270,12 @@ export function Editor() {
     setContentRef.current(value);
   }, []);
 
+  // Callback ref для textarea — публикует ссылку в EditorContext
+  const setSourceRef = useCallback((el: HTMLTextAreaElement | null) => {
+    sourceRef.current = el;
+    handleRef.current.sourceTextarea = el;
+  }, [handleRef]);
+
   return (
     <div ref={containerRef} className="editor-container">
       <div
@@ -250,7 +285,7 @@ export function Editor() {
       />
       {editorMode === 'source' && (
         <textarea
-          ref={sourceRef}
+          ref={setSourceRef}
           className="editor-source"
           value={sourceContent}
           onChange={handleSourceChange}

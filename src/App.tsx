@@ -11,7 +11,7 @@ import { useSettings } from './hooks/useSettings';
 import { useTheme } from './hooks/useTheme';
 import { useExit } from './hooks/useExit';
 import { useAppStore } from './stores/appStore';
-import { getActiveEditor } from './utils/editorBridge';
+import { useEditorHandle } from './components/Editor/EditorContext';
 import * as tauri from './utils/tauri';
 import { findBaseDir } from './utils/paths';
 import { confirmUnsavedChanges } from './utils/dialogs';
@@ -37,6 +37,7 @@ function App() {
   const { changeFontSize, fontSize, language } = useSettings();
   const { toggleTheme } = useTheme();
   useExit();
+  const handleRef = useEditorHandle();
   const editorMode = useAppStore((s) => s.editorMode);
   const setEditorMode = useAppStore((s) => s.setEditorMode);
   const setContent = useAppStore((s) => s.setContent);
@@ -106,7 +107,7 @@ function App() {
 
   const applyMarkdownAction = useCallback((action: MarkdownAction) => {
     if (editorMode === 'source') {
-      const textarea = document.querySelector<HTMLTextAreaElement>('.editor-source');
+      const textarea = handleRef.current.sourceTextarea;
       if (!textarea) return;
 
       const start = textarea.selectionStart ?? 0;
@@ -142,7 +143,7 @@ function App() {
       return;
     }
 
-    const editor = getActiveEditor();
+    const editor = handleRef.current.editor;
     if (!editor) return;
 
     editor.action((ctx) => {
@@ -167,7 +168,7 @@ function App() {
       insert(markdown, inline)(ctx);
       view.focus();
     });
-  }, [editorMode, setContent]);
+  }, [editorMode, setContent, handleRef]);
 
   // Горячие клавиши
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
