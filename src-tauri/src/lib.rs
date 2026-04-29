@@ -1,4 +1,5 @@
 pub mod commands;
+pub mod s3;
 
 use std::env;
 use std::path::PathBuf;
