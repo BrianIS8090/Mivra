@@ -40,7 +40,7 @@ export async function resolveImageSrc(src: string, baseDir: string | null): Prom
   return convertFileSrc(absolutePath);
 }
 
-const IMAGE_EXTS = ['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'bmp'];
+const IMAGE_EXTS = ['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'bmp', 'apng', 'avif', 'tiff', 'tif', 'heic'];
 
 // Открыть диалог выбора файла в папке assets/ и вернуть готовый markdown.
 // Для картинок: ![имя](assets/папка/файл.png)
@@ -54,7 +54,10 @@ export async function pickAndFormatAsset(baseDir: string | null): Promise<string
     directory: false,
     filters: [{
       name: 'Assets',
-      extensions: ['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'bmp', 'pdf', 'zip', 'mp4', 'webm'],
+      extensions: [
+        ...IMAGE_EXTS,
+        'pdf', 'zip', 'mp4', 'webm',
+      ],
     }],
   });
 

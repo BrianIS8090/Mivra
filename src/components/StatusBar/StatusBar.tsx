@@ -1,3 +1,4 @@
+import { useDeferredValue, useMemo } from 'react';
 import { useAppStore } from '../../stores/appStore';
 import { getTranslations, pluralize } from '../../i18n';
 import './statusbar.css';
@@ -9,13 +10,20 @@ export function StatusBar() {
   const language = useAppStore((s) => s.language);
   const t = getTranslations(language);
 
-  // Подсчёт слов и символов
-  const text = content.trim();
-  const wordCount = text ? text.split(/\s+/).length : 0;
-  const charCount = content.length;
+  // Подсчёт слов и символов на отложенном значении content —
+  // на быстром вводе React пропустит лишние ререндеры StatusBar,
+  // т.к. результат счёта не критичен для текущего кадра.
+  const deferredContent = useDeferredValue(content);
+  const { wordCount, charCount } = useMemo(() => {
+    const trimmed = deferredContent.trim();
+    return {
+      wordCount: trimmed ? trimmed.split(/\s+/).length : 0,
+      charCount: deferredContent.length,
+    };
+  }, [deferredContent]);
 
-  const wordLabelStr = pluralize(wordCount, t.words);
-  const charLabelStr = pluralize(charCount, t.chars);
+  const wordLabelStr = pluralize(wordCount, language, t.words);
+  const charLabelStr = pluralize(charCount, language, t.chars);
   const modeLabel = editorMode === 'visual' ? t.visualMode : t.sourceMode;
 
   return (

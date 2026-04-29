@@ -1,18 +1,9 @@
 import type { Language } from '../i18n';
+// Settings и FileData теперь генерируются из Rust через specta.
+// Реэкспортируем для обратной совместимости импортов (`import type { Settings } from '../types'`).
+import type { Settings, FileData } from '../bindings';
 
-export interface FileData {
-  path: string;
-  content: string;
-}
-
-export interface Settings {
-  font_family: string;
-  font_size: number;
-  theme: 'light' | 'dark' | 'system';
-  language: Language;
-  recent_files: string[];
-  page_width: number;
-}
+export type { Settings, FileData };
 
 export type EditorMode = 'visual' | 'source';
 
@@ -34,6 +25,7 @@ export interface AppState {
 
   // Действия
   setContent: (content: string) => void;
+  loadContent: (content: string) => void;
   setFilePath: (path: string | null) => void;
   setBaseDir: (baseDir: string | null) => void;
   setDirty: (dirty: boolean) => void;

@@ -2,6 +2,8 @@ import { create } from 'zustand';
 import type { AppState, Settings } from '../types';
 import type { Language } from '../i18n';
 
+type Theme = AppState['theme'];
+
 export const useAppStore = create<AppState>((set) => ({
   // Файл
   filePath: null,
@@ -22,6 +24,8 @@ export const useAppStore = create<AppState>((set) => ({
   setContent: (content) => set((state) =>
     state.content === content ? {} : { content, isDirty: true }
   ),
+  // Программная загрузка контента (открытие файла, reload) — без isDirty
+  loadContent: (content) => set({ content, isDirty: false }),
   setFilePath: (filePath) => set({ filePath }),
   setBaseDir: (baseDir) => set({ baseDir }),
   setDirty: (isDirty) => set({ isDirty }),
@@ -35,8 +39,11 @@ export const useAppStore = create<AppState>((set) => ({
   updateSettings: (settings: Partial<Settings>) => set((state) => ({
     fontFamily: settings.font_family ?? state.fontFamily,
     fontSize: settings.font_size ?? state.fontSize,
-    theme: settings.theme ?? state.theme,
-    language: settings.language ?? state.language,
+    // Settings.theme/language из bindings — string (Rust pub theme: String).
+    // Casting к узкому типу безопасен: в Rust значения не валидируются,
+    // но в коде мы пишем только 'light'|'dark'|'system' и 'ru'|'en'.
+    theme: (settings.theme as Theme | undefined) ?? state.theme,
+    language: (settings.language as Language | undefined) ?? state.language,
     recentFiles: settings.recent_files ?? state.recentFiles,
     pageWidth: settings.page_width ?? state.pageWidth,
   })),

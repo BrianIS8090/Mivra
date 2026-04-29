@@ -17,14 +17,25 @@ export const en: Translations = {
   visualMode: 'Visual',
   sourceMode: 'Source',
   
+  // Window title bar
+  untitled: 'Untitled',
+  minimize: 'Minimize',
+  maximize: 'Maximize',
+
   // Status bar
   newFile: 'New File',
-  words: ['word', 'words', 'words'] as [string, string, string],
-  chars: ['char', 'chars', 'chars'] as [string, string, string],
+  words: { one: 'word', other: 'words' },
+  chars: { one: 'char', other: 'chars' },
   
   // Editor
   placeholder: 'Start writing...',
   
+  // Dialogs
+  unsavedTitle: 'Unsaved changes',
+  unsavedMessage: 'The document has unsaved changes. Save them before continuing?',
+  discard: "Don't save",
+  cancel: 'Cancel',
+
   // About
   about: 'About',
   version: 'Version',

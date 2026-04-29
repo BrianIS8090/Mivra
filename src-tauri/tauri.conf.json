@@ -22,10 +22,10 @@
       }
     ],
     "security": {
-      "csp": null,
+      "csp": "default-src 'self' ipc: http://ipc.localhost; img-src 'self' data: blob: asset: https: http://asset.localhost https://asset.localhost; style-src 'self' 'unsafe-inline'; script-src 'self'; font-src 'self' data:; connect-src 'self' ipc: http://ipc.localhost http://asset.localhost https://asset.localhost; media-src 'self' asset: http://asset.localhost https://asset.localhost; object-src 'none'; frame-src 'none'",
       "assetProtocol": {
         "enable": true,
-        "scope": ["**"]
+        "scope": ["$HOME/**", "$DESKTOP/**", "$DOCUMENT/**", "$DOWNLOAD/**"]
       }
     }
   },

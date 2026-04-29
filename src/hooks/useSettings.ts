@@ -3,20 +3,20 @@ import { useAppStore } from '../stores/appStore';
 import * as tauri from '../utils/tauri';
 
 export function useSettings() {
-  const {
-    fontFamily,
-    fontSize,
-    theme,
-    language,
-    recentFiles,
-    pageWidth,
-    setFontFamily,
-    setFontSize,
-    setTheme,
-    setLanguage,
-    setPageWidth,
-    updateSettings,
-  } = useAppStore();
+  // Индивидуальные селекторы — компонент ререндерится только при
+  // изменении конкретных полей, которые он реально читает.
+  const fontFamily = useAppStore((s) => s.fontFamily);
+  const fontSize = useAppStore((s) => s.fontSize);
+  const theme = useAppStore((s) => s.theme);
+  const language = useAppStore((s) => s.language);
+  const recentFiles = useAppStore((s) => s.recentFiles);
+  const pageWidth = useAppStore((s) => s.pageWidth);
+  const setFontFamily = useAppStore((s) => s.setFontFamily);
+  const setFontSize = useAppStore((s) => s.setFontSize);
+  const setTheme = useAppStore((s) => s.setTheme);
+  const setLanguage = useAppStore((s) => s.setLanguage);
+  const setPageWidth = useAppStore((s) => s.setPageWidth);
+  const updateSettings = useAppStore((s) => s.updateSettings);
 
   // Загрузить настройки при монтировании
   useEffect(() => {
@@ -72,6 +72,21 @@ export function useSettings() {
     }, 500);
     return () => clearTimeout(timeout);
   }, [fontFamily, fontSize, theme, language, pageWidth, persist]);
+
+  // Принудительный flush при закрытии окна — иначе изменения за последние
+  // 500мс debounce-окна могут не сохраниться. В Tauri событие может
+  // не сработать при destroy() — в этом случае useExit перехватит закрытие.
+  useEffect(() => {
+    const onBeforeUnload = () => {
+      // sync вызов невозможен — IPC всегда async; пытаемся отправить
+      // и надеемся, что доставится до destroy
+      persist().catch(() => {
+        /* окно уже закрывается */
+      });
+    };
+    window.addEventListener('beforeunload', onBeforeUnload);
+    return () => window.removeEventListener('beforeunload', onBeforeUnload);
+  }, [persist]);
 
   return {
     fontFamily,

@@ -1,4 +1,4 @@
-import { ru, type Translations } from './ru';
+import { ru, type Translations, type PluralForms } from './ru';
 import { en } from './en';
 
 export type Language = 'ru' | 'en';
@@ -9,13 +9,11 @@ export function getTranslations(lang: Language): Translations {
   return translations[lang];
 }
 
-export function pluralize(n: number, forms: [string, string, string]): string {
-  const mod10 = n % 10;
-  const mod100 = n % 100;
-  if (mod100 >= 11 && mod100 <= 19) return forms[2];
-  if (mod10 === 1) return forms[0];
-  if (mod10 >= 2 && mod10 <= 4) return forms[1];
-  return forms[2];
+// Плюрализация через Intl.PluralRules — корректно работает для любого
+// языка, без ручного mod10/mod100.
+export function pluralize(n: number, lang: Language, forms: PluralForms): string {
+  const cat = new Intl.PluralRules(lang).select(n);
+  return forms[cat] ?? forms.other ?? '';
 }
 
-export { ru, en, type Translations };
+export { ru, en, type Translations, type PluralForms };
