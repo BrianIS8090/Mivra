@@ -344,6 +344,43 @@ export function Editor() {
     };
   }, [s3]);
 
+  // Document-level paste listener для clipboard images.
+  // Capture phase (третий аргумент true) — перехватываем событие до того,
+  // как Crepe/textarea обработают paste и преобразуют в текст.
+  useEffect(() => {
+    if (!s3.ready) return;
+
+    const onPaste = async (e: ClipboardEvent) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+
+      for (const item of items) {
+        if (item.kind !== 'file') continue;
+        if (!item.type.startsWith('image/')) continue;
+
+        const file = item.getAsFile();
+        if (!file) continue;
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        const buffer = new Uint8Array(await file.arrayBuffer());
+        const ext = ({
+          'image/png': 'png',
+          'image/jpeg': 'jpg',
+          'image/gif': 'gif',
+          'image/webp': 'webp',
+        } as Record<string, string>)[item.type] ?? 'png';
+        const filename = `clipboard-${Date.now()}.${ext}`;
+        await s3.uploadAndInsertBytes(buffer, filename);
+        return;
+      }
+    };
+
+    document.addEventListener('paste', onPaste, true);
+    return () => document.removeEventListener('paste', onPaste, true);
+  }, [s3]);
+
   // Обработка ввода в source-режиме
   const handleSourceChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
