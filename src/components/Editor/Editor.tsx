@@ -3,12 +3,15 @@ import { Crepe, CrepeFeature } from '@milkdown/crepe';
 import '@milkdown/crepe/theme/common/style.css';
 import '@milkdown/crepe/theme/frame.css';
 import { editorViewCtx } from '@milkdown/kit/core';
+import { getCurrentWindow } from '@tauri-apps/api/window';
+import { stat } from '@tauri-apps/plugin-fs';
 import { useAppStore } from '../../stores/appStore';
 import { useEditorHandle } from './EditorContext';
 import { renderMermaidPreview } from '../../utils/mermaid';
 import { resolveImageSrc } from '../../utils/paths';
 import { createHeadingBackspaceTransaction } from './headingBackspace';
 import { denormalizeMarkdownForEditor, normalizeMarkdownForSource } from './sourceMarkdown';
+import { useS3Upload } from '../../hooks/useS3Upload';
 import './editor.css';
 
 // Извлечь YAML frontmatter из markdown-контента.
@@ -100,6 +103,39 @@ export function Editor() {
   // Каждый старт async-цепочки инкрементит счётчик; результат игнорируется,
   // если за время destroy/create счётчик ушёл вперёд.
   const genRef = useRef(0);
+
+  const setContentLocal = useAppStore((s) => s.setContent);
+
+  // Колбэк для useS3Upload — вставляет markdown в текущую позицию курсора
+  // (визуальный или source режим). В visual-режиме делаем простую append-вставку
+  // в конец content — Crepe пересоздастся через content-change effect.
+  const insertAtCursor = useCallback(
+    (name: string, url: string, isImage: boolean) => {
+      const text = isImage ? `![${name}](${url})\n` : `[${name}](${url})\n`;
+      if (editorMode === 'source') {
+        const ta = handleRef.current.sourceTextarea;
+        if (!ta) return;
+        const start = ta.selectionStart ?? ta.value.length;
+        const next = ta.value.slice(0, start) + text + ta.value.slice(start);
+        setContentLocal(next);
+        requestAnimationFrame(() => {
+          ta.focus();
+          ta.setSelectionRange(start + text.length, start + text.length);
+        });
+      } else {
+        const editor = handleRef.current.editor;
+        if (!editor) return;
+        // Для visual режима используем простую вставку через setContent — Crepe
+        // пересоздастся через content-change effect (уже есть в этом файле).
+        const current = contentRef.current;
+        const newContent = current + (current.endsWith('\n') ? '' : '\n') + text;
+        setContentLocal(newContent);
+      }
+    },
+    [editorMode, handleRef, setContentLocal],
+  );
+
+  const s3 = useS3Upload(insertAtCursor);
 
   // Создание экземпляра Crepe
   const buildCrepe = useCallback((root: HTMLElement, value: string, currentBaseDir: string | null) => {
@@ -279,6 +315,34 @@ export function Editor() {
       containerRef.current.style.setProperty('--page-max-width', `${pageWidth}px`);
     }
   }, [pageWidth]);
+
+  // Подписка на нативный Tauri drag-drop — перехватывает drop файлов в окно
+  // и загружает их в S3 (если S3 настроен и Secret в keyring).
+  useEffect(() => {
+    if (!s3.ready) return;
+    let unlisten: (() => void) | undefined;
+    let cancelled = false;
+
+    const win = getCurrentWindow();
+    win.onDragDropEvent(async (event) => {
+      if (event.payload.type !== 'drop') return;
+      const paths = event.payload.paths;
+      for (let i = 0; i < paths.length; i++) {
+        const path = paths[i];
+        const filename = path.split(/[\\/]/).pop() ?? path;
+        let size: number | undefined;
+        try { size = (await stat(path)).size; } catch { size = undefined; }
+        await s3.uploadAndInsertFile(path, filename, size);
+      }
+    }).then((u) => {
+      if (cancelled) u(); else unlisten = u;
+    });
+
+    return () => {
+      cancelled = true;
+      unlisten?.();
+    };
+  }, [s3]);
 
   // Обработка ввода в source-режиме
   const handleSourceChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
