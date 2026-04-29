@@ -13,12 +13,33 @@ export const commands = {
 	// Чтение файла по пути (для открытия через ассоциацию файлов)
 	readFile: (path: string) => typedError<string, string>(__TAURI_INVOKE("read_file", { path })),
 	getPendingFile: () => __TAURI_INVOKE<string | null>("get_pending_file"),
+	// Сохранить Secret Access Key в системный keyring.
+	s3SetSecret: (secret: string) => typedError<null, string>(__TAURI_INVOKE("s3_set_secret", { secret })),
+	// Удалить Secret Access Key из системного keyring.
+	s3ClearSecret: () => typedError<null, string>(__TAURI_INVOKE("s3_clear_secret")),
+	// Проверить, сохранён ли Secret Access Key в keyring.
+	s3SecretExists: () => typedError<boolean, string>(__TAURI_INVOKE("s3_secret_exists")),
+	// Проверить соединение с S3-хранилищем (HEAD-запрос на bucket).
+	s3TestConnection: (config: S3Config) => typedError<null, string>(__TAURI_INVOKE("s3_test_connection", { config })),
+	// Загрузить файл с диска в S3 и вернуть публичный URL.
+	s3UploadFile: (localPath: string, originalFilename: string, config: S3Config) => typedError<string, string>(__TAURI_INVOKE("s3_upload_file", { localPath, originalFilename, config })),
+	// Загрузить байты в S3 и вернуть публичный URL.
+	s3UploadBytes: (bytes: number[], originalFilename: string, config: S3Config) => typedError<string, string>(__TAURI_INVOKE("s3_upload_bytes", { bytes, originalFilename, config })),
 };
 
 /* Types */
 export type FileData = {
 	path: string,
 	content: string,
+};
+
+export type S3Config = {
+	endpoint: string,
+	region: string,
+	bucket: string,
+	access_key_id: string,
+	public_url_prefix: string | null,
+	path_prefix: string | null,
 };
 
 export type Settings = {
@@ -28,6 +49,7 @@ export type Settings = {
 	language?: string,
 	recent_files?: string[],
 	page_width?: number,
+	s3?: S3Config | null,
 };
 
 /* Tauri Specta runtime */

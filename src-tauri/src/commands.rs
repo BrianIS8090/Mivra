@@ -1,3 +1,4 @@
+use crate::s3::{self, S3Config};
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use std::fs;
@@ -26,6 +27,8 @@ pub struct Settings {
   pub recent_files: Vec<String>,
   #[serde(default = "default_page_width")]
   pub page_width: f32,
+  #[serde(default)]
+  pub s3: Option<S3Config>,
 }
 
 fn default_font_family() -> String {
@@ -57,6 +60,7 @@ impl Default for Settings {
       language: default_language(),
       recent_files: Vec::new(),
       page_width: default_page_width(),
+      s3: None,
     }
   }
 }
@@ -214,6 +218,61 @@ pub async fn get_recent_files(app: tauri::AppHandle) -> Result<Vec<String>, Stri
 #[specta::specta]
 pub async fn read_file(path: String) -> Result<String, String> {
   fs::read_to_string(&path).map_err(|e| format!("Ошибка чтения файла: {}", e))
+}
+
+// === S3-команды ===
+
+/// Сохранить Secret Access Key в системный keyring.
+#[tauri::command]
+#[specta::specta]
+pub async fn s3_set_secret(secret: String) -> Result<(), String> {
+  s3::set_secret(&secret)
+}
+
+/// Удалить Secret Access Key из системного keyring.
+#[tauri::command]
+#[specta::specta]
+pub async fn s3_clear_secret() -> Result<(), String> {
+  s3::delete_secret()
+}
+
+/// Проверить, сохранён ли Secret Access Key в keyring.
+#[tauri::command]
+#[specta::specta]
+pub async fn s3_secret_exists() -> Result<bool, String> {
+  s3::secret_exists()
+}
+
+/// Проверить соединение с S3-хранилищем (HEAD-запрос на bucket).
+#[tauri::command]
+#[specta::specta]
+pub async fn s3_test_connection(config: S3Config) -> Result<(), String> {
+  let secret = s3::get_secret().map_err(|_| "secret_not_set".to_string())?;
+  s3::test_connection_with_secret(&config, &secret).await
+}
+
+/// Загрузить файл с диска в S3 и вернуть публичный URL.
+#[tauri::command]
+#[specta::specta]
+pub async fn s3_upload_file(
+  local_path: String,
+  original_filename: String,
+  config: S3Config,
+) -> Result<String, String> {
+  let secret = s3::get_secret().map_err(|_| "secret_not_set".to_string())?;
+  s3::upload_file_with_secret(&config, &secret, &local_path, &original_filename).await
+}
+
+/// Загрузить байты в S3 и вернуть публичный URL.
+#[tauri::command]
+#[specta::specta]
+pub async fn s3_upload_bytes(
+  bytes: Vec<u8>,
+  original_filename: String,
+  config: S3Config,
+) -> Result<String, String> {
+  let secret = s3::get_secret().map_err(|_| "secret_not_set".to_string())?;
+  s3::upload_bytes_with_secret(&config, &secret, bytes, &original_filename).await
 }
 
 #[cfg(test)]
