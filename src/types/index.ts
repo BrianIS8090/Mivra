@@ -22,6 +22,7 @@ export interface AppState {
   editorMode: EditorMode;
   recentFiles: string[];
   pageWidth: number;
+  s3: S3Config | null;
 
   // Действия
   setContent: (content: string) => void;
@@ -36,5 +37,6 @@ export interface AppState {
   setEditorMode: (mode: EditorMode) => void;
   setRecentFiles: (files: string[]) => void;
   setPageWidth: (pageWidth: number) => void;
+  setS3Config: (config: S3Config | null) => void;
   updateSettings: (settings: Partial<Settings>) => void;
 }

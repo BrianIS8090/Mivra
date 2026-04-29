@@ -19,6 +19,7 @@ export const useAppStore = create<AppState>((set) => ({
   editorMode: 'visual',
   recentFiles: [],
   pageWidth: 816,
+  s3: null,
 
   // Действия
   setContent: (content) => set((state) =>
@@ -36,6 +37,7 @@ export const useAppStore = create<AppState>((set) => ({
   setEditorMode: (editorMode) => set({ editorMode }),
   setRecentFiles: (recentFiles) => set({ recentFiles }),
   setPageWidth: (pageWidth) => set({ pageWidth }),
+  setS3Config: (s3) => set({ s3 }),
   updateSettings: (settings: Partial<Settings>) => set((state) => ({
     fontFamily: settings.font_family ?? state.fontFamily,
     fontSize: settings.font_size ?? state.fontSize,
@@ -46,5 +48,8 @@ export const useAppStore = create<AppState>((set) => ({
     language: (settings.language as Language | undefined) ?? state.language,
     recentFiles: settings.recent_files ?? state.recentFiles,
     pageWidth: settings.page_width ?? state.pageWidth,
+    // Семантика ??: undefined из bindings → не трогаем, явный null → очищаем
+    // через setS3Config (т.к. ?? для null также возьмёт правую сторону).
+    s3: settings.s3 ?? state.s3,
   })),
 }));
