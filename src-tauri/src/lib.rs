@@ -10,7 +10,11 @@ struct PendingFilePath(Mutex<Option<String>>);
 
 #[tauri::command]
 fn get_pending_file(state: State<PendingFilePath>) -> Option<String> {
-  state.0.lock().unwrap().take()
+  // Если другой поток запаникует, удерживая мьютекс — не паникуем здесь сами,
+  // а восстанавливаем доступ через into_inner. Команда не критична: если
+  // что-то пошло не так, безопаснее вернуть None.
+  let mut guard = state.0.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+  guard.take()
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]

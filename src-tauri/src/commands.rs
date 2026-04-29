@@ -59,19 +59,32 @@ impl Default for Settings {
   }
 }
 
-/// Получить путь к файлу настроек в AppData
-fn settings_path(app: &tauri::AppHandle) -> PathBuf {
+/// Получить путь к файлу настроек в AppData.
+/// Возвращает Result вместо паники: если AppData недоступен (антивирус,
+/// проблемы с профилем), команда просто вернёт ошибку фронту.
+fn settings_path(app: &tauri::AppHandle) -> Result<PathBuf, String> {
   let config_dir = app
     .path()
     .app_config_dir()
-    .expect("Не удалось получить директорию конфигурации");
-  fs::create_dir_all(&config_dir).ok();
-  config_dir.join("settings.json")
+    .map_err(|e| format!("Не удалось получить директорию конфигурации: {}", e))?;
+  fs::create_dir_all(&config_dir)
+    .map_err(|e| format!("Не удалось создать директорию конфигурации: {}", e))?;
+  Ok(config_dir.join("settings.json"))
 }
 
-/// Добавить файл в список недавних (максимум 10)
-fn add_to_recent(app: &tauri::AppHandle, path: &str) {
-  let settings_file = settings_path(app);
+/// Атомарная запись файла: пишем во временный файл и переименовываем.
+/// Защищает от частично-записанного settings.json при сбое или гонке.
+fn atomic_write(path: &std::path::Path, content: &str) -> Result<(), String> {
+  let tmp = path.with_extension("json.tmp");
+  fs::write(&tmp, content).map_err(|e| format!("Ошибка записи временного файла: {}", e))?;
+  fs::rename(&tmp, path).map_err(|e| format!("Ошибка переименования файла: {}", e))?;
+  Ok(())
+}
+
+/// Добавить файл в список недавних (максимум 10).
+/// Возвращает Result, чтобы вызывающий мог решить, прерывать ли операцию.
+fn add_to_recent(app: &tauri::AppHandle, path: &str) -> Result<(), String> {
+  let settings_file = settings_path(app)?;
   let mut settings = if settings_file.exists() {
     let data = fs::read_to_string(&settings_file).unwrap_or_default();
     serde_json::from_str::<Settings>(&data).unwrap_or_default()
@@ -84,9 +97,9 @@ fn add_to_recent(app: &tauri::AppHandle, path: &str) {
   settings.recent_files.insert(0, path.to_string());
   settings.recent_files.truncate(10);
 
-  if let Ok(json) = serde_json::to_string_pretty(&settings) {
-    fs::write(&settings_file, json).ok();
-  }
+  let json = serde_json::to_string_pretty(&settings)
+    .map_err(|e| format!("Ошибка сериализации настроек: {}", e))?;
+  atomic_write(&settings_file, &json)
 }
 
 #[tauri::command]
@@ -105,7 +118,10 @@ pub async fn open_file(app: tauri::AppHandle) -> Result<FileData, String> {
       let path = path_buf.to_string_lossy().to_string();
       let content =
         fs::read_to_string(&path).map_err(|e| format!("Ошибка чтения файла: {}", e))?;
-      add_to_recent(&app, &path);
+      // Не блокируем открытие из-за проблем с recent-files — просто логируем
+      if let Err(e) = add_to_recent(&app, &path) {
+        eprintln!("[recent_files] не удалось обновить список: {}", e);
+      }
       Ok(FileData { path, content })
     }
     None => Err("Файл не выбран".to_string()),
@@ -134,7 +150,9 @@ pub async fn save_file_as(app: tauri::AppHandle, content: String) -> Result<Opti
         .map_err(|e| format!("Некорректный путь: {}", e))?;
       let path = path_buf.to_string_lossy().to_string();
       fs::write(&path, &content).map_err(|e| format!("Ошибка сохранения: {}", e))?;
-      add_to_recent(&app, &path);
+      if let Err(e) = add_to_recent(&app, &path) {
+        eprintln!("[recent_files] не удалось обновить список: {}", e);
+      }
       Ok(Some(path))
     }
     None => Ok(None),
@@ -143,7 +161,7 @@ pub async fn save_file_as(app: tauri::AppHandle, content: String) -> Result<Opti
 
 #[tauri::command]
 pub async fn read_settings(app: tauri::AppHandle) -> Result<Settings, String> {
-  let path = settings_path(&app);
+  let path = settings_path(&app)?;
   if path.exists() {
     let data =
       fs::read_to_string(&path).map_err(|e| format!("Ошибка чтения настроек: {}", e))?;
@@ -157,10 +175,10 @@ pub async fn read_settings(app: tauri::AppHandle) -> Result<Settings, String> {
 
 #[tauri::command]
 pub async fn write_settings(app: tauri::AppHandle, settings: Settings) -> Result<bool, String> {
-  let path = settings_path(&app);
+  let path = settings_path(&app)?;
   let json =
     serde_json::to_string_pretty(&settings).map_err(|e| format!("Ошибка сериализации: {}", e))?;
-  fs::write(&path, json).map_err(|e| format!("Ошибка записи настроек: {}", e))?;
+  atomic_write(&path, &json)?;
   Ok(true)
 }
 
