@@ -98,6 +98,100 @@ pub fn secret_exists() -> Result<bool, String> {
   secret_exists_raw(KEYRING_USERNAME)
 }
 
+use s3::bucket::Bucket;
+use s3::creds::Credentials;
+use s3::region::Region;
+use std::time::Duration;
+
+#[cfg(not(test))]
+const RETRY_DELAYS_MS: &[u64] = &[1000, 2000, 4000];
+#[cfg(test)]
+const RETRY_DELAYS_MS: &[u64] = &[10, 20, 40];
+
+const MAX_ATTEMPTS: usize = 3;
+
+fn build_bucket(config: &S3Config, secret: &str) -> Result<Bucket, String> {
+  let credentials = Credentials::new(
+    Some(&config.access_key_id),
+    Some(secret),
+    None,
+    None,
+    None,
+  )
+  .map_err(|e| format!("Ошибка credentials: {}", e))?;
+
+  let region = Region::Custom {
+    region: config.region.clone(),
+    endpoint: config.endpoint.clone(),
+  };
+
+  let bucket = Bucket::new(&config.bucket, region, credentials)
+    .map_err(|e| format!("Ошибка инициализации bucket: {}", e))?
+    .with_path_style();
+
+  Ok(*bucket)
+}
+
+fn classify_error_status(status: u16) -> bool {
+  // true → стоит ретраить
+  status >= 500 || status == 0
+}
+
+pub async fn upload_bytes_with_secret(
+  config: &S3Config,
+  secret: &str,
+  bytes: Vec<u8>,
+  original_filename: &str,
+) -> Result<String, String> {
+  let bucket = build_bucket(config, secret)?;
+  let sanitized = sanitize_filename(original_filename);
+  let id = uuid::Uuid::new_v4().to_string();
+  let key = build_key(config.path_prefix.as_deref(), &id, &sanitized);
+
+  let content_type = mime_guess::from_path(&sanitized)
+    .first_or_octet_stream()
+    .to_string();
+
+  let mut last_err: Option<String> = None;
+  for attempt in 0..MAX_ATTEMPTS {
+    if attempt > 0 {
+      tokio::time::sleep(Duration::from_millis(RETRY_DELAYS_MS[attempt - 1])).await;
+    }
+
+    let result = bucket
+      .put_object_with_content_type(&key, &bytes, &content_type)
+      .await;
+
+    match result {
+      Ok(response) => {
+        let status = response.status_code();
+        if (200..300).contains(&status) {
+          return Ok(derive_public_url(config, &key));
+        }
+        if !classify_error_status(status) {
+          return Err(format!("HTTP {}: {}", status, String::from_utf8_lossy(response.bytes())));
+        }
+        last_err = Some(format!("HTTP {}", status));
+      }
+      Err(e) => {
+        last_err = Some(format!("network: {}", e));
+      }
+    }
+  }
+
+  Err(last_err.unwrap_or_else(|| "Неизвестная ошибка загрузки".to_string()))
+}
+
+pub async fn upload_file_with_secret(
+  config: &S3Config,
+  secret: &str,
+  local_path: &str,
+  original_filename: &str,
+) -> Result<String, String> {
+  let bytes = std::fs::read(local_path).map_err(|e| format!("Ошибка чтения файла: {}", e))?;
+  upload_bytes_with_secret(config, secret, bytes, original_filename).await
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;
@@ -211,5 +305,81 @@ mod tests {
     // Первое удаление пустого слота — допустимо вернуть Ok или специфичный Err;
     // важно, чтобы не паниковало.
     let _ = delete_secret_raw(&username);
+  }
+
+  use wiremock::matchers::method;
+  use wiremock::{Mock, MockServer, ResponseTemplate};
+
+  fn test_config(endpoint: String) -> S3Config {
+    S3Config {
+      endpoint,
+      region: "us-east-1".to_string(),
+      bucket: "test-bucket".to_string(),
+      access_key_id: "test-key".to_string(),
+      public_url_prefix: None,
+      path_prefix: None,
+    }
+  }
+
+  #[tokio::test]
+  async fn upload_bytes_succeeds_on_200() {
+    let server = MockServer::start().await;
+    Mock::given(method("PUT"))
+      .respond_with(ResponseTemplate::new(200))
+      .mount(&server)
+      .await;
+
+    let config = test_config(server.uri());
+    let url = upload_bytes_with_secret(&config, "test_secret", b"hello".to_vec(), "test.txt")
+      .await
+      .expect("upload should succeed");
+    assert!(url.ends_with("test.txt"));
+    assert!(url.contains("test-bucket"));
+  }
+
+  #[tokio::test]
+  async fn upload_bytes_fails_on_403_without_retry() {
+    let server = MockServer::start().await;
+    Mock::given(method("PUT"))
+      .respond_with(ResponseTemplate::new(403))
+      .expect(1)
+      .mount(&server)
+      .await;
+
+    let config = test_config(server.uri());
+    let result = upload_bytes_with_secret(&config, "secret", b"x".to_vec(), "f.txt").await;
+    assert!(result.is_err(), "403 should fail");
+  }
+
+  #[tokio::test]
+  async fn upload_bytes_retries_on_500_then_succeeds() {
+    let server = MockServer::start().await;
+    Mock::given(method("PUT"))
+      .respond_with(ResponseTemplate::new(500))
+      .up_to_n_times(2)
+      .mount(&server)
+      .await;
+    Mock::given(method("PUT"))
+      .respond_with(ResponseTemplate::new(200))
+      .mount(&server)
+      .await;
+
+    let config = test_config(server.uri());
+    let result = upload_bytes_with_secret(&config, "secret", b"x".to_vec(), "f.txt").await;
+    assert!(result.is_ok(), "should succeed after retry");
+  }
+
+  #[tokio::test]
+  async fn upload_bytes_fails_after_three_500s() {
+    let server = MockServer::start().await;
+    Mock::given(method("PUT"))
+      .respond_with(ResponseTemplate::new(500))
+      .expect(3)
+      .mount(&server)
+      .await;
+
+    let config = test_config(server.uri());
+    let result = upload_bytes_with_secret(&config, "secret", b"x".to_vec(), "f.txt").await;
+    assert!(result.is_err(), "should fail after 3 retries");
   }
 }
