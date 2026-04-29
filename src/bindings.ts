@@ -25,6 +25,17 @@ export const commands = {
 	s3UploadFile: (localPath: string, originalFilename: string, config: S3Config) => typedError<string, string>(__TAURI_INVOKE("s3_upload_file", { localPath, originalFilename, config })),
 	// Загрузить байты в S3 и вернуть публичный URL.
 	s3UploadBytes: (bytes: number[], originalFilename: string, config: S3Config) => typedError<string, string>(__TAURI_INVOKE("s3_upload_bytes", { bytes, originalFilename, config })),
+	/**
+	 *  Сохранить локальный файл в {base_dir}/assets/. Возвращает относительный путь
+	 *  от base_dir для вставки в markdown (например, "assets/screenshot.png").
+	 *  Используется как fallback для drag&drop, когда S3 не настроен или не прошёл тест.
+	 */
+	saveLocalAssetFile: (localPath: string, baseDir: string, targetName: string) => typedError<string, string>(__TAURI_INVOKE("save_local_asset_file", { localPath, baseDir, targetName })),
+	/**
+	 *  Сохранить байты (например, картинка из буфера) в {base_dir}/assets/.
+	 *  Возвращает относительный путь от base_dir для вставки в markdown.
+	 */
+	saveLocalAssetBytes: (bytes: number[], baseDir: string, targetName: string) => typedError<string, string>(__TAURI_INVOKE("save_local_asset_bytes", { bytes, baseDir, targetName })),
 };
 
 /* Types */

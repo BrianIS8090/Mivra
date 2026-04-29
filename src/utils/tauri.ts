@@ -92,3 +92,23 @@ export async function s3UploadBytes(
   // Tauri 2 принимает Uint8Array как Vec<u8> через числовой массив
   return unwrap(commands.s3UploadBytes(Array.from(bytes), originalFilename, config));
 }
+
+// Скопировать локальный файл в {baseDir}/assets/. Возвращает относительный путь.
+// Используется как fallback для drag&drop, когда S3 не настроен/не verified.
+export async function saveLocalAssetFile(
+  localPath: string,
+  baseDir: string,
+  targetName: string,
+): Promise<string> {
+  return unwrap(commands.saveLocalAssetFile(localPath, baseDir, targetName));
+}
+
+// Сохранить байты (картинка из буфера) в {baseDir}/assets/. Возвращает
+// относительный путь. Fallback для paste, когда S3 не настроен/не verified.
+export async function saveLocalAssetBytes(
+  bytes: Uint8Array,
+  baseDir: string,
+  targetName: string,
+): Promise<string> {
+  return unwrap(commands.saveLocalAssetBytes(Array.from(bytes), baseDir, targetName));
+}

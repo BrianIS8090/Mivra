@@ -36,11 +36,17 @@ function nameWithoutExt(name: string): string {
   return i >= 0 ? name.slice(0, i) : name;
 }
 
-// Хук S3-загрузки. ready=true когда S3 настроен и Secret сохранён в keyring.
+// Хук S3-загрузки. ready=true когда:
+//   - S3 настроен (config заполнен в settings)
+//   - Secret сохранён в keyring
+//   - Последний «Тест соединения» при сохранении прошёл успешно (s3Verified)
+// Без verified мы не пытаемся грузить — это предотвращает «попыточную» загрузку
+// с непроверенными ключами и фейлы посреди операции.
 // uploadAndInsertBytes — загрузка из буфера обмена/drag-and-drop байтов.
 // uploadAndInsertFile — загрузка по локальному пути (drag-and-drop файла).
 export function useS3Upload(onInsert?: InsertCallback) {
   const s3 = useAppStore((s) => s.s3);
+  const s3Verified = useAppStore((s) => s.s3Verified);
   const [secretExists, setSecretExists] = useState(false);
   const toast = useToast();
 
@@ -56,7 +62,7 @@ export function useS3Upload(onInsert?: InsertCallback) {
     return () => { cancelled = true; };
   }, [s3]);
 
-  const ready = !!s3 && secretExists;
+  const ready = !!s3 && secretExists && s3Verified;
 
   const uploadAndInsertBytes = useCallback(
     async (bytes: Uint8Array, originalFilename: string) => {

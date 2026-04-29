@@ -10,7 +10,7 @@ const mockedInvoke = vi.mocked(invoke);
 describe('useS3Upload', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    useAppStore.setState({ s3: null });
+    useAppStore.setState({ s3: null, s3Verified: false });
     useToastStore.setState({ toasts: [] });
   });
 
@@ -23,7 +23,7 @@ describe('useS3Upload', () => {
     expect(result.current.ready).toBe(false);
   });
 
-  it('ready=true когда s3 настроен и secret существует', async () => {
+  it('ready=true когда s3 настроен, secret существует и тест соединения прошёл', async () => {
     useAppStore.setState({
       s3: {
         endpoint: 'https://s3.test',
@@ -33,6 +33,7 @@ describe('useS3Upload', () => {
         public_url_prefix: null,
         path_prefix: null,
       },
+      s3Verified: true,
     });
     mockedInvoke.mockResolvedValue(true);
 
@@ -41,12 +42,32 @@ describe('useS3Upload', () => {
     expect(result.current.ready).toBe(true);
   });
 
+  it('ready=false если s3 настроен, secret есть, но verified=false', async () => {
+    useAppStore.setState({
+      s3: {
+        endpoint: 'https://s3.test',
+        region: 'r1',
+        bucket: 'b',
+        access_key_id: 'k',
+        public_url_prefix: null,
+        path_prefix: null,
+      },
+      s3Verified: false,
+    });
+    mockedInvoke.mockResolvedValue(true);
+
+    const { result } = renderHook(() => useS3Upload());
+    await act(() => Promise.resolve());
+    expect(result.current.ready).toBe(false);
+  });
+
   it('uploadAndInsertBytes вызывает s3_upload_bytes IPC', async () => {
     useAppStore.setState({
       s3: {
         endpoint: 'https://s3.test', region: 'r1', bucket: 'b',
         access_key_id: 'k', public_url_prefix: null, path_prefix: null,
       },
+      s3Verified: true,
     });
     // первый вызов — secret_exists, второй — upload_bytes
     mockedInvoke
@@ -73,6 +94,7 @@ describe('useS3Upload', () => {
         endpoint: 'https://s3.test', region: 'r1', bucket: 'b',
         access_key_id: 'k', public_url_prefix: null, path_prefix: null,
       },
+      s3Verified: true,
     });
     mockedInvoke
       .mockResolvedValueOnce(true)

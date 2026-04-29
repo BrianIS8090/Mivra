@@ -12,7 +12,33 @@ import { resolveImageSrc } from '../../utils/paths';
 import { createHeadingBackspaceTransaction } from './headingBackspace';
 import { denormalizeMarkdownForEditor, normalizeMarkdownForSource } from './sourceMarkdown';
 import { useS3Upload } from '../../hooks/useS3Upload';
+import { useToast } from '../../hooks/useToast';
+import * as tauri from '../../utils/tauri';
 import './editor.css';
+
+// Whitelist расширений — те же, что в useS3Upload, но дублируем здесь
+// для local-fallback (не хочется тащить логику фильтрации из чужого хука).
+const LOCAL_IMG_EXTS = new Set([
+  'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp',
+  'apng', 'avif', 'tiff', 'tif', 'heic',
+]);
+const LOCAL_DOC_EXTS = new Set(['pdf', 'zip', 'mp4', 'webm']);
+
+function localExtOf(name: string): string {
+  const i = name.lastIndexOf('.');
+  return i >= 0 ? name.slice(i + 1).toLowerCase() : '';
+}
+function localIsAccepted(name: string): boolean {
+  const ext = localExtOf(name);
+  return LOCAL_IMG_EXTS.has(ext) || LOCAL_DOC_EXTS.has(ext);
+}
+function localIsImage(name: string): boolean {
+  return LOCAL_IMG_EXTS.has(localExtOf(name));
+}
+function localNameWithoutExt(name: string): string {
+  const i = name.lastIndexOf('.');
+  return i >= 0 ? name.slice(0, i) : name;
+}
 
 // Извлечь YAML frontmatter из markdown-контента.
 // Возвращает [frontmatter с разделителями, тело без frontmatter].
@@ -316,10 +342,13 @@ export function Editor() {
     }
   }, [pageWidth]);
 
-  // Подписка на нативный Tauri drag-drop — перехватывает drop файлов в окно
-  // и загружает их в S3 (если S3 настроен и Secret в keyring).
+  const toast = useToast();
+
+  // Подписка на нативный Tauri drag-drop. Если S3 настроен И прошёл verified —
+  // грузим в облако. Иначе (S3 не настроен / непроверен / ошибка) — копируем
+  // в {baseDir}/assets/ как локальный ассет. Если документ ещё не сохранён
+  // (нет baseDir) — показываем подсказку: пользователь должен сохранить файл.
   useEffect(() => {
-    if (!s3.ready) return;
     let unlisten: (() => void) | undefined;
     let cancelled = false;
 
@@ -332,7 +361,28 @@ export function Editor() {
         const filename = path.split(/[\\/]/).pop() ?? path;
         let size: number | undefined;
         try { size = (await stat(path)).size; } catch { size = undefined; }
-        await s3.uploadAndInsertFile(path, filename, size);
+
+        if (s3.ready) {
+          await s3.uploadAndInsertFile(path, filename, size);
+          continue;
+        }
+
+        // Локальный fallback
+        if (!localIsAccepted(filename)) {
+          toast.show(`${filename}: расширение не поддерживается`, 'error');
+          continue;
+        }
+        const baseDir = useAppStore.getState().baseDir;
+        if (!baseDir) {
+          toast.show('Сохраните документ, чтобы добавлять локальные файлы', 'info');
+          continue;
+        }
+        try {
+          const relative = await tauri.saveLocalAssetFile(path, baseDir, filename);
+          insertAtCursor(localNameWithoutExt(filename), relative, localIsImage(filename));
+        } catch (e) {
+          toast.show(`${filename}: ${e}`, 'error');
+        }
       }
     }).then((u) => {
       if (cancelled) u(); else unlisten = u;
@@ -342,14 +392,13 @@ export function Editor() {
       cancelled = true;
       unlisten?.();
     };
-  }, [s3]);
+  }, [s3, toast, insertAtCursor]);
 
   // Document-level paste listener для clipboard images.
-  // Capture phase (третий аргумент true) — перехватываем событие до того,
-  // как Crepe/textarea обработают paste и преобразуют в текст.
+  // Capture phase (true) — перехватываем до Crepe/textarea чтобы избежать
+  // вставки картинки как dataURL в источник. Если S3 настроен и verified —
+  // грузим в облако; иначе сохраняем в {baseDir}/assets/.
   useEffect(() => {
-    if (!s3.ready) return;
-
     const onPaste = async (e: ClipboardEvent) => {
       const items = e.clipboardData?.items;
       if (!items) return;
@@ -360,6 +409,17 @@ export function Editor() {
 
         const file = item.getAsFile();
         if (!file) continue;
+
+        // Решение, обработать ли paste локально, ДО preventDefault — чтобы
+        // в случае «нет baseDir» Crepe смог обработать paste своим способом
+        // (вставить как dataURL/atom). Для обоих success-веток мы перехватываем.
+        const baseDir = useAppStore.getState().baseDir;
+        if (!s3.ready && !baseDir) {
+          toast.show('Сохраните документ, чтобы вставлять из буфера', 'info');
+          e.preventDefault();
+          e.stopPropagation();
+          return;
+        }
 
         e.preventDefault();
         e.stopPropagation();
@@ -372,14 +432,26 @@ export function Editor() {
           'image/webp': 'webp',
         } as Record<string, string>)[item.type] ?? 'png';
         const filename = `clipboard-${Date.now()}.${ext}`;
-        await s3.uploadAndInsertBytes(buffer, filename);
+
+        if (s3.ready) {
+          await s3.uploadAndInsertBytes(buffer, filename);
+          return;
+        }
+
+        // Локальный fallback (baseDir гарантированно есть из проверки выше)
+        try {
+          const relative = await tauri.saveLocalAssetBytes(buffer, baseDir!, filename);
+          insertAtCursor(localNameWithoutExt(filename), relative, true);
+        } catch (err) {
+          toast.show(`${filename}: ${err}`, 'error');
+        }
         return;
       }
     };
 
     document.addEventListener('paste', onPaste, true);
     return () => document.removeEventListener('paste', onPaste, true);
-  }, [s3]);
+  }, [s3, toast, insertAtCursor]);
 
   // Обработка ввода в source-режиме
   const handleSourceChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {

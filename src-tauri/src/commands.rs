@@ -226,6 +226,67 @@ pub async fn read_file(path: String) -> Result<String, String> {
   fs::read_to_string(&path).map_err(|e| format!("Ошибка чтения файла: {}", e))
 }
 
+/// Подобрать уникальное имя файла в директории. Если name свободен — он же.
+/// Иначе пробуем «name (1).ext», «name (2).ext», ... до 999.
+fn unique_filename(dir: &std::path::Path, original: &str) -> String {
+  if !dir.join(original).exists() {
+    return original.to_string();
+  }
+  let (stem, ext) = match original.rsplit_once('.') {
+    Some((s, e)) => (s.to_string(), format!(".{}", e)),
+    None => (original.to_string(), String::new()),
+  };
+  for i in 1..1000 {
+    let candidate = format!("{} ({}){}", stem, i, ext);
+    if !dir.join(&candidate).exists() {
+      return candidate;
+    }
+  }
+  // Маловероятно: 1000 коллизий — возвращаем уникальное по timestamp
+  let ts = std::time::SystemTime::now()
+    .duration_since(std::time::UNIX_EPOCH)
+    .map(|d| d.as_millis())
+    .unwrap_or(0);
+  format!("{}-{}{}", stem, ts, ext)
+}
+
+/// Сохранить локальный файл в {base_dir}/assets/. Возвращает относительный путь
+/// от base_dir для вставки в markdown (например, "assets/screenshot.png").
+/// Используется как fallback для drag&drop, когда S3 не настроен или не прошёл тест.
+#[tauri::command]
+#[specta::specta]
+pub async fn save_local_asset_file(
+  local_path: String,
+  base_dir: String,
+  target_name: String,
+) -> Result<String, String> {
+  let assets_dir = std::path::Path::new(&base_dir).join("assets");
+  fs::create_dir_all(&assets_dir)
+    .map_err(|e| format!("Не удалось создать директорию assets/: {}", e))?;
+  let unique_name = unique_filename(&assets_dir, &target_name);
+  let dest = assets_dir.join(&unique_name);
+  fs::copy(&local_path, &dest).map_err(|e| format!("Ошибка копирования файла: {}", e))?;
+  Ok(format!("assets/{}", unique_name))
+}
+
+/// Сохранить байты (например, картинка из буфера) в {base_dir}/assets/.
+/// Возвращает относительный путь от base_dir для вставки в markdown.
+#[tauri::command]
+#[specta::specta]
+pub async fn save_local_asset_bytes(
+  bytes: Vec<u8>,
+  base_dir: String,
+  target_name: String,
+) -> Result<String, String> {
+  let assets_dir = std::path::Path::new(&base_dir).join("assets");
+  fs::create_dir_all(&assets_dir)
+    .map_err(|e| format!("Не удалось создать директорию assets/: {}", e))?;
+  let unique_name = unique_filename(&assets_dir, &target_name);
+  let dest = assets_dir.join(&unique_name);
+  fs::write(&dest, bytes).map_err(|e| format!("Ошибка записи файла: {}", e))?;
+  Ok(format!("assets/{}", unique_name))
+}
+
 // === S3-команды ===
 
 /// Сохранить Secret Access Key в системный keyring.
