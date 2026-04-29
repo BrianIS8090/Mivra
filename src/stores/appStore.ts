@@ -20,6 +20,7 @@ export const useAppStore = create<AppState>((set) => ({
   recentFiles: [],
   pageWidth: 816,
   s3: null,
+  s3Verified: false,
 
   // Действия
   setContent: (content) => set((state) =>
@@ -37,7 +38,10 @@ export const useAppStore = create<AppState>((set) => ({
   setEditorMode: (editorMode) => set({ editorMode }),
   setRecentFiles: (recentFiles) => set({ recentFiles }),
   setPageWidth: (pageWidth) => set({ pageWidth }),
-  setS3Config: (s3) => set({ s3 }),
+  // Любое изменение конфига S3 автоматически инвалидирует verified-флаг,
+  // чтобы кнопка S3 в Toolbar не горела зелёным с устаревшими данными.
+  setS3Config: (s3) => set({ s3, s3Verified: false }),
+  setS3Verified: (s3Verified) => set({ s3Verified }),
   updateSettings: (settings: Partial<Settings>) => set((state) => ({
     fontFamily: settings.font_family ?? state.fontFamily,
     fontSize: settings.font_size ?? state.fontSize,
@@ -51,5 +55,6 @@ export const useAppStore = create<AppState>((set) => ({
     // Семантика ??: undefined из bindings → не трогаем, явный null → очищаем
     // через setS3Config (т.к. ?? для null также возьмёт правую сторону).
     s3: settings.s3 ?? state.s3,
+    s3Verified: settings.s3_verified ?? state.s3Verified,
   })),
 }));

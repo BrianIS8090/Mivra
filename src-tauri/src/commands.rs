@@ -29,6 +29,11 @@ pub struct Settings {
   pub page_width: f32,
   #[serde(default)]
   pub s3: Option<S3Config>,
+  // Флаг: текущий S3-конфиг прошёл «Тест соединения» при последнем сохранении.
+  // Сбрасывается при любом изменении полей, ставится при успешном тесте + save.
+  // Используется UI: кнопка S3 в Toolbar горит зелёным.
+  #[serde(default)]
+  pub s3_verified: bool,
 }
 
 fn default_font_family() -> String {
@@ -61,6 +66,7 @@ impl Default for Settings {
       recent_files: Vec::new(),
       page_width: default_page_width(),
       s3: None,
+      s3_verified: false,
     }
   }
 }

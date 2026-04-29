@@ -50,6 +50,7 @@ export type Settings = {
 	recent_files?: string[],
 	page_width?: number,
 	s3?: S3Config | null,
+	s3_verified?: boolean,
 };
 
 /* Tauri Specta runtime */

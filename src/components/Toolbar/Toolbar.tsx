@@ -44,6 +44,8 @@ export function Toolbar() {
   const { theme, toggleTheme } = useTheme();
   const editorMode = useAppStore((s) => s.editorMode);
   const setEditorMode = useAppStore((s) => s.setEditorMode);
+  const s3 = useAppStore((s) => s.s3);
+  const s3Verified = useAppStore((s) => s.s3Verified);
   
   const t = getTranslations(language);
 
@@ -160,8 +162,9 @@ export function Toolbar() {
 
         <div className="toolbar-group">
           <button
-            className="toolbar-btn"
+            className={`toolbar-btn${s3 && s3Verified ? ' toolbar-btn-s3-ok' : ''}`}
             onClick={() => setShowS3(true)}
+            title={s3 && s3Verified ? `S3: ${s3.bucket}` : 'S3'}
           >
             {t.s3Button}
           </button>

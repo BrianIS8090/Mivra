@@ -145,3 +145,16 @@
   min-width: 36px;
   justify-content: center;
 }
+
+/* Кнопка S3 «зелёная» — конфиг сохранён + Тест соединения прошёл при сохранении */
+.toolbar-btn-s3-ok {
+  background: rgba(46, 184, 114, 0.15);
+  color: #2eb872;
+  border-color: rgba(46, 184, 114, 0.4);
+  font-weight: 600;
+}
+
+.toolbar-btn-s3-ok:hover {
+  background: rgba(46, 184, 114, 0.25);
+  border-color: rgba(46, 184, 114, 0.6);
+}

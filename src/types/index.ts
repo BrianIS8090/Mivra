@@ -23,6 +23,9 @@ export interface AppState {
   recentFiles: string[];
   pageWidth: number;
   s3: S3Config | null;
+  // Текущий S3-конфиг прошёл «Тест соединения» при последнем сохранении.
+  // Используется для зелёной подсветки кнопки S3 в Toolbar.
+  s3Verified: boolean;
 
   // Действия
   setContent: (content: string) => void;
@@ -38,5 +41,6 @@ export interface AppState {
   setRecentFiles: (files: string[]) => void;
   setPageWidth: (pageWidth: number) => void;
   setS3Config: (config: S3Config | null) => void;
+  setS3Verified: (verified: boolean) => void;
   updateSettings: (settings: Partial<Settings>) => void;
 }

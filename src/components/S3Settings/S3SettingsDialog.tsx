@@ -24,6 +24,7 @@ export function S3SettingsDialog({ onClose }: Props) {
   const language = useAppStore((s) => s.language);
   const currentS3 = useAppStore((s) => s.s3);
   const setS3Config = useAppStore((s) => s.setS3Config);
+  const setS3Verified = useAppStore((s) => s.setS3Verified);
   const t = getTranslations(language);
   const toast = useToast();
 
@@ -31,6 +32,10 @@ export function S3SettingsDialog({ onClose }: Props) {
   const [secretInput, setSecretInput] = useState('');
   const [secretExists, setSecretExists] = useState(false);
   const [testing, setTesting] = useState(false);
+  // testedOk: пользователь нажал «Тест соединения» в этой сессии диалога и тест прошёл.
+  // При сохранении мы переносим этот флаг в глобальный s3Verified, который зажигает
+  // зелёную подсветку кнопки S3 в Toolbar. Любое изменение поля сбрасывает флаг.
+  const [testedOk, setTestedOk] = useState(false);
 
   // Проверяем при монтировании, есть ли уже сохранённый secret в keyring
   useEffect(() => {
@@ -46,7 +51,8 @@ export function S3SettingsDialog({ onClose }: Props) {
     return () => document.removeEventListener('keydown', onKey);
   }, [onClose]);
 
-  // Универсальный обработчик полей формы (опциональные поля → null при пустой строке)
+  // Универсальный обработчик полей формы (опциональные поля → null при пустой строке).
+  // При любом изменении поля сбрасываем testedOk — старый тест больше не релевантен.
   const handleField =
     (key: keyof S3Config) => (e: React.ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value;
@@ -55,12 +61,14 @@ export function S3SettingsDialog({ onClose }: Props) {
         [key]:
           key === 'public_url_prefix' || key === 'path_prefix' ? (value || null) : value,
       }));
+      setTestedOk(false);
     };
 
   const handleClearSecret = async () => {
     try {
       await tauri.s3ClearSecret();
       setSecretExists(false);
+      setTestedOk(false);
       toast.show(t.s3SecretClear, 'success');
     } catch (e) {
       toast.show(`${e}`, 'error');
@@ -76,8 +84,10 @@ export function S3SettingsDialog({ onClose }: Props) {
         setSecretExists(true);
       }
       await tauri.s3TestConnection(form);
+      setTestedOk(true);
       toast.show(t.s3TestSuccess, 'success');
     } catch (e) {
+      setTestedOk(false);
       toast.show(`${t.s3TestFail}: ${e}`, 'error');
     } finally {
       setTesting(false);
@@ -95,6 +105,10 @@ export function S3SettingsDialog({ onClose }: Props) {
         return;
       }
       setS3Config(form);
+      // testedOk → s3Verified: зелёная подсветка только если в этой сессии прошёл
+      // успешный «Тест соединения». Если пользователь не тестировал — флаг false,
+      // кнопка будет нейтральной (даже если конфиг идентичен предыдущему).
+      setS3Verified(testedOk);
       toast.show('Настройки сохранены', 'success');
       onClose();
     } catch (e) {
