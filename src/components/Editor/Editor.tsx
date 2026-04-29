@@ -13,8 +13,10 @@ import './editor.css';
 
 // Извлечь YAML frontmatter из markdown-контента.
 // Возвращает [frontmatter с разделителями, тело без frontmatter].
+// Поддерживает: пустой frontmatter (---\n---), отсутствие trailing newline
+// (---\nkey: v\n---), CRLF.
 function splitFrontmatter(content: string): [string, string] {
-  const match = content.match(/^(---[\t ]*\r?\n[\s\S]*?\r?\n---[\t ]*\r?\n?)/);
+  const match = content.match(/^(---[\t ]*\r?\n(?:[\s\S]*?\r?\n)?---[\t ]*(?:\r?\n|$))/);
   if (match) return [match[1], content.slice(match[1].length)];
   return ['', content];
 }

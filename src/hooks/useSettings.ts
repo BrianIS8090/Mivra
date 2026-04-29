@@ -73,6 +73,21 @@ export function useSettings() {
     return () => clearTimeout(timeout);
   }, [fontFamily, fontSize, theme, language, pageWidth, persist]);
 
+  // Принудительный flush при закрытии окна — иначе изменения за последние
+  // 500мс debounce-окна могут не сохраниться. В Tauri событие может
+  // не сработать при destroy() — в этом случае useExit перехватит закрытие.
+  useEffect(() => {
+    const onBeforeUnload = () => {
+      // sync вызов невозможен — IPC всегда async; пытаемся отправить
+      // и надеемся, что доставится до destroy
+      persist().catch(() => {
+        /* окно уже закрывается */
+      });
+    };
+    window.addEventListener('beforeunload', onBeforeUnload);
+    return () => window.removeEventListener('beforeunload', onBeforeUnload);
+  }, [persist]);
+
   return {
     fontFamily,
     fontSize,
