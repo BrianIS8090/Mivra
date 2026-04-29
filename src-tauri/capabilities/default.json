@@ -28,6 +28,15 @@
         { "path": "$DOWNLOAD/**" }
       ]
     },
+    {
+      "identifier": "fs:allow-stat",
+      "allow": [
+        { "path": "$HOME/**" },
+        { "path": "$DESKTOP/**" },
+        { "path": "$DOCUMENT/**" },
+        { "path": "$DOWNLOAD/**" }
+      ]
+    },
     "opener:default",
     "opener:allow-default-urls",
     "store:default"
