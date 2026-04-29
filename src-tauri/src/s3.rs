@@ -192,6 +192,21 @@ pub async fn upload_file_with_secret(
   upload_bytes_with_secret(config, secret, bytes, original_filename).await
 }
 
+// Проверка соединения с S3: HEAD-запрос по корню bucket с категоризацией ошибок.
+pub async fn test_connection_with_secret(config: &S3Config, secret: &str) -> Result<(), String> {
+  let bucket = build_bucket(config, secret)?;
+
+  match bucket.head_object("/").await {
+    Ok((_, status)) if (200..300).contains(&status) => Ok(()),
+    Ok((_, 404)) => Err("bucket_not_found: bucket не существует или нет прав".to_string()),
+    Ok((_, 401)) | Ok((_, 403)) => {
+      Err("auth_failed: проверьте Access Key и права на bucket".to_string())
+    }
+    Ok((_, status)) => Err(format!("HTTP {}", status)),
+    Err(e) => Err(format!("network_unreachable: {}", e)),
+  }
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;
@@ -381,5 +396,45 @@ mod tests {
     let config = test_config(server.uri());
     let result = upload_bytes_with_secret(&config, "secret", b"x".to_vec(), "f.txt").await;
     assert!(result.is_err(), "should fail after 3 retries");
+  }
+
+  use wiremock::matchers::any;
+
+  #[tokio::test]
+  async fn test_connection_succeeds_on_200() {
+    let server = MockServer::start().await;
+    Mock::given(method("HEAD"))
+      .respond_with(ResponseTemplate::new(200))
+      .mount(&server)
+      .await;
+
+    let config = test_config(server.uri());
+    assert!(test_connection_with_secret(&config, "secret").await.is_ok());
+  }
+
+  #[tokio::test]
+  async fn test_connection_fails_on_403() {
+    let server = MockServer::start().await;
+    Mock::given(any())
+      .respond_with(ResponseTemplate::new(403))
+      .mount(&server)
+      .await;
+
+    let config = test_config(server.uri());
+    let err = test_connection_with_secret(&config, "secret").await.unwrap_err();
+    assert!(err.contains("403") || err.contains("auth"), "got: {}", err);
+  }
+
+  #[tokio::test]
+  async fn test_connection_fails_on_404() {
+    let server = MockServer::start().await;
+    Mock::given(any())
+      .respond_with(ResponseTemplate::new(404))
+      .mount(&server)
+      .await;
+
+    let config = test_config(server.uri());
+    let err = test_connection_with_secret(&config, "secret").await.unwrap_err();
+    assert!(err.contains("404") || err.contains("not_found"), "got: {}", err);
   }
 }
