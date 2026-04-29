@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use std::fs;
+use std::io::Write;
 use std::path::PathBuf;
 use tauri::Manager;
 use tauri_plugin_dialog::DialogExt;
@@ -76,9 +77,22 @@ fn settings_path(app: &tauri::AppHandle) -> Result<PathBuf, String> {
 /// Атомарная запись файла: пишем во временный файл и переименовываем.
 /// Защищает от частично-записанного settings.json при сбое или гонке.
 fn atomic_write(path: &std::path::Path, content: &str) -> Result<(), String> {
-  let tmp = path.with_extension("json.tmp");
-  fs::write(&tmp, content).map_err(|e| format!("Ошибка записи временного файла: {}", e))?;
-  fs::rename(&tmp, path).map_err(|e| format!("Ошибка переименования файла: {}", e))?;
+  let parent = path
+    .parent()
+    .ok_or_else(|| "Не удалось определить директорию файла".to_string())?;
+  let mut tmp = tempfile::NamedTempFile::new_in(parent)
+    .map_err(|e| format!("Ошибка создания временного файла: {}", e))?;
+
+  tmp.write_all(content.as_bytes())
+    .map_err(|e| format!("Ошибка записи временного файла: {}", e))?;
+  tmp.flush()
+    .map_err(|e| format!("Ошибка сброса временного файла: {}", e))?;
+  tmp.as_file()
+    .sync_all()
+    .map_err(|e| format!("Ошибка синхронизации временного файла: {}", e))?;
+
+  tmp.persist(path)
+    .map_err(|e| format!("Ошибка замены файла: {}", e.error))?;
   Ok(())
 }
 
@@ -200,4 +214,34 @@ pub async fn get_recent_files(app: tauri::AppHandle) -> Result<Vec<String>, Stri
 #[specta::specta]
 pub async fn read_file(path: String) -> Result<String, String> {
   fs::read_to_string(&path).map_err(|e| format!("Ошибка чтения файла: {}", e))
+}
+
+#[cfg(test)]
+mod tests {
+  use super::atomic_write;
+  use std::fs;
+  use std::time::{SystemTime, UNIX_EPOCH};
+
+  fn unique_temp_dir() -> std::path::PathBuf {
+    let stamp = SystemTime::now()
+      .duration_since(UNIX_EPOCH)
+      .expect("Системное время должно быть после UNIX_EPOCH")
+      .as_nanos();
+    std::env::temp_dir().join(format!("mivra-commands-test-{stamp}"))
+  }
+
+  #[test]
+  fn atomic_write_replaces_existing_file() {
+    let dir = unique_temp_dir();
+    fs::create_dir_all(&dir).expect("Не удалось создать временную директорию");
+    let path = dir.join("settings.json");
+
+    atomic_write(&path, "first").expect("Первая запись должна пройти");
+    atomic_write(&path, "second").expect("Повторная запись должна заменить файл");
+
+    let content = fs::read_to_string(&path).expect("Файл должен читаться");
+    fs::remove_dir_all(&dir).ok();
+
+    assert_eq!(content, "second");
+  }
 }

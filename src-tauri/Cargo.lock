@@ -2121,6 +2121,7 @@ dependencies = [
  "tauri-plugin-opener",
  "tauri-plugin-store",
  "tauri-specta",
+ "tempfile",
 ]
 
 [[package]]

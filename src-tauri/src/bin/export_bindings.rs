@@ -6,7 +6,7 @@ fn main() {
   mivra_lib::build_specta_builder()
     .export(
       specta_typescript::Typescript::default(),
-      "../src/bindings.ts",
+      mivra_lib::bindings_output_path(),
     )
     .expect("Не удалось сгенерировать TS-bindings");
   println!("✓ Сгенерирован src/bindings.ts");

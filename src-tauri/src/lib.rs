@@ -1,6 +1,7 @@
 pub mod commands;
 
 use std::env;
+use std::path::PathBuf;
 use std::sync::Mutex;
 use tauri::State;
 use commands::{get_recent_files, open_file, read_file, read_settings, save_file, save_file_as, write_settings};
@@ -35,6 +36,15 @@ pub fn build_specta_builder() -> tauri_specta::Builder<tauri::Wry> {
     ])
 }
 
+// Абсолютный путь к frontend bindings, независимый от текущей директории
+// запуска cargo/npm/Tauri.
+pub fn bindings_output_path() -> PathBuf {
+  PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+    .join("..")
+    .join("src")
+    .join("bindings.ts")
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
   // Проверяем аргументы командной строки при запуске
@@ -64,7 +74,7 @@ pub fn run() {
   builder
     .export(
       specta_typescript::Typescript::default(),
-      "../src/bindings.ts",
+      bindings_output_path(),
     )
     .expect("Не удалось сгенерировать TS-bindings");
 
@@ -77,4 +87,17 @@ pub fn run() {
     .invoke_handler(builder.invoke_handler())
     .run(tauri::generate_context!())
     .expect("Ошибка запуска приложения");
+}
+
+#[cfg(test)]
+mod tests {
+  #[test]
+  fn bindings_output_path_points_to_frontend_src() {
+    let expected = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+      .join("..")
+      .join("src")
+      .join("bindings.ts");
+
+    assert_eq!(super::bindings_output_path(), expected);
+  }
 }
