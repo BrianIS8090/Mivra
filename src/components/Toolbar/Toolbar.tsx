@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useFile } from '../../hooks/useFile';
 import { useSettings } from '../../hooks/useSettings';
 import { useTheme } from '../../hooks/useTheme';
-import { useMarkdownActions } from '../../hooks/useMarkdownActions';
 import { useAppStore } from '../../stores/appStore';
 import { getTranslations } from '../../i18n';
 import { HelpDialog } from '../Help/HelpDialog';
@@ -24,7 +23,6 @@ export function Toolbar() {
   const [showS3, setShowS3] = useState(false);
   const { open, save, saveAs, reload, filePath } = useFile();
   const { fontFamily, fontSize, language, pageWidth, changeFontFamily, changeFontSize, changeLanguage, changePageWidth } = useSettings();
-  const { insertAssetAction } = useMarkdownActions();
   const [pageWidthDraft, setPageWidthDraft] = useState(String(pageWidth));
 
   // Синхронизация при внешнем изменении (загрузка настроек)
@@ -80,14 +78,6 @@ export function Toolbar() {
             title={t.reloadTooltip}
           >
             ↻
-          </button>
-          <button
-            className="toolbar-btn"
-            onClick={() => insertAssetAction()}
-            disabled={!filePath}
-            title={t.insertAssetTooltip}
-          >
-            {t.insertAsset}
           </button>
         </div>
 
