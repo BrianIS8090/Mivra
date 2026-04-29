@@ -2,7 +2,13 @@
 
 ## Шаг 1 — Обновить версию
 
-Обновить номер версии в трёх файлах:
+Используйте скрипт — он меняет версию во всех трёх файлах разом:
+
+```bash
+npm run version:bump -- 0.7.0
+```
+
+Затронутые файлы:
 
 | Файл | Поле |
 |------|------|
@@ -10,19 +16,25 @@
 | `src-tauri/tauri.conf.json` | `"version"` |
 | `src-tauri/Cargo.toml` | `version` |
 
+После этого синхронизируйте `Cargo.lock`:
+
+```bash
+cargo check --manifest-path src-tauri/Cargo.toml
+```
+
 ## Шаг 2 — Закоммитить и запушить
 
 ```bash
-git add package.json src-tauri/tauri.conf.json src-tauri/Cargo.toml
-git commit -m "chore: bump version to 0.4.0"
+git add package.json src-tauri/tauri.conf.json src-tauri/Cargo.toml src-tauri/Cargo.lock
+git commit -m "chore: bump version to 0.7.0"
 git push
 ```
 
 ## Шаг 3 — Создать тег и запушить
 
 ```bash
-git tag v0.4.0
-git push origin v0.4.0
+git tag v0.7.0
+git push origin v0.7.0
 ```
 
 После пуша тега GitHub Actions автоматически:

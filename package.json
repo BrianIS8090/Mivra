@@ -10,7 +10,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "tauri": "tauri",
-    "gen:types": "cargo run --manifest-path src-tauri/Cargo.toml --bin export_bindings"
+    "gen:types": "cargo run --manifest-path src-tauri/Cargo.toml --bin export_bindings",
+    "version:bump": "node scripts/bump-version.mjs"
   },
   "dependencies": {
     "@milkdown/core": "^7.18.0",
