@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "gen:types": "cargo run --manifest-path src-tauri/Cargo.toml --bin export_bindings"
   },
   "dependencies": {
     "@milkdown/core": "^7.18.0",

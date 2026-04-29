@@ -1,16 +1,17 @@
 use serde::{Deserialize, Serialize};
+use specta::Type;
 use std::fs;
 use std::path::PathBuf;
 use tauri::Manager;
 use tauri_plugin_dialog::DialogExt;
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Type)]
 pub struct FileData {
   pub path: String,
   pub content: String,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug, Type)]
 pub struct Settings {
   #[serde(default = "default_font_family")]
   pub font_family: String,
@@ -103,6 +104,7 @@ fn add_to_recent(app: &tauri::AppHandle, path: &str) -> Result<(), String> {
 }
 
 #[tauri::command]
+#[specta::specta]
 pub async fn open_file(app: tauri::AppHandle) -> Result<FileData, String> {
   let file = app
     .dialog()
@@ -129,12 +131,14 @@ pub async fn open_file(app: tauri::AppHandle) -> Result<FileData, String> {
 }
 
 #[tauri::command]
+#[specta::specta]
 pub async fn save_file(path: String, content: String) -> Result<bool, String> {
   fs::write(&path, &content).map_err(|e| format!("Ошибка сохранения: {}", e))?;
   Ok(true)
 }
 
 #[tauri::command]
+#[specta::specta]
 pub async fn save_file_as(app: tauri::AppHandle, content: String) -> Result<Option<String>, String> {
   let file = app
     .dialog()
@@ -160,6 +164,7 @@ pub async fn save_file_as(app: tauri::AppHandle, content: String) -> Result<Opti
 }
 
 #[tauri::command]
+#[specta::specta]
 pub async fn read_settings(app: tauri::AppHandle) -> Result<Settings, String> {
   let path = settings_path(&app)?;
   if path.exists() {
@@ -174,6 +179,7 @@ pub async fn read_settings(app: tauri::AppHandle) -> Result<Settings, String> {
 }
 
 #[tauri::command]
+#[specta::specta]
 pub async fn write_settings(app: tauri::AppHandle, settings: Settings) -> Result<bool, String> {
   let path = settings_path(&app)?;
   let json =
@@ -183,6 +189,7 @@ pub async fn write_settings(app: tauri::AppHandle, settings: Settings) -> Result
 }
 
 #[tauri::command]
+#[specta::specta]
 pub async fn get_recent_files(app: tauri::AppHandle) -> Result<Vec<String>, String> {
   let settings = read_settings(app).await?;
   Ok(settings.recent_files)
@@ -190,6 +197,7 @@ pub async fn get_recent_files(app: tauri::AppHandle) -> Result<Vec<String>, Stri
 
 /// Чтение файла по пути (для открытия через ассоциацию файлов)
 #[tauri::command]
+#[specta::specta]
 pub async fn read_file(path: String) -> Result<String, String> {
   fs::read_to_string(&path).map_err(|e| format!("Ошибка чтения файла: {}", e))
 }
