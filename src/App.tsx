@@ -1,6 +1,4 @@
-import { useEffect, useCallback } from 'react';
-import { editorViewCtx } from '@milkdown/kit/core';
-import { insert } from '@milkdown/kit/utils';
+import { useEffect, useCallback, useRef } from 'react';
 
 import { TitleBar } from './components/TitleBar/TitleBar';
 import { Toolbar } from './components/Toolbar/Toolbar';
@@ -10,67 +8,39 @@ import { useFile } from './hooks/useFile';
 import { useSettings } from './hooks/useSettings';
 import { useTheme } from './hooks/useTheme';
 import { useExit } from './hooks/useExit';
+import { useMarkdownActions } from './hooks/useMarkdownActions';
 import { useAppStore } from './stores/appStore';
-import { useEditorHandle } from './components/Editor/EditorContext';
 import * as tauri from './utils/tauri';
 import { findBaseDir } from './utils/paths';
 import { confirmUnsavedChanges } from './utils/dialogs';
 import './App.css';
 
-type MarkdownAction =
-  | {
-      type: 'wrap';
-      prefix: string;
-      suffix: string;
-      placeholder: string;
-    }
-  | {
-      type: 'insert';
-      text: string;
-      cursorOffset?: number;
-      selectionLength?: number;
-      inline?: boolean;
-    };
-
 function App() {
-  const { open, save, saveAs, insertAsset } = useFile();
-  const { changeFontSize, fontSize, language } = useSettings();
+  const { open, save, saveAs } = useFile();
+  const { changeFontSize, fontSize } = useSettings();
   const { toggleTheme } = useTheme();
   useExit();
-  const handleRef = useEditorHandle();
+  const { applyMarkdownAction, insertAssetAction, placeholders } = useMarkdownActions();
   const editorMode = useAppStore((s) => s.editorMode);
   const setEditorMode = useAppStore((s) => s.setEditorMode);
-  const setContent = useAppStore((s) => s.setContent);
 
-  const placeholders = language === 'ru'
-    ? {
-        text: 'текст',
-        url: 'https://example.com',
-        alt: 'описание',
-        code: 'код',
-        task: 'задача',
-        tableHeader1: 'Колонка 1',
-        tableHeader2: 'Колонка 2',
-        tableCell: 'Ячейка',
-      }
-    : {
-        text: 'text',
-        url: 'https://example.com',
-        alt: 'alt',
-        code: 'code',
-        task: 'task',
-        tableHeader1: 'Column 1',
-        tableHeader2: 'Column 2',
-        tableCell: 'Cell',
-      };
+  // StrictMode-защита: эффект ниже выполняется дважды на mount.
+  // Сейчас get_pending_file на Rust-стороне делает Mutex.take() — поэтому
+  // второй вызов вернёт None. Этот ref — явный страховочный гард, который
+  // не зависит от поведения backend'а.
+  const pendingHandledRef = useRef(false);
 
   // Обработка открытия файла через ассоциацию (Windows)
-  // Запрашиваем при монтировании приложения
   useEffect(() => {
+    if (pendingHandledRef.current) return;
+    pendingHandledRef.current = true;
+
     tauri.getPendingFile().then(async (filePath) => {
       if (!filePath) return;
 
-      // Защита на случай уже несохранённых изменений (например, single-instance в будущем)
+      // Защита для будущей single-instance логики: при наличии несохранённых
+      // изменений спрашиваем, что делать. На холодном старте isDirty=false,
+      // поэтому в текущей реализации диалог не сработает.
       const state = useAppStore.getState();
       if (state.isDirty) {
         const choice = await confirmUnsavedChanges(state.language);
@@ -104,71 +74,6 @@ function App() {
       }
     });
   }, []);
-
-  const applyMarkdownAction = useCallback((action: MarkdownAction) => {
-    if (editorMode === 'source') {
-      const textarea = handleRef.current.sourceTextarea;
-      if (!textarea) return;
-
-      const start = textarea.selectionStart ?? 0;
-      const end = textarea.selectionEnd ?? 0;
-      const hasSelection = start !== end;
-      const value = textarea.value;
-
-      let insertText = '';
-      let selectionStart = start;
-      let selectionEnd = start;
-
-      if (action.type === 'wrap') {
-        const selected = value.slice(start, end);
-        const content = hasSelection ? selected : action.placeholder;
-        insertText = `${action.prefix}${content}${action.suffix}`;
-        selectionStart = start + action.prefix.length;
-        selectionEnd = selectionStart + content.length;
-      } else {
-        insertText = action.text;
-        const cursorOffset = action.cursorOffset ?? insertText.length;
-        const selectionLength = action.selectionLength ?? 0;
-        selectionStart = start + cursorOffset;
-        selectionEnd = selectionStart + selectionLength;
-      }
-
-      const nextValue = value.slice(0, start) + insertText + value.slice(end);
-      setContent(nextValue);
-
-      requestAnimationFrame(() => {
-        textarea.focus();
-        textarea.setSelectionRange(selectionStart, selectionEnd);
-      });
-      return;
-    }
-
-    const editor = handleRef.current.editor;
-    if (!editor) return;
-
-    editor.action((ctx) => {
-      const view = ctx.get(editorViewCtx);
-      const { state } = view;
-      const { from, to } = state.selection;
-      const hasSelection = from !== to;
-      const selected = state.doc.textBetween(from, to, '\n');
-
-      let markdown = '';
-      let inline = true;
-
-      if (action.type === 'wrap') {
-        const content = hasSelection ? selected : action.placeholder;
-        markdown = `${action.prefix}${content}${action.suffix}`;
-        inline = true;
-      } else {
-        markdown = action.text;
-        inline = action.inline ?? false;
-      }
-
-      insert(markdown, inline)(ctx);
-      view.focus();
-    });
-  }, [editorMode, setContent, handleRef]);
 
   // Горячие клавиши
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
@@ -317,13 +222,9 @@ function App() {
     // Ctrl+Shift+A — Вставить ассет из assets/
     if (isCtrl && isShift && !isAlt && code === 'KeyA') {
       e.preventDefault();
-      insertAsset().then((md) => {
-        if (md) {
-          applyMarkdownAction({ type: 'insert', text: md, inline: false });
-        }
-      });
+      insertAssetAction();
     }
-  }, [open, save, saveAs, toggleTheme, editorMode, setEditorMode, changeFontSize, fontSize, applyMarkdownAction, placeholders, insertAsset]);
+  }, [open, save, saveAs, toggleTheme, editorMode, setEditorMode, changeFontSize, fontSize, applyMarkdownAction, insertAssetAction, placeholders]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
