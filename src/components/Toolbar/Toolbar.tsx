@@ -6,6 +6,7 @@ import { useMarkdownActions } from '../../hooks/useMarkdownActions';
 import { useAppStore } from '../../stores/appStore';
 import { getTranslations } from '../../i18n';
 import { HelpDialog } from '../Help/HelpDialog';
+import { S3SettingsDialog } from '../S3Settings/S3SettingsDialog';
 import './toolbar.css';
 
 const FONT_OPTIONS = [
@@ -20,6 +21,7 @@ const FONT_OPTIONS = [
 
 export function Toolbar() {
   const [showHelp, setShowHelp] = useState(false);
+  const [showS3, setShowS3] = useState(false);
   const { open, save, saveAs, reload, filePath } = useFile();
   const { fontFamily, fontSize, language, pageWidth, changeFontFamily, changeFontSize, changeLanguage, changePageWidth } = useSettings();
   const { insertAssetAction } = useMarkdownActions();
@@ -159,6 +161,12 @@ export function Toolbar() {
         <div className="toolbar-group">
           <button
             className="toolbar-btn"
+            onClick={() => setShowS3(true)}
+          >
+            {t.s3Button}
+          </button>
+          <button
+            className="toolbar-btn"
             onClick={() => setShowHelp(true)}
           >
             {t.help}
@@ -174,6 +182,7 @@ export function Toolbar() {
       </div>
 
       {showHelp && <HelpDialog onClose={() => setShowHelp(false)} />}
+      {showS3 && <S3SettingsDialog onClose={() => setShowS3(false)} />}
     </>
   );
 }
