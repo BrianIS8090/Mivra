@@ -21,7 +21,12 @@ export function useFile() {
     try {
       const path = await tauri.saveFileAs(content);
       if (path) {
+        // После сохранения нового файла обязательно вычислить baseDir —
+        // иначе drag&drop / paste в локальный assets/ будут жаловаться, что
+        // документ не сохранён, хотя он уже на диске.
+        const base = await findBaseDir(path);
         setFilePath(path);
+        setBaseDir(base);
         setDirty(false);
         return true;
       }
@@ -31,7 +36,7 @@ export function useFile() {
       console.error('[useFile] saveAs error:', e);
       return false;
     }
-  }, [content, setDirty, setFilePath]);
+  }, [content, setDirty, setFilePath, setBaseDir]);
 
   const save = useCallback(async (): Promise<boolean> => {
     if (!filePath) {
