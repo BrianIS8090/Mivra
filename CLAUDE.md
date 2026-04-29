@@ -1,3 +1,53 @@
+# Mivra
+
+Markdown-редактор для Windows (Tauri 2 + Rust backend, React 19 + TypeScript frontend, Milkdown Crepe для визуального редактирования, Zustand для состояния). Пользовательский язык — **русский**: общение, UI-сообщения и комментарии в коде на русском.
+
+## Команды
+
+```bash
+npm run dev          # dev-режим (Vite)
+npm run tauri dev    # dev-режим всего приложения (Vite + Rust)
+npm run build        # production-сборка фронтенда (tsc && vite build)
+npm run tauri build  # production-сборка установщика → src-tauri/target/release/bundle/
+npm run test         # vitest run
+npm run test:watch   # vitest в watch-режиме
+npx tsc --noEmit     # проверка типов TS
+```
+
+Rust-часть (`cd src-tauri`): `cargo check`, `cargo clippy`, `cargo test`.
+
+## Структура
+
+```
+src/
+  components/   # Editor, StatusBar, TitleBar, Toolbar
+  hooks/        # useFile, useSettings, useTheme
+  stores/       # appStore.ts (Zustand)
+  types/        # index.ts — все TS-интерфейсы (синхронизировать с Rust-структурами)
+  utils/        # tauri.ts — обёртки над всеми вызовами IPC
+  themes/       # variables.css + light/dark
+  test/         # setup.ts с моками Tauri API
+src-tauri/src/
+  lib.rs, main.rs, commands.rs   # точки входа и Tauri-команды
+```
+
+## Критические правила
+
+- **Все Tauri IPC-вызовы — только через `src/utils/tauri.ts`**, не использовать `invoke` напрямую из компонентов.
+- **Zustand: только селекторы** (`useAppStore((s) => s.content)`), не деструктурировать весь стор в компонентах.
+- **Типы централизованы в `src/types/index.ts`** и синхронизированы с Rust-структурами в `src-tauri/src/commands.rs`.
+- **Комментарии и пользовательские сообщения об ошибках — на русском.**
+- **Версия выпуска обновляется одновременно в трёх файлах:** `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml` (см. `RELEASE.md`).
+- **Окружение: Windows + bash/PowerShell.** В PowerShell нет `&&` (использовать `;`), избегать многострочных heredoc в bash.
+
+## Связанные документы
+
+- `AGENTS.md` — полные конвенции по стилю кода, импортам, тестам.
+- `DEVELOPMENT.md` — установка, требования, особенности реализации.
+- `RELEASE.md` — процесс выпуска версий и CI.
+
+---
+
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
