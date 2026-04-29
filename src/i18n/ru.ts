@@ -1,3 +1,8 @@
+// Формы множественного числа для Intl.PluralRules.
+// Ключи соответствуют категориям LDML: zero/one/two/few/many/other.
+// Если для языка категория не нужна — оставляем undefined (упадёт на other).
+export type PluralForms = Partial<Record<Intl.LDMLPluralRule, string>>;
+
 export const ru = {
   // Меню
   open: 'Открыть',
@@ -22,8 +27,8 @@ export const ru = {
 
   // Статус-бар
   newFile: 'Новый файл',
-  words: ['слово', 'слова', 'слов'] as [string, string, string],
-  chars: ['символ', 'символа', 'символов'] as [string, string, string],
+  words: { one: 'слово', few: 'слова', many: 'слов', other: 'слов' } as PluralForms,
+  chars: { one: 'символ', few: 'символа', many: 'символов', other: 'символов' } as PluralForms,
   
   // Редактор
   placeholder: 'Начните писать...',

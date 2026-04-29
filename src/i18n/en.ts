@@ -24,8 +24,8 @@ export const en: Translations = {
 
   // Status bar
   newFile: 'New File',
-  words: ['word', 'words', 'words'] as [string, string, string],
-  chars: ['char', 'chars', 'chars'] as [string, string, string],
+  words: { one: 'word', other: 'words' },
+  chars: { one: 'char', other: 'chars' },
   
   // Editor
   placeholder: 'Start writing...',

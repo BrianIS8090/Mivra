@@ -22,8 +22,8 @@ export function StatusBar() {
     };
   }, [deferredContent]);
 
-  const wordLabelStr = pluralize(wordCount, t.words);
-  const charLabelStr = pluralize(charCount, t.chars);
+  const wordLabelStr = pluralize(wordCount, language, t.words);
+  const charLabelStr = pluralize(charCount, language, t.chars);
   const modeLabel = editorMode === 'visual' ? t.visualMode : t.sourceMode;
 
   return (
