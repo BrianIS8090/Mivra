@@ -22,6 +22,8 @@ export const useAppStore = create<AppState>((set) => ({
   setContent: (content) => set((state) =>
     state.content === content ? {} : { content, isDirty: true }
   ),
+  // Программная загрузка контента (открытие файла, reload) — без isDirty
+  loadContent: (content) => set({ content, isDirty: false }),
   setFilePath: (filePath) => set({ filePath }),
   setBaseDir: (baseDir) => set({ baseDir }),
   setDirty: (isDirty) => set({ isDirty }),

@@ -3,20 +3,20 @@ import { useAppStore } from '../stores/appStore';
 import * as tauri from '../utils/tauri';
 
 export function useSettings() {
-  const {
-    fontFamily,
-    fontSize,
-    theme,
-    language,
-    recentFiles,
-    pageWidth,
-    setFontFamily,
-    setFontSize,
-    setTheme,
-    setLanguage,
-    setPageWidth,
-    updateSettings,
-  } = useAppStore();
+  // Индивидуальные селекторы — компонент ререндерится только при
+  // изменении конкретных полей, которые он реально читает.
+  const fontFamily = useAppStore((s) => s.fontFamily);
+  const fontSize = useAppStore((s) => s.fontSize);
+  const theme = useAppStore((s) => s.theme);
+  const language = useAppStore((s) => s.language);
+  const recentFiles = useAppStore((s) => s.recentFiles);
+  const pageWidth = useAppStore((s) => s.pageWidth);
+  const setFontFamily = useAppStore((s) => s.setFontFamily);
+  const setFontSize = useAppStore((s) => s.setFontSize);
+  const setTheme = useAppStore((s) => s.setTheme);
+  const setLanguage = useAppStore((s) => s.setLanguage);
+  const setPageWidth = useAppStore((s) => s.setPageWidth);
+  const updateSettings = useAppStore((s) => s.updateSettings);
 
   // Загрузить настройки при монтировании
   useEffect(() => {

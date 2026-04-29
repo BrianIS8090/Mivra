@@ -34,6 +34,7 @@ export interface AppState {
 
   // Действия
   setContent: (content: string) => void;
+  loadContent: (content: string) => void;
   setFilePath: (path: string | null) => void;
   setBaseDir: (baseDir: string | null) => void;
   setDirty: (dirty: boolean) => void;

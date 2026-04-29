@@ -95,10 +95,10 @@ function App() {
           tauri.readFile(filePath),
           findBaseDir(filePath),
         ]);
-        useAppStore.getState().setFilePath(filePath);
-        useAppStore.getState().setBaseDir(base);
-        useAppStore.getState().setContent(content);
-        useAppStore.getState().setDirty(false);
+        const store = useAppStore.getState();
+        store.setFilePath(filePath);
+        store.setBaseDir(base);
+        store.loadContent(content);
       } catch (e) {
         console.error('Ошибка открытия файла:', e);
       }

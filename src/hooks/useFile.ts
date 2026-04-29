@@ -5,16 +5,17 @@ import { findBaseDir, pickAndFormatAsset } from '../utils/paths';
 import { confirmUnsavedChanges } from '../utils/dialogs';
 
 export function useFile() {
-  const {
-    filePath,
-    baseDir,
-    content,
-    isDirty,
-    setContent,
-    setFilePath,
-    setBaseDir,
-    setDirty,
-  } = useAppStore();
+  // Селекторы Zustand вместо деструктуризации всего стора —
+  // чтобы хук не ререндерился при изменении не относящихся к файлу полей.
+  const filePath = useAppStore((s) => s.filePath);
+  const baseDir = useAppStore((s) => s.baseDir);
+  const content = useAppStore((s) => s.content);
+  const isDirty = useAppStore((s) => s.isDirty);
+  const setContent = useAppStore((s) => s.setContent);
+  const loadContent = useAppStore((s) => s.loadContent);
+  const setFilePath = useAppStore((s) => s.setFilePath);
+  const setBaseDir = useAppStore((s) => s.setBaseDir);
+  const setDirty = useAppStore((s) => s.setDirty);
 
   const saveAs = useCallback(async (): Promise<boolean> => {
     try {
@@ -69,25 +70,24 @@ export function useFile() {
       const base = await findBaseDir(file.path);
       setFilePath(file.path);
       setBaseDir(base);
-      setContent(file.content);
-      setDirty(false);
+      // loadContent ставит content и isDirty:false атомарно — без transient true
+      loadContent(file.content);
     } catch (e) {
       // Пользователь отменил диалог открытия или произошла ошибка
       console.warn('[useFile] open cancelled or error:', e);
     }
-  }, [confirmDiscardIfDirty, setContent, setDirty, setFilePath, setBaseDir]);
+  }, [confirmDiscardIfDirty, loadContent, setFilePath, setBaseDir]);
 
   const reload = useCallback(async () => {
     if (!filePath) return;
     if (!(await confirmDiscardIfDirty())) return;
     try {
       const text = await tauri.readFile(filePath);
-      setContent(text);
-      setDirty(false);
+      loadContent(text);
     } catch (e) {
       console.error('[useFile] reload error:', e);
     }
-  }, [filePath, setContent, setDirty, confirmDiscardIfDirty]);
+  }, [filePath, loadContent, confirmDiscardIfDirty]);
 
   // Выбрать файл из assets/ и вернуть готовый markdown
   const insertAsset = useCallback(async (): Promise<string | null> => {
