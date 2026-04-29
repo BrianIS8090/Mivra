@@ -168,11 +168,15 @@ export function Editor() {
   useEffect(() => {
     if (!editorRef.current) return;
 
+    // cancelled — локальный флаг для этого экземпляра эффекта.
+    // Если cleanup сработал до резолва create(), then-callback увидит
+    // cancelled=true и сам уничтожит "осиротевший" crepe — без двойного
+    // destroy на одном инстансе.
+    let cancelled = false;
     const gen = ++genRef.current;
     const crepe = buildCrepe(editorRef.current, content, baseDir);
     crepe.create().then(() => {
-      if (gen !== genRef.current) {
-        // Эффект уже размонтирован или вытеснен — уничтожаем осиротевший экземпляр
+      if (cancelled || gen !== genRef.current) {
         crepe.destroy();
         return;
       }
@@ -181,11 +185,19 @@ export function Editor() {
     });
 
     return () => {
+      cancelled = true;
       genRef.current++;
       handleRef.current.editor = null;
       interactionCleanupRef.current?.();
-      crepe.destroy();
-      crepeRef.current = null;
+      // Уничтожаем АКТУАЛЬНЫЙ crepe (мог быть подменён content-change-эффектом),
+      // а не closure-захваченный — иначе после нескольких смен файла оригинал
+      // уже уничтожен, а текущий инстанс утекает.
+      const current = crepeRef.current;
+      if (current) {
+        crepeRef.current = null;
+        current.destroy();
+      }
+      // Если create() ещё не резолвился — cancelled-флаг подхватит destroy в then.
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [buildCrepe]);
@@ -200,6 +212,9 @@ export function Editor() {
       const gen = ++genRef.current;
       handleRef.current.editor = null;
       const oldCrepe = crepeRef.current;
+      // Сразу обнуляем ref, чтобы cleanup инициального эффекта не дёргал
+      // destroy на том же инстансе параллельно с нами.
+      crepeRef.current = null;
       oldCrepe.destroy().then(() => {
         if (gen !== genRef.current) return;
         const newCrepe = buildCrepe(root, content, baseDir);
@@ -228,6 +243,7 @@ export function Editor() {
       const gen = ++genRef.current;
       handleRef.current.editor = null;
       const oldCrepe = crepeRef.current;
+      crepeRef.current = null;
       oldCrepe.destroy().then(() => {
         if (gen !== genRef.current) return;
         const newCrepe = buildCrepe(root, currentContent, baseDir);
