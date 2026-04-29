@@ -5,7 +5,7 @@ import { getTranslations } from '../../i18n';
 import { useAppStore } from '../../stores/appStore';
 import './help.css';
 
-const VERSION = '0.1.1';
+const VERSION = __APP_VERSION__;
 const GITHUB_URL = 'https://github.com/BrianIS8090/';
 const EMAIL = 'ilmir8090@gmail.com';
 

@@ -15,6 +15,11 @@ export const ru = {
   visualMode: 'Визуальный',
   sourceMode: 'Исходный',
   
+  // Заголовок окна
+  untitled: 'Без имени',
+  minimize: 'Свернуть',
+  maximize: 'Развернуть',
+
   // Статус-бар
   newFile: 'Новый файл',
   words: ['слово', 'слова', 'слов'] as [string, string, string],

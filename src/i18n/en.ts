@@ -17,6 +17,11 @@ export const en: Translations = {
   visualMode: 'Visual',
   sourceMode: 'Source',
   
+  // Window title bar
+  untitled: 'Untitled',
+  minimize: 'Minimize',
+  maximize: 'Maximize',
+
   // Status bar
   newFile: 'New File',
   words: ['word', 'words', 'words'] as [string, string, string],
