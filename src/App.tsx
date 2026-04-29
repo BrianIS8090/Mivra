@@ -9,10 +9,12 @@ import { StatusBar } from './components/StatusBar/StatusBar';
 import { useFile } from './hooks/useFile';
 import { useSettings } from './hooks/useSettings';
 import { useTheme } from './hooks/useTheme';
+import { useExit } from './hooks/useExit';
 import { useAppStore } from './stores/appStore';
 import { getActiveEditor } from './utils/editorBridge';
 import * as tauri from './utils/tauri';
 import { findBaseDir } from './utils/paths';
+import { confirmUnsavedChanges } from './utils/dialogs';
 import './App.css';
 
 type MarkdownAction =
@@ -34,6 +36,7 @@ function App() {
   const { open, save, saveAs, insertAsset } = useFile();
   const { changeFontSize, fontSize, language } = useSettings();
   const { toggleTheme } = useTheme();
+  useExit();
   const editorMode = useAppStore((s) => s.editorMode);
   const setEditorMode = useAppStore((s) => s.setEditorMode);
   const setContent = useAppStore((s) => s.setContent);
@@ -64,19 +67,39 @@ function App() {
   // Запрашиваем при монтировании приложения
   useEffect(() => {
     tauri.getPendingFile().then(async (filePath) => {
-      if (filePath) {
-        try {
-          const [content, base] = await Promise.all([
-            tauri.readFile(filePath),
-            findBaseDir(filePath),
-          ]);
-          useAppStore.getState().setFilePath(filePath);
-          useAppStore.getState().setBaseDir(base);
-          useAppStore.getState().setContent(content);
-          useAppStore.getState().setDirty(false);
-        } catch (e) {
-          console.error('Ошибка открытия файла:', e);
+      if (!filePath) return;
+
+      // Защита на случай уже несохранённых изменений (например, single-instance в будущем)
+      const state = useAppStore.getState();
+      if (state.isDirty) {
+        const choice = await confirmUnsavedChanges(state.language);
+        if (choice === 'cancel') return;
+        if (choice === 'save') {
+          try {
+            if (state.filePath) {
+              await tauri.saveFile(state.filePath, state.content);
+            } else {
+              const savedPath = await tauri.saveFileAs(state.content);
+              if (!savedPath) return;
+            }
+          } catch (e) {
+            console.error('Ошибка сохранения перед открытием pending-файла:', e);
+            return;
+          }
         }
+      }
+
+      try {
+        const [content, base] = await Promise.all([
+          tauri.readFile(filePath),
+          findBaseDir(filePath),
+        ]);
+        useAppStore.getState().setFilePath(filePath);
+        useAppStore.getState().setBaseDir(base);
+        useAppStore.getState().setContent(content);
+        useAppStore.getState().setDirty(false);
+      } catch (e) {
+        console.error('Ошибка открытия файла:', e);
       }
     });
   }, []);

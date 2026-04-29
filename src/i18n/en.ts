@@ -25,6 +25,12 @@ export const en: Translations = {
   // Editor
   placeholder: 'Start writing...',
   
+  // Dialogs
+  unsavedTitle: 'Unsaved changes',
+  unsavedMessage: 'The document has unsaved changes. Save them before continuing?',
+  discard: "Don't save",
+  cancel: 'Cancel',
+
   // About
   about: 'About',
   version: 'Version',
