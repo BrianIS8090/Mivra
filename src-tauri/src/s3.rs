@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 use specta::Type;
+use std::fmt::Write as _;
+use std::path::Path;
 
 #[derive(Serialize, Deserialize, Clone, Debug, Type)]
 pub struct S3Config {
@@ -13,13 +15,104 @@ pub struct S3Config {
 
 const DANGEROUS_CHARS: &[char] = &['/', '\\', '\0', '<', '>', ':', '"', '|', '?', '*'];
 const MAX_FILENAME_LEN: usize = 100;
+pub const MAX_UPLOAD_BYTES: u64 = 100 * 1024 * 1024;
+const ALLOWED_EXTENSIONS: &[&str] = &[
+  "png", "jpg", "jpeg", "gif", "webp", "svg", "bmp", "apng", "avif", "tiff", "tif", "heic", "pdf",
+  "zip", "mp4", "webm",
+];
 
 pub fn sanitize_filename(name: &str) -> String {
   let cleaned: String = name
     .chars()
-    .map(|c| if DANGEROUS_CHARS.contains(&c) { '_' } else { c })
+    .map(|c| {
+      if DANGEROUS_CHARS.contains(&c) || c.is_control() {
+        '_'
+      } else {
+        c
+      }
+    })
     .collect();
   cleaned.chars().take(MAX_FILENAME_LEN).collect()
+}
+
+fn extension_of(name: &str) -> Option<String> {
+  name.rsplit_once('.').and_then(|(_, ext)| {
+    let ext = ext.trim().to_lowercase();
+    if ext.is_empty() {
+      None
+    } else {
+      Some(ext)
+    }
+  })
+}
+
+pub fn validate_upload_filename(name: &str) -> Result<String, String> {
+  let sanitized = sanitize_filename(name).trim().to_string();
+  let (stem, _) = sanitized
+    .rsplit_once('.')
+    .ok_or_else(|| "unsupported_extension: расширение файла не поддерживается".to_string())?;
+
+  if stem.trim().trim_matches('.').is_empty() {
+    return Err("invalid_filename: имя файла пустое".to_string());
+  }
+
+  let ext = extension_of(&sanitized)
+    .ok_or_else(|| "unsupported_extension: расширение файла не поддерживается".to_string())?;
+  if !ALLOWED_EXTENSIONS.contains(&ext.as_str()) {
+    return Err(format!("unsupported_extension: {}", ext));
+  }
+
+  Ok(sanitized)
+}
+
+pub fn validate_upload_path_filename(
+  local_path: &str,
+  original_filename: &str,
+) -> Result<String, String> {
+  let sanitized = validate_upload_filename(original_filename)?;
+  let path_filename = Path::new(local_path)
+    .file_name()
+    .and_then(|name| name.to_str())
+    .ok_or_else(|| "invalid_local_path: не удалось определить имя файла".to_string())?;
+
+  if path_filename != original_filename {
+    return Err("invalid_local_path: имя файла не совпадает с путём".to_string());
+  }
+
+  Ok(sanitized)
+}
+
+pub fn validate_upload_size(size: u64) -> Result<(), String> {
+  if size > MAX_UPLOAD_BYTES {
+    return Err("file_too_large: файл больше 100 MB".to_string());
+  }
+  Ok(())
+}
+
+fn normalize_path_prefix(path_prefix: Option<&str>) -> Result<Option<String>, String> {
+  let Some(prefix) = path_prefix else {
+    return Ok(None);
+  };
+  let trimmed = prefix.trim().trim_matches('/');
+  if trimmed.is_empty() {
+    return Ok(None);
+  }
+
+  let mut segments = Vec::new();
+  for segment in trimmed.split('/') {
+    let segment = segment.trim();
+    if segment.is_empty() || segment == "." || segment == ".." {
+      return Err("invalid_path_prefix: недопустимый сегмент пути".to_string());
+    }
+
+    let safe_segment = sanitize_filename(segment);
+    if safe_segment.trim().trim_matches('.').is_empty() {
+      return Err("invalid_path_prefix: недопустимый сегмент пути".to_string());
+    }
+    segments.push(safe_segment);
+  }
+
+  Ok(Some(segments.join("/")))
 }
 
 pub fn build_key(path_prefix: Option<&str>, uuid: &str, sanitized_filename: &str) -> String {
@@ -32,6 +125,24 @@ pub fn build_key(path_prefix: Option<&str>, uuid: &str, sanitized_filename: &str
   }
 }
 
+fn is_url_unreserved(byte: u8) -> bool {
+  matches!(byte, b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'-' | b'.' | b'_' | b'~')
+}
+
+fn percent_encode_key(key: &str) -> String {
+  let mut encoded = String::new();
+  for &byte in key.as_bytes() {
+    if byte == b'/' {
+      encoded.push('/');
+    } else if is_url_unreserved(byte) {
+      encoded.push(byte as char);
+    } else {
+      let _ = write!(encoded, "%{byte:02X}");
+    }
+  }
+  encoded
+}
+
 pub fn derive_public_url(config: &S3Config, key: &str) -> String {
   let base = match &config.public_url_prefix {
     Some(prefix) if !prefix.is_empty() => prefix.trim_end_matches('/').to_string(),
@@ -41,7 +152,7 @@ pub fn derive_public_url(config: &S3Config, key: &str) -> String {
       config.bucket
     ),
   };
-  format!("{}/{}", base, key)
+  format!("{}/{}", base, percent_encode_key(key))
 }
 
 const KEYRING_SERVICE: &str = "Mivra";
@@ -99,8 +210,11 @@ pub fn secret_exists() -> Result<bool, String> {
 }
 
 use s3::bucket::Bucket;
+use s3::command::Command;
 use s3::creds::Credentials;
 use s3::region::Region;
+use s3::request::tokio_backend::HyperRequest;
+use s3::request::Request;
 use std::time::Duration;
 
 #[cfg(not(test))]
@@ -111,14 +225,8 @@ const RETRY_DELAYS_MS: &[u64] = &[10, 20, 40];
 const MAX_ATTEMPTS: usize = 3;
 
 fn build_bucket(config: &S3Config, secret: &str) -> Result<Bucket, String> {
-  let credentials = Credentials::new(
-    Some(&config.access_key_id),
-    Some(secret),
-    None,
-    None,
-    None,
-  )
-  .map_err(|e| format!("Ошибка credentials: {}", e))?;
+  let credentials = Credentials::new(Some(&config.access_key_id), Some(secret), None, None, None)
+    .map_err(|e| format!("Ошибка credentials: {}", e))?;
 
   let region = Region::Custom {
     region: config.region.clone(),
@@ -143,10 +251,12 @@ pub async fn upload_bytes_with_secret(
   bytes: Vec<u8>,
   original_filename: &str,
 ) -> Result<String, String> {
+  validate_upload_size(bytes.len() as u64)?;
+  let sanitized = validate_upload_filename(original_filename)?;
+  let path_prefix = normalize_path_prefix(config.path_prefix.as_deref())?;
   let bucket = build_bucket(config, secret)?;
-  let sanitized = sanitize_filename(original_filename);
   let id = uuid::Uuid::new_v4().to_string();
-  let key = build_key(config.path_prefix.as_deref(), &id, &sanitized);
+  let key = build_key(path_prefix.as_deref(), &id, &sanitized);
 
   let content_type = mime_guess::from_path(&sanitized)
     .first_or_octet_stream()
@@ -169,7 +279,11 @@ pub async fn upload_bytes_with_secret(
           return Ok(derive_public_url(config, &key));
         }
         if !classify_error_status(status) {
-          return Err(format!("HTTP {}: {}", status, String::from_utf8_lossy(response.bytes())));
+          return Err(format!(
+            "HTTP {}: {}",
+            status,
+            String::from_utf8_lossy(response.bytes())
+          ));
         }
         last_err = Some(format!("HTTP {}", status));
       }
@@ -188,21 +302,45 @@ pub async fn upload_file_with_secret(
   local_path: &str,
   original_filename: &str,
 ) -> Result<String, String> {
+  validate_upload_path_filename(local_path, original_filename)?;
+  normalize_path_prefix(config.path_prefix.as_deref())?;
+  let metadata = std::fs::symlink_metadata(local_path)
+    .map_err(|e| format!("Ошибка чтения метаданных файла: {}", e))?;
+  if metadata.file_type().is_symlink() {
+    return Err("invalid_local_path: символические ссылки не поддерживаются".to_string());
+  }
+  if !metadata.is_file() {
+    return Err("invalid_local_path: путь должен указывать на файл".to_string());
+  }
+  let size = metadata.len();
+  validate_upload_size(size)?;
   let bytes = std::fs::read(local_path).map_err(|e| format!("Ошибка чтения файла: {}", e))?;
   upload_bytes_with_secret(config, secret, bytes, original_filename).await
 }
 
-// Проверка соединения с S3: HEAD-запрос по корню bucket с категоризацией ошибок.
+// Проверка соединения с S3: bucket-level ListObjectsV2 с max-keys=1.
 pub async fn test_connection_with_secret(config: &S3Config, secret: &str) -> Result<(), String> {
   let bucket = build_bucket(config, secret)?;
+  let command = Command::ListObjectsV2 {
+    prefix: String::new(),
+    delimiter: None,
+    continuation_token: None,
+    start_after: None,
+    max_keys: Some(1),
+  };
 
-  match bucket.head_object("/").await {
-    Ok((_, status)) if (200..300).contains(&status) => Ok(()),
-    Ok((_, 404)) => Err("bucket_not_found: bucket не существует или нет прав".to_string()),
-    Ok((_, 401)) | Ok((_, 403)) => {
-      Err("auth_failed: проверьте Access Key и права на bucket".to_string())
-    }
-    Ok((_, status)) => Err(format!("HTTP {}", status)),
+  match HyperRequest::new(&bucket, "/", command).await {
+    Ok(request) => match request.response_data(false).await {
+      Ok(response) if (200..300).contains(&response.status_code()) => Ok(()),
+      Ok(response) if response.status_code() == 404 => {
+        Err("bucket_not_found: bucket не существует или нет прав".to_string())
+      }
+      Ok(response) if response.status_code() == 401 || response.status_code() == 403 => {
+        Err("auth_failed: проверьте Access Key и права на bucket".to_string())
+      }
+      Ok(response) => Err(format!("HTTP {}", response.status_code())),
+      Err(e) => Err(format!("network_unreachable: {}", e)),
+    },
     Err(e) => Err(format!("network_unreachable: {}", e)),
   }
 }
@@ -220,7 +358,10 @@ mod tests {
   #[test]
   fn sanitize_keeps_unicode() {
     assert_eq!(sanitize_filename("скриншот.png"), "скриншот.png");
-    assert_eq!(sanitize_filename("file with spaces.png"), "file with spaces.png");
+    assert_eq!(
+      sanitize_filename("file with spaces.png"),
+      "file with spaces.png"
+    );
   }
 
   #[test]
@@ -260,7 +401,10 @@ mod tests {
       public_url_prefix: Some("https://cdn.example.com/".into()),
       path_prefix: None,
     };
-    assert_eq!(derive_public_url(&config, "abc-foo.png"), "https://cdn.example.com/abc-foo.png");
+    assert_eq!(
+      derive_public_url(&config, "abc-foo.png"),
+      "https://cdn.example.com/abc-foo.png"
+    );
   }
 
   #[test]
@@ -289,7 +433,59 @@ mod tests {
       public_url_prefix: Some("https://cdn.example.com/".into()),
       path_prefix: None,
     };
-    assert_eq!(derive_public_url(&config, "abc-foo.png"), "https://cdn.example.com/abc-foo.png");
+    assert_eq!(
+      derive_public_url(&config, "abc-foo.png"),
+      "https://cdn.example.com/abc-foo.png"
+    );
+  }
+
+  #[test]
+  fn derive_public_url_percent_encodes_key() {
+    let config = S3Config {
+      endpoint: "https://storage.yandexcloud.net".into(),
+      region: "ru-central1".into(),
+      bucket: "my-bucket".into(),
+      access_key_id: "id".into(),
+      public_url_prefix: Some("https://cdn.example.com/mivra".into()),
+      path_prefix: None,
+    };
+
+    assert_eq!(
+      derive_public_url(&config, "docs/скрин #1%.png"),
+      "https://cdn.example.com/mivra/docs/%D1%81%D0%BA%D1%80%D0%B8%D0%BD%20%231%25.png"
+    );
+  }
+
+  #[test]
+  fn validate_upload_filename_rejects_exe() {
+    let err = validate_upload_filename("payload.exe").unwrap_err();
+    assert!(err.contains("unsupported_extension"), "got: {}", err);
+  }
+
+  #[test]
+  fn validate_upload_path_filename_rejects_name_mismatch() {
+    let err = validate_upload_path_filename("C:/tmp/secret.txt", "payload.pdf").unwrap_err();
+    assert!(err.contains("invalid_local_path"), "got: {}", err);
+  }
+
+  #[test]
+  fn validate_upload_size_rejects_large_file() {
+    let err = validate_upload_size(MAX_UPLOAD_BYTES + 1).unwrap_err();
+    assert!(err.contains("file_too_large"), "got: {}", err);
+  }
+
+  #[test]
+  fn normalize_path_prefix_rejects_traversal() {
+    let err = normalize_path_prefix(Some("../secret")).unwrap_err();
+    assert!(err.contains("invalid_path_prefix"), "got: {}", err);
+  }
+
+  #[test]
+  fn normalize_path_prefix_keeps_nested_safe_prefix() {
+    let prefix = normalize_path_prefix(Some("mivra/docs/"))
+      .expect("Префикс должен пройти")
+      .expect("Префикс должен остаться");
+    assert_eq!(prefix, "mivra/docs");
   }
 
   // Тесты используют уникальный username, чтобы не конфликтовать с реальным
@@ -345,10 +541,10 @@ mod tests {
       .await;
 
     let config = test_config(server.uri());
-    let url = upload_bytes_with_secret(&config, "test_secret", b"hello".to_vec(), "test.txt")
+    let url = upload_bytes_with_secret(&config, "test_secret", b"hello".to_vec(), "test.pdf")
       .await
       .expect("upload should succeed");
-    assert!(url.ends_with("test.txt"));
+    assert!(url.ends_with("test.pdf"));
     assert!(url.contains("test-bucket"));
   }
 
@@ -362,7 +558,7 @@ mod tests {
       .await;
 
     let config = test_config(server.uri());
-    let result = upload_bytes_with_secret(&config, "secret", b"x".to_vec(), "f.txt").await;
+    let result = upload_bytes_with_secret(&config, "secret", b"x".to_vec(), "f.pdf").await;
     assert!(result.is_err(), "403 should fail");
   }
 
@@ -380,7 +576,7 @@ mod tests {
       .await;
 
     let config = test_config(server.uri());
-    let result = upload_bytes_with_secret(&config, "secret", b"x".to_vec(), "f.txt").await;
+    let result = upload_bytes_with_secret(&config, "secret", b"x".to_vec(), "f.pdf").await;
     assert!(result.is_ok(), "should succeed after retry");
   }
 
@@ -394,7 +590,7 @@ mod tests {
       .await;
 
     let config = test_config(server.uri());
-    let result = upload_bytes_with_secret(&config, "secret", b"x".to_vec(), "f.txt").await;
+    let result = upload_bytes_with_secret(&config, "secret", b"x".to_vec(), "f.pdf").await;
     assert!(result.is_err(), "should fail after 3 retries");
   }
 
@@ -403,8 +599,17 @@ mod tests {
   #[tokio::test]
   async fn test_connection_succeeds_on_200() {
     let server = MockServer::start().await;
-    Mock::given(method("HEAD"))
-      .respond_with(ResponseTemplate::new(200))
+    Mock::given(method("GET"))
+      .respond_with(ResponseTemplate::new(200).set_body_string(
+        r#"<?xml version="1.0" encoding="UTF-8"?>
+<ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+  <Name>test-bucket</Name>
+  <Prefix></Prefix>
+  <KeyCount>0</KeyCount>
+  <MaxKeys>1</MaxKeys>
+  <IsTruncated>false</IsTruncated>
+</ListBucketResult>"#,
+      ))
       .mount(&server)
       .await;
 
@@ -421,7 +626,9 @@ mod tests {
       .await;
 
     let config = test_config(server.uri());
-    let err = test_connection_with_secret(&config, "secret").await.unwrap_err();
+    let err = test_connection_with_secret(&config, "secret")
+      .await
+      .unwrap_err();
     assert!(err.contains("403") || err.contains("auth"), "got: {}", err);
   }
 
@@ -434,7 +641,13 @@ mod tests {
       .await;
 
     let config = test_config(server.uri());
-    let err = test_connection_with_secret(&config, "secret").await.unwrap_err();
-    assert!(err.contains("404") || err.contains("not_found"), "got: {}", err);
+    let err = test_connection_with_secret(&config, "secret")
+      .await
+      .unwrap_err();
+    assert!(
+      err.contains("404") || err.contains("not_found"),
+      "got: {}",
+      err
+    );
   }
 }

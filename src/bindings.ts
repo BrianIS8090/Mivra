@@ -19,7 +19,7 @@ export const commands = {
 	s3ClearSecret: () => typedError<null, string>(__TAURI_INVOKE("s3_clear_secret")),
 	// Проверить, сохранён ли Secret Access Key в keyring.
 	s3SecretExists: () => typedError<boolean, string>(__TAURI_INVOKE("s3_secret_exists")),
-	// Проверить соединение с S3-хранилищем (HEAD-запрос на bucket).
+	// Проверить соединение с S3-хранилищем (bucket-level ListObjectsV2).
 	s3TestConnection: (config: S3Config) => typedError<null, string>(__TAURI_INVOKE("s3_test_connection", { config })),
 	// Загрузить файл с диска в S3 и вернуть публичный URL.
 	s3UploadFile: (localPath: string, originalFilename: string, config: S3Config) => typedError<string, string>(__TAURI_INVOKE("s3_upload_file", { localPath, originalFilename, config })),

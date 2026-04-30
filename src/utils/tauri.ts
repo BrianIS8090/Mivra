@@ -69,7 +69,7 @@ export async function s3SecretExists(): Promise<boolean> {
   return unwrap(commands.s3SecretExists());
 }
 
-// Проверить соединение с S3-хранилищем (HEAD-запрос на bucket).
+// Проверить соединение с S3-хранилищем (bucket-level ListObjectsV2).
 export async function s3TestConnection(config: S3Config): Promise<void> {
   await unwrap(commands.s3TestConnection(config));
 }

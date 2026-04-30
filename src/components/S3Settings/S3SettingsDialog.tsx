@@ -69,10 +69,16 @@ export function S3SettingsDialog({ onClose }: Props) {
       await tauri.s3ClearSecret();
       setSecretExists(false);
       setTestedOk(false);
+      setS3Verified(false);
       toast.show(t.s3SecretClear, 'success');
     } catch (e) {
       toast.show(`${e}`, 'error');
     }
+  };
+
+  const handleSecretChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSecretInput(e.target.value);
+    setTestedOk(false);
   };
 
   const handleTest = async () => {
@@ -80,6 +86,7 @@ export function S3SettingsDialog({ onClose }: Props) {
     try {
       // Если в форме введён новый secret — сначала сохраняем его временно
       if (secretInput) {
+        setS3Verified(false);
         await tauri.s3SetSecret(secretInput);
         setSecretExists(true);
       }
@@ -88,6 +95,7 @@ export function S3SettingsDialog({ onClose }: Props) {
       toast.show(t.s3TestSuccess, 'success');
     } catch (e) {
       setTestedOk(false);
+      setS3Verified(false);
       toast.show(`${t.s3TestFail}: ${e}`, 'error');
     } finally {
       setTesting(false);
@@ -166,7 +174,7 @@ export function S3SettingsDialog({ onClose }: Props) {
             <input
               type="password"
               value={secretInput}
-              onChange={(e) => setSecretInput(e.target.value)}
+              onChange={handleSecretChange}
               placeholder={secretExists ? t.s3SecretSaved : ''}
             />
             {secretExists && (
