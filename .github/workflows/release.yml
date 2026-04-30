@@ -4,6 +4,12 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Тег релиза (например v0.6.6). Будет создан, если не существует.'
+        required: true
+        type: string
 
 jobs:
   release:
@@ -58,10 +64,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tagName: ${{ github.ref_name }}
-          releaseName: 'Mivra ${{ github.ref_name }}'
+          tagName: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+          releaseName: 'Mivra ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}'
           releaseBody: |
-            ## Mivra ${{ github.ref_name }}
+            ## Mivra ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
 
             Скачайте установщик для вашей платформы ниже.
 

@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "Mivra",
-  "version": "0.6.5",
+  "version": "0.6.6",
   "identifier": "com.brian.mivra",
   "build": {
     "beforeDevCommand": "npm run dev",
@@ -25,13 +25,23 @@
       "csp": "default-src 'self' ipc: http://ipc.localhost; img-src 'self' data: blob: asset: https: http://asset.localhost https://asset.localhost; style-src 'self' 'unsafe-inline'; script-src 'self'; font-src 'self' data:; connect-src 'self' ipc: http://ipc.localhost http://asset.localhost https://asset.localhost; media-src 'self' asset: http://asset.localhost https://asset.localhost; object-src 'none'; frame-src 'none'",
       "assetProtocol": {
         "enable": true,
-        "scope": ["$HOME/**", "$DESKTOP/**", "$DOCUMENT/**", "$DOWNLOAD/**"]
+        "scope": [
+          "$HOME/**",
+          "$DESKTOP/**",
+          "$DOCUMENT/**",
+          "$DOWNLOAD/**"
+        ]
       }
     }
   },
   "bundle": {
     "active": true,
-    "targets": ["nsis", "dmg", "deb", "appimage"],
+    "targets": [
+      "nsis",
+      "dmg",
+      "deb",
+      "appimage"
+    ],
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
@@ -44,7 +54,12 @@
     "longDescription": "Современный Markdown редактор с визуальным и исходным режимами редактирования, построенный на Tauri 2 и Milkdown Crepe.",
     "fileAssociations": [
       {
-        "ext": ["md", "markdown", "mdown", "mkd"],
+        "ext": [
+          "md",
+          "markdown",
+          "mdown",
+          "mkd"
+        ],
         "name": "Markdown Document",
         "description": "Markdown документ",
         "mimeType": "text/markdown",
@@ -55,7 +70,10 @@
       "nsis": {
         "installerIcon": "icons/icon.ico",
         "installMode": "currentUser",
-        "languages": ["Russian", "English"],
+        "languages": [
+          "Russian",
+          "English"
+        ],
         "displayLanguageSelector": true
       }
     }
