@@ -1,10 +1,13 @@
 import { useCallback, useMemo } from 'react';
 import { editorViewCtx } from '@milkdown/kit/core';
 import { insert } from '@milkdown/kit/utils';
+import { open as openDialog } from '@tauri-apps/plugin-dialog';
+import { stat } from '@tauri-apps/plugin-fs';
 
 import { useAppStore } from '../stores/appStore';
 import { useEditorHandle } from '../components/Editor/EditorContext';
 import { pickAndFormatAsset } from '../utils/paths';
+import { useS3Upload } from './useS3Upload';
 
 export type MarkdownAction =
   | {
@@ -135,8 +138,47 @@ export function useMarkdownActions() {
     });
   }, [editorMode, setContent, handleRef]);
 
-  // Открыть диалог выбора файла из assets/ и вставить markdown-ссылку
+  // Колбэк для useS3Upload — собирает markdown и вставляет через applyMarkdownAction
+  const insertImageOrLink = useCallback(
+    (name: string, url: string, isImage: boolean) => {
+      const text = isImage ? `![${name}](${url})\n` : `[${name}](${url})\n`;
+      applyMarkdownAction({ type: 'insert', text, inline: false });
+    },
+    [applyMarkdownAction],
+  );
+
+  const s3 = useS3Upload(insertImageOrLink);
+
+  // Открыть диалог выбора файла и вставить markdown-ссылку.
+  // Если S3 настроен — загружаем туда. Иначе — старая логика assets/.
   const insertAssetAction = useCallback(async () => {
+    if (s3.ready) {
+      const selected = await openDialog({
+        multiple: false,
+        directory: false,
+        filters: [{
+          name: 'Assets',
+          extensions: [
+            'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp',
+            'apng', 'avif', 'tiff', 'tif', 'heic',
+            'pdf', 'zip', 'mp4', 'webm',
+          ],
+        }],
+      });
+      if (!selected || typeof selected !== 'string') return;
+      const filename = selected.split(/[\\/]/).pop() ?? selected;
+      let size: number | undefined;
+      try {
+        const meta = await stat(selected);
+        size = meta.size;
+      } catch {
+        size = undefined;
+      }
+      await s3.uploadAndInsertFile(selected, filename, size);
+      return;
+    }
+
+    // S3 не настроен — старый локальный pickAndFormatAsset
     try {
       const md = await pickAndFormatAsset(baseDir);
       if (md) {
@@ -145,7 +187,7 @@ export function useMarkdownActions() {
     } catch (e) {
       console.warn('[useMarkdownActions] insertAsset cancelled or error:', e);
     }
-  }, [applyMarkdownAction, baseDir]);
+  }, [s3, applyMarkdownAction, baseDir]);
 
   return { applyMarkdownAction, insertAssetAction, placeholders };
 }

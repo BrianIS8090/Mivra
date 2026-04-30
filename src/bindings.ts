@@ -13,12 +13,44 @@ export const commands = {
 	// Чтение файла по пути (для открытия через ассоциацию файлов)
 	readFile: (path: string) => typedError<string, string>(__TAURI_INVOKE("read_file", { path })),
 	getPendingFile: () => __TAURI_INVOKE<string | null>("get_pending_file"),
+	// Сохранить Secret Access Key в системный keyring.
+	s3SetSecret: (secret: string) => typedError<null, string>(__TAURI_INVOKE("s3_set_secret", { secret })),
+	// Удалить Secret Access Key из системного keyring.
+	s3ClearSecret: () => typedError<null, string>(__TAURI_INVOKE("s3_clear_secret")),
+	// Проверить, сохранён ли Secret Access Key в keyring.
+	s3SecretExists: () => typedError<boolean, string>(__TAURI_INVOKE("s3_secret_exists")),
+	// Проверить соединение с S3-хранилищем (bucket-level ListObjectsV2).
+	s3TestConnection: (config: S3Config) => typedError<null, string>(__TAURI_INVOKE("s3_test_connection", { config })),
+	// Загрузить файл с диска в S3 и вернуть публичный URL.
+	s3UploadFile: (localPath: string, originalFilename: string, config: S3Config) => typedError<string, string>(__TAURI_INVOKE("s3_upload_file", { localPath, originalFilename, config })),
+	// Загрузить байты в S3 и вернуть публичный URL.
+	s3UploadBytes: (bytes: number[], originalFilename: string, config: S3Config) => typedError<string, string>(__TAURI_INVOKE("s3_upload_bytes", { bytes, originalFilename, config })),
+	/**
+	 *  Сохранить локальный файл в {base_dir}/assets/. Возвращает относительный путь
+	 *  от base_dir для вставки в markdown (например, "assets/screenshot.png").
+	 *  Используется как fallback для drag&drop, когда S3 не настроен или не прошёл тест.
+	 */
+	saveLocalAssetFile: (localPath: string, baseDir: string, targetName: string) => typedError<string, string>(__TAURI_INVOKE("save_local_asset_file", { localPath, baseDir, targetName })),
+	/**
+	 *  Сохранить байты (например, картинка из буфера) в {base_dir}/assets/.
+	 *  Возвращает относительный путь от base_dir для вставки в markdown.
+	 */
+	saveLocalAssetBytes: (bytes: number[], baseDir: string, targetName: string) => typedError<string, string>(__TAURI_INVOKE("save_local_asset_bytes", { bytes, baseDir, targetName })),
 };
 
 /* Types */
 export type FileData = {
 	path: string,
 	content: string,
+};
+
+export type S3Config = {
+	endpoint: string,
+	region: string,
+	bucket: string,
+	access_key_id: string,
+	public_url_prefix: string | null,
+	path_prefix: string | null,
 };
 
 export type Settings = {
@@ -28,6 +60,8 @@ export type Settings = {
 	language?: string,
 	recent_files?: string[],
 	page_width?: number,
+	s3?: S3Config | null,
+	s3_verified?: boolean,
 };
 
 /* Tauri Specta runtime */

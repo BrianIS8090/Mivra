@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react';
 import { useFile } from '../../hooks/useFile';
 import { useSettings } from '../../hooks/useSettings';
 import { useTheme } from '../../hooks/useTheme';
-import { useMarkdownActions } from '../../hooks/useMarkdownActions';
 import { useAppStore } from '../../stores/appStore';
 import { getTranslations } from '../../i18n';
 import { HelpDialog } from '../Help/HelpDialog';
+import { S3SettingsDialog } from '../S3Settings/S3SettingsDialog';
 import './toolbar.css';
 
 const FONT_OPTIONS = [
@@ -20,9 +20,9 @@ const FONT_OPTIONS = [
 
 export function Toolbar() {
   const [showHelp, setShowHelp] = useState(false);
+  const [showS3, setShowS3] = useState(false);
   const { open, save, saveAs, reload, filePath } = useFile();
   const { fontFamily, fontSize, language, pageWidth, changeFontFamily, changeFontSize, changeLanguage, changePageWidth } = useSettings();
-  const { insertAssetAction } = useMarkdownActions();
   const [pageWidthDraft, setPageWidthDraft] = useState(String(pageWidth));
 
   // Синхронизация при внешнем изменении (загрузка настроек)
@@ -42,6 +42,8 @@ export function Toolbar() {
   const { theme, toggleTheme } = useTheme();
   const editorMode = useAppStore((s) => s.editorMode);
   const setEditorMode = useAppStore((s) => s.setEditorMode);
+  const s3 = useAppStore((s) => s.s3);
+  const s3Verified = useAppStore((s) => s.s3Verified);
   
   const t = getTranslations(language);
 
@@ -76,14 +78,6 @@ export function Toolbar() {
             title={t.reloadTooltip}
           >
             ↻
-          </button>
-          <button
-            className="toolbar-btn"
-            onClick={() => insertAssetAction()}
-            disabled={!filePath}
-            title={t.insertAssetTooltip}
-          >
-            {t.insertAsset}
           </button>
         </div>
 
@@ -158,6 +152,13 @@ export function Toolbar() {
 
         <div className="toolbar-group">
           <button
+            className={`toolbar-btn${s3 && s3Verified ? ' toolbar-btn-s3-ok' : ''}`}
+            onClick={() => setShowS3(true)}
+            title={s3 && s3Verified ? `S3: ${s3.bucket}` : 'S3'}
+          >
+            {t.s3Button}
+          </button>
+          <button
             className="toolbar-btn"
             onClick={() => setShowHelp(true)}
           >
@@ -174,6 +175,7 @@ export function Toolbar() {
       </div>
 
       {showHelp && <HelpDialog onClose={() => setShowHelp(false)} />}
+      {showS3 && <S3SettingsDialog onClose={() => setShowS3(false)} />}
     </>
   );
 }

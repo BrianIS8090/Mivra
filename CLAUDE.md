@@ -20,15 +20,19 @@ Rust-часть (`cd src-tauri`): `cargo check`, `cargo clippy`, `cargo test`.
 
 ```
 src/
-  components/   # Editor, StatusBar, TitleBar, Toolbar
-  hooks/        # useFile, useSettings, useTheme
-  stores/       # appStore.ts (Zustand)
-  types/        # index.ts — все TS-интерфейсы (синхронизировать с Rust-структурами)
-  utils/        # tauri.ts — обёртки над всеми вызовами IPC
+  components/   # Editor, StatusBar, TitleBar, Toolbar, S3Settings, Toast, Dialog, Help
+  hooks/        # useFile, useSettings, useTheme, useS3Upload, useToast,
+                # useMarkdownActions, useExit
+  stores/       # appStore.ts + toastStore.ts (Zustand)
+  types/        # index.ts — UI-типы; реэкспорт сгенерированных Settings/S3Config
+  utils/        # tauri.ts — обёртки над bindings; mermaid.ts; paths.ts; dialogs.ts
   themes/       # variables.css + light/dark
   test/         # setup.ts с моками Tauri API
+  bindings.ts   # АВТО-генерация specta — НЕ ПРАВИТЬ РУКАМИ
 src-tauri/src/
   lib.rs, main.rs, commands.rs   # точки входа и Tauri-команды
+  s3.rs                          # S3-загрузка: sanitize, build_key, upload, keyring
+  bin/export_bindings.rs         # генератор bindings.ts (npm run gen:types)
 ```
 
 ## Критические правила
@@ -40,18 +44,37 @@ src-tauri/src/
 - **Версия выпуска обновляется одновременно в трёх файлах:** `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml` (см. `RELEASE.md`).
 - **Окружение: Windows + bash/PowerShell.** В PowerShell нет `&&` (использовать `;`), избегать многострочных heredoc в bash.
 
+## S3-загрузка (фича)
+
+Mivra умеет грузить файлы в S3-совместимое облако (Yandex, TimeWeb, AWS, R2 и т. п.). Архитектура и точки входа:
+
+- **Rust-сторона:** `src-tauri/src/s3.rs` — модуль с `S3Config`, `sanitize_filename`, `build_key`, `derive_public_url`, keyring (`set_secret`/`get_secret`/`delete_secret`/`secret_exists`), `upload_bytes_with_secret`, `upload_file_with_secret`, `test_connection_with_secret`. Использует `rust-s3` (с features `tokio-rustls-tls` + `with_path_style()` для не-AWS), `keyring` (нужны features `windows-native`/`apple-native`/`linux-native-sync-persistent`/`crypto-rust` — без них fallback на mock backend), `uuid`, `mime_guess`. Retry x3 (1s/2s/4s) для network/5xx, без retry на 4xx.
+- **IPC-команды** (`src-tauri/src/commands.rs`): `s3_set_secret`, `s3_clear_secret`, `s3_secret_exists`, `s3_test_connection`, `s3_upload_file`, `s3_upload_bytes`, `save_local_asset_file`, `save_local_asset_bytes`. Secret НИКОГДА не возвращается на фронт — только через keyring. Local-asset команды копируют в `{baseDir}/assets/` с дедупликацией имён через helper `unique_filename` и возвращают относительный путь для markdown.
+- **Settings:** `Settings.s3: Option<S3Config>` + `Settings.s3_verified: bool` (зелёная подсветка кнопки в Toolbar). `s3_verified` сбрасывается при изменении любого поля конфига (`setS3Config` в `appStore`).
+- **Frontend:**
+  - `src/hooks/useS3Upload.ts` — основной хук с `ready` = `s3 != null && secretExists && s3Verified`. Без verified мы НЕ пытаемся грузить — это предотвращает ошибки в середине операции при невалидных настройках. `uploadAndInsertBytes` (paste/clipboard), `uploadAndInsertFile` (drag&drop/file picker). Whitelist: картинки + pdf/zip/mp4/webm. Hard-limit 100 MB, soft-warn confirm на >10 MB.
+  - `src/components/S3Settings/S3SettingsDialog.tsx` — форма настроек, открывается из Toolbar.
+  - `src/components/Editor/Editor.tsx` — drag&drop через `getCurrentWindow().onDragDropEvent`, paste через `document.addEventListener('paste', ..., true)` (capture-phase, до Crepe). Оба триггера ВСЕГДА подписываются (не только при `s3.ready`) и решают по `s3.ready`: облако или локальный `assets/` через `tauri.saveLocalAssetFile/Bytes`. Если документ не сохранён (нет `baseDir`) — toast info «Сохраните документ».
+  - `src/hooks/useMarkdownActions.ts` — `insertAssetAction` ветвится: если S3 ready → file dialog → upload, иначе → старый `pickAndFormatAsset` (локальный assets/).
+  - `src/components/Toast/` — Toast-инфраструктура для прогресс-индикации.
+- **Capabilities:** `fs:allow-stat` нужен для drag&drop (читаем размер файла перед upload). `fs:allow-exists` уже был. CSP не трогаем — S3-запросы идут из Rust, не из webview.
+- **Документация для пользователей:** `docs/S3.md` — маппинг ключей провайдеров (Yandex/TimeWeb/AWS), как настроить публичный bucket, troubleshooting.
+
+**При изменении Rust-структур** (Settings, S3Config, новые команды) обязательно `npm run gen:types` — bindings.ts регенерируется, TS-ошибки точно покажут затронутые места.
+
 ## Связанные документы
 
 - `AGENTS.md` — полные конвенции по стилю кода, импортам, тестам.
 - `DEVELOPMENT.md` — установка, требования, особенности реализации.
 - `RELEASE.md` — процесс выпуска версий и CI.
+- `docs/S3.md` — гид по настройке S3-загрузки для пользователей.
 
 ---
 
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **Mivra** (228 symbols, 506 relationships, 20 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **Mivra** (342 symbols, 794 relationships, 23 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > If any GitNexus tool warns the index is stale, run `npx gitnexus analyze` in terminal first.
 

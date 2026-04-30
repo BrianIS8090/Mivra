@@ -1,0 +1,108 @@
+/* Диалог настроек S3 */
+.s3-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  backdrop-filter: blur(2px);
+}
+
+.s3-dialog {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  padding: 20px 24px;
+  width: min(560px, 92%);
+  max-height: 85vh;
+  overflow-y: auto;
+  font-family: var(--font-family);
+}
+
+.s3-title {
+  margin: 0 0 16px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.s3-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.s3-field span {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.s3-field input {
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  font-size: 13px;
+}
+
+.s3-field input::placeholder {
+  color: var(--text-muted);
+}
+
+.s3-secret-row {
+  display: flex;
+  gap: 8px;
+}
+
+.s3-secret-row input {
+  flex: 1;
+}
+
+.s3-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.s3-btn {
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border-radius: var(--radius);
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+}
+
+.s3-btn:hover {
+  background: var(--hover-bg);
+}
+
+.s3-btn:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+.s3-btn-primary {
+  background: var(--accent);
+  color: var(--accent-text);
+  border-color: var(--accent);
+}
+
+.s3-btn-primary:hover {
+  background: var(--accent-hover);
+}
+
+.s3-btn-ghost {
+  background: transparent;
+}

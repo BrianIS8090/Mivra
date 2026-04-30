@@ -11,6 +11,8 @@ export function useSettings() {
   const language = useAppStore((s) => s.language);
   const recentFiles = useAppStore((s) => s.recentFiles);
   const pageWidth = useAppStore((s) => s.pageWidth);
+  const s3 = useAppStore((s) => s.s3);
+  const s3Verified = useAppStore((s) => s.s3Verified);
   const setFontFamily = useAppStore((s) => s.setFontFamily);
   const setFontSize = useAppStore((s) => s.setFontSize);
   const setTheme = useAppStore((s) => s.setTheme);
@@ -37,11 +39,13 @@ export function useSettings() {
         language,
         recent_files: recentFiles,
         page_width: pageWidth,
+        s3,
+        s3_verified: s3Verified,
       });
     } catch (e) {
       console.error('Ошибка сохранения настроек:', e);
     }
-  }, [fontFamily, fontSize, theme, language, recentFiles, pageWidth]);
+  }, [fontFamily, fontSize, theme, language, recentFiles, pageWidth, s3, s3Verified]);
 
   const changeFontFamily = useCallback((family: string) => {
     setFontFamily(family);
@@ -71,7 +75,7 @@ export function useSettings() {
       persist();
     }, 500);
     return () => clearTimeout(timeout);
-  }, [fontFamily, fontSize, theme, language, pageWidth, persist]);
+  }, [fontFamily, fontSize, theme, language, pageWidth, s3, s3Verified, persist]);
 
   // Принудительный flush при закрытии окна — иначе изменения за последние
   // 500мс debounce-окна могут не сохраниться. В Tauri событие может

@@ -1,10 +1,15 @@
 pub mod commands;
+pub mod s3;
 
 use std::env;
 use std::path::PathBuf;
 use std::sync::Mutex;
 use tauri::State;
-use commands::{get_recent_files, open_file, read_file, read_settings, save_file, save_file_as, write_settings};
+use commands::{
+  get_recent_files, open_file, read_file, read_settings, s3_clear_secret, s3_secret_exists,
+  s3_set_secret, s3_test_connection, s3_upload_bytes, s3_upload_file, save_file, save_file_as,
+  save_local_asset_bytes, save_local_asset_file, write_settings,
+};
 
 // Глобальное состояние для хранения пути к файлу, переданному при запуске
 struct PendingFilePath(Mutex<Option<String>>);
@@ -33,6 +38,14 @@ pub fn build_specta_builder() -> tauri_specta::Builder<tauri::Wry> {
       get_recent_files,
       read_file,
       get_pending_file,
+      s3_set_secret,
+      s3_clear_secret,
+      s3_secret_exists,
+      s3_test_connection,
+      s3_upload_file,
+      s3_upload_bytes,
+      save_local_asset_file,
+      save_local_asset_bytes,
     ])
 }
 

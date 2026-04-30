@@ -1,3 +1,4 @@
+use crate::s3::{self, S3Config};
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use std::fs;
@@ -26,6 +27,13 @@ pub struct Settings {
   pub recent_files: Vec<String>,
   #[serde(default = "default_page_width")]
   pub page_width: f32,
+  #[serde(default)]
+  pub s3: Option<S3Config>,
+  // Флаг: текущий S3-конфиг прошёл «Тест соединения» при последнем сохранении.
+  // Сбрасывается при любом изменении полей, ставится при успешном тесте + save.
+  // Используется UI: кнопка S3 в Toolbar горит зелёным.
+  #[serde(default)]
+  pub s3_verified: bool,
 }
 
 fn default_font_family() -> String {
@@ -57,6 +65,8 @@ impl Default for Settings {
       language: default_language(),
       recent_files: Vec::new(),
       page_width: default_page_width(),
+      s3: None,
+      s3_verified: false,
     }
   }
 }
@@ -216,9 +226,184 @@ pub async fn read_file(path: String) -> Result<String, String> {
   fs::read_to_string(&path).map_err(|e| format!("Ошибка чтения файла: {}", e))
 }
 
+/// Подобрать уникальное имя файла в директории. Если name свободен — он же.
+/// Иначе пробуем «name (1).ext», «name (2).ext», ... до 999.
+fn unique_filename(dir: &std::path::Path, original: &str) -> String {
+  if !dir.join(original).exists() {
+    return original.to_string();
+  }
+  let (stem, ext) = match original.rsplit_once('.') {
+    Some((s, e)) => (s.to_string(), format!(".{}", e)),
+    None => (original.to_string(), String::new()),
+  };
+  for i in 1..1000 {
+    let candidate = format!("{} ({}){}", stem, i, ext);
+    if !dir.join(&candidate).exists() {
+      return candidate;
+    }
+  }
+  // Маловероятно: 1000 коллизий — возвращаем уникальное по timestamp
+  let ts = std::time::SystemTime::now()
+    .duration_since(std::time::UNIX_EPOCH)
+    .map(|d| d.as_millis())
+    .unwrap_or(0);
+  format!("{}-{}{}", stem, ts, ext)
+}
+
+fn canonical_upload_file_path(local_path: &str) -> Result<PathBuf, String> {
+  let path = PathBuf::from(local_path);
+  let metadata = fs::symlink_metadata(&path)
+    .map_err(|e| format!("Ошибка чтения метаданных файла: {}", e))?;
+  if metadata.file_type().is_symlink() {
+    return Err("invalid_local_path: символические ссылки не поддерживаются".to_string());
+  }
+  if !metadata.is_file() {
+    return Err("invalid_local_path: путь должен указывать на файл".to_string());
+  }
+  path
+    .canonicalize()
+    .map_err(|e| format!("invalid_local_path: {}", e))
+}
+
+fn canonical_dir(path: PathBuf) -> Option<PathBuf> {
+  path.canonicalize().ok().filter(|p| p.is_dir())
+}
+
+fn validate_local_upload_scope(
+  app: &tauri::AppHandle,
+  local_path: &str,
+) -> Result<PathBuf, String> {
+  let file_path = canonical_upload_file_path(local_path)?;
+  let path_resolver = app.path();
+  let allowed_roots: Vec<PathBuf> = [
+    path_resolver.home_dir(),
+    path_resolver.desktop_dir(),
+    path_resolver.document_dir(),
+    path_resolver.download_dir(),
+  ]
+  .into_iter()
+  .filter_map(Result::ok)
+  .filter_map(canonical_dir)
+  .collect();
+
+  if allowed_roots.iter().any(|root| file_path.starts_with(root)) {
+    Ok(file_path)
+  } else {
+    Err("invalid_local_path: файл вне разрешённых папок".to_string())
+  }
+}
+
+/// Сохранить локальный файл в {base_dir}/assets/. Возвращает относительный путь
+/// от base_dir для вставки в markdown (например, "assets/screenshot.png").
+/// Используется как fallback для drag&drop, когда S3 не настроен или не прошёл тест.
+#[tauri::command]
+#[specta::specta]
+pub async fn save_local_asset_file(
+  app: tauri::AppHandle,
+  local_path: String,
+  base_dir: String,
+  target_name: String,
+) -> Result<String, String> {
+  let safe_name = s3::validate_upload_path_filename(&local_path, &target_name)?;
+  let canonical_path = validate_local_upload_scope(&app, &local_path)?;
+  let size = fs::metadata(&canonical_path)
+    .map_err(|e| format!("Ошибка чтения метаданных файла: {}", e))?
+    .len();
+  s3::validate_upload_size(size)?;
+
+  let assets_dir = std::path::Path::new(&base_dir).join("assets");
+  fs::create_dir_all(&assets_dir)
+    .map_err(|e| format!("Не удалось создать директорию assets/: {}", e))?;
+  let unique_name = unique_filename(&assets_dir, &safe_name);
+  let dest = assets_dir.join(&unique_name);
+  fs::copy(&canonical_path, &dest).map_err(|e| format!("Ошибка копирования файла: {}", e))?;
+  Ok(format!("assets/{}", unique_name))
+}
+
+/// Сохранить байты (например, картинка из буфера) в {base_dir}/assets/.
+/// Возвращает относительный путь от base_dir для вставки в markdown.
+#[tauri::command]
+#[specta::specta]
+pub async fn save_local_asset_bytes(
+  bytes: Vec<u8>,
+  base_dir: String,
+  target_name: String,
+) -> Result<String, String> {
+  let safe_name = s3::validate_upload_filename(&target_name)?;
+  s3::validate_upload_size(bytes.len() as u64)?;
+
+  let assets_dir = std::path::Path::new(&base_dir).join("assets");
+  fs::create_dir_all(&assets_dir)
+    .map_err(|e| format!("Не удалось создать директорию assets/: {}", e))?;
+  let unique_name = unique_filename(&assets_dir, &safe_name);
+  let dest = assets_dir.join(&unique_name);
+  fs::write(&dest, bytes).map_err(|e| format!("Ошибка записи файла: {}", e))?;
+  Ok(format!("assets/{}", unique_name))
+}
+
+// === S3-команды ===
+
+/// Сохранить Secret Access Key в системный keyring.
+#[tauri::command]
+#[specta::specta]
+pub async fn s3_set_secret(secret: String) -> Result<(), String> {
+  s3::set_secret(&secret)
+}
+
+/// Удалить Secret Access Key из системного keyring.
+#[tauri::command]
+#[specta::specta]
+pub async fn s3_clear_secret() -> Result<(), String> {
+  s3::delete_secret()
+}
+
+/// Проверить, сохранён ли Secret Access Key в keyring.
+#[tauri::command]
+#[specta::specta]
+pub async fn s3_secret_exists() -> Result<bool, String> {
+  s3::secret_exists()
+}
+
+/// Проверить соединение с S3-хранилищем (bucket-level ListObjectsV2).
+#[tauri::command]
+#[specta::specta]
+pub async fn s3_test_connection(config: S3Config) -> Result<(), String> {
+  let secret = s3::get_secret().map_err(|_| "secret_not_set".to_string())?;
+  s3::test_connection_with_secret(&config, &secret).await
+}
+
+/// Загрузить файл с диска в S3 и вернуть публичный URL.
+#[tauri::command]
+#[specta::specta]
+pub async fn s3_upload_file(
+  app: tauri::AppHandle,
+  local_path: String,
+  original_filename: String,
+  config: S3Config,
+) -> Result<String, String> {
+  let canonical_path = validate_local_upload_scope(&app, &local_path)?;
+  let canonical_path = canonical_path
+    .to_str()
+    .ok_or_else(|| "invalid_local_path: путь должен быть UTF-8".to_string())?;
+  let secret = s3::get_secret().map_err(|_| "secret_not_set".to_string())?;
+  s3::upload_file_with_secret(&config, &secret, canonical_path, &original_filename).await
+}
+
+/// Загрузить байты в S3 и вернуть публичный URL.
+#[tauri::command]
+#[specta::specta]
+pub async fn s3_upload_bytes(
+  bytes: Vec<u8>,
+  original_filename: String,
+  config: S3Config,
+) -> Result<String, String> {
+  let secret = s3::get_secret().map_err(|_| "secret_not_set".to_string())?;
+  s3::upload_bytes_with_secret(&config, &secret, bytes, &original_filename).await
+}
+
 #[cfg(test)]
 mod tests {
-  use super::atomic_write;
+  use super::{atomic_write, save_local_asset_bytes};
   use std::fs;
   use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -243,5 +428,35 @@ mod tests {
     fs::remove_dir_all(&dir).ok();
 
     assert_eq!(content, "second");
+  }
+
+  #[tokio::test]
+  async fn save_local_asset_bytes_sanitizes_target_name() {
+    let dir = unique_temp_dir();
+    fs::create_dir_all(&dir).expect("Не удалось создать временную директорию");
+    let base_dir = dir.to_string_lossy().to_string();
+
+    let relative = save_local_asset_bytes(vec![1, 2, 3], base_dir, "../evil.png".to_string())
+      .await
+      .expect("Сохранение должно пройти");
+
+    assert_eq!(relative, "assets/.._evil.png");
+    assert!(dir.join("assets").join(".._evil.png").exists());
+    assert!(!dir.join("evil.png").exists());
+    fs::remove_dir_all(&dir).ok();
+  }
+
+  #[tokio::test]
+  async fn save_local_asset_bytes_rejects_exe() {
+    let dir = unique_temp_dir();
+    fs::create_dir_all(&dir).expect("Не удалось создать временную директорию");
+    let base_dir = dir.to_string_lossy().to_string();
+
+    let err = save_local_asset_bytes(vec![1], base_dir, "payload.exe".to_string())
+      .await
+      .unwrap_err();
+
+    assert!(err.contains("unsupported_extension"), "got: {}", err);
+    fs::remove_dir_all(&dir).ok();
   }
 }

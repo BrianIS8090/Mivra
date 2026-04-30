@@ -42,6 +42,8 @@ Most Markdown editors are either bloated Electron apps consuming hundreds of meg
 
 **Native speed** — built on Tauri 2 and Rust. Launches in under a second, minimal memory footprint, instant UI response.
 
+**S3 cloud uploads** — drag a file, paste a screenshot from clipboard, or pick a file via Toolbar — Mivra uploads it to your S3-compatible bucket (Yandex Object Storage, TimeWeb, AWS, Cloudflare R2, MinIO etc.) and inserts a public Markdown link automatically. Secret keys live in the OS keyring, not on disk. See [docs/S3.md](docs/S3.md) for setup.
+
 ## Keyboard Shortcuts
 
 | Action | Shortcut |
