@@ -4,7 +4,8 @@
 # Mivra — WYSIWYG Markdown Editor for Windows 11
 Mivra is a free, open-source visual Markdown editor for Windows 10/11. It edits local `.md` files in WYSIWYG mode, supports raw Markdown source, Mermaid diagrams, dark themes, and S3-compatible uploads.
 
-<img width="1376" height="768" alt="Mivra WYSIWYG Markdown editor for Windows 11 screenshot" src="https://github.com/user-attachments/assets/a4b0fe60-817c-4cea-98b1-685798995da2" />
+<img width="1774" height="887" alt="Mivra WYSIWYG Markdown editor for Windows 11 screenshot" src="https://github.com/user-attachments/assets/1b639331-7b89-4d70-ac26-867795a87bdc" />
+
 
 ### A Modern Markdown Editor for Windows
 
@@ -45,7 +46,8 @@ Most Markdown editors are either bloated Electron apps consuming hundreds of meg
 - Visual editing plus source mode
 
 
-<img width="1623" height="1202" alt="Screenshot" src="https://github.com/user-attachments/assets/9614e90c-645b-4104-ba11-7ac53aed9b67" />
+<img width="1200" height="800" alt="Mivra WYSIWYG Markdown editor for Windows 11 screenshot" src="https://github.com/user-attachments/assets/b6756979-ca53-4f86-85b3-ebe0b72a1458" />
+
 
 
 ## Features
