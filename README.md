@@ -19,12 +19,30 @@ Mivra is a free, open-source visual Markdown editor for Windows 10/11. It edits 
 </div>
 
 ---
+## What is Mivra?
+
+Mivra is a lightweight alternative to heavy Electron Markdown editors for Windows users who want visual Markdown editing, local files, Mermaid diagrams, and fast startup.
+
 
 ## Why another editor?
 
 Most Markdown editors are either bloated Electron apps consuming hundreds of megabytes of RAM, or minimal text fields with no visual preview.
 
 **Mivra** strikes the perfect balance: a native Windows application built with Rust that launches instantly, uses minimal resources, and still offers a full-featured visual editor.
+
+## Supported Markdown features
+
+- GitHub Flavored Markdown-style tables and task lists
+- Headings, lists, links, code blocks, blockquotes
+- Mermaid diagrams
+- Raw Markdown source mode
+
+## Why Mivra?
+
+- Local `.md` files, no vault lock-in
+- Windows-first design
+- Built with Tauri 2 and Rust
+- Visual editing plus source mode
 
 
 <img width="1623" height="1202" alt="Screenshot" src="https://github.com/user-attachments/assets/9614e90c-645b-4104-ba11-7ac53aed9b67" />
