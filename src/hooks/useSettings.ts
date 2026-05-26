@@ -13,6 +13,8 @@ export function useSettings() {
   const pageWidth = useAppStore((s) => s.pageWidth);
   const s3 = useAppStore((s) => s.s3);
   const s3Verified = useAppStore((s) => s.s3Verified);
+  const enabledPlugins = useAppStore((s) => s.enabledPlugins);
+  const removedBundledPlugins = useAppStore((s) => s.removedBundledPlugins);
   const setFontFamily = useAppStore((s) => s.setFontFamily);
   const setFontSize = useAppStore((s) => s.setFontSize);
   const setTheme = useAppStore((s) => s.setTheme);
@@ -41,11 +43,24 @@ export function useSettings() {
         page_width: pageWidth,
         s3,
         s3_verified: s3Verified,
+        enabled_plugins: enabledPlugins,
+        removed_bundled_plugins: removedBundledPlugins,
       });
     } catch (e) {
       console.error('Ошибка сохранения настроек:', e);
     }
-  }, [fontFamily, fontSize, theme, language, recentFiles, pageWidth, s3, s3Verified]);
+  }, [
+    fontFamily,
+    fontSize,
+    theme,
+    language,
+    recentFiles,
+    pageWidth,
+    s3,
+    s3Verified,
+    enabledPlugins,
+    removedBundledPlugins,
+  ]);
 
   const changeFontFamily = useCallback((family: string) => {
     setFontFamily(family);
@@ -75,7 +90,18 @@ export function useSettings() {
       persist();
     }, 500);
     return () => clearTimeout(timeout);
-  }, [fontFamily, fontSize, theme, language, pageWidth, s3, s3Verified, persist]);
+  }, [
+    fontFamily,
+    fontSize,
+    theme,
+    language,
+    pageWidth,
+    s3,
+    s3Verified,
+    enabledPlugins,
+    removedBundledPlugins,
+    persist,
+  ]);
 
   // Принудительный flush при закрытии окна — иначе изменения за последние
   // 500мс debounce-окна могут не сохраниться. В Tauri событие может
@@ -103,5 +129,6 @@ export function useSettings() {
     changeLanguage,
     pageWidth,
     changePageWidth,
+    enabledPlugins,
   };
 }

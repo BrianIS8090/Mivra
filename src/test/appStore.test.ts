@@ -14,6 +14,11 @@ describe('appStore', () => {
       language: 'ru',
       editorMode: 'visual',
       recentFiles: [],
+      pageWidth: 816,
+      s3: null,
+      s3Verified: false,
+      enabledPlugins: ['export-pdf'],
+      removedBundledPlugins: [],
     });
   });
 
@@ -28,6 +33,8 @@ describe('appStore', () => {
     expect(state.language).toBe('ru');
     expect(state.editorMode).toBe('visual');
     expect(state.recentFiles).toEqual([]);
+    expect(state.enabledPlugins).toEqual(['export-pdf']);
+    expect(state.removedBundledPlugins).toEqual([]);
   });
 
   it('setContent — должен обновлять контент и ставить isDirty', () => {
@@ -86,6 +93,37 @@ describe('appStore', () => {
     expect(useAppStore.getState().recentFiles).toEqual(files);
   });
 
+  it('setEnabledPlugins — должен обновлять список включённых плагинов без дублей', () => {
+    useAppStore.getState().setEnabledPlugins(['export-pdf', 'export-pdf']);
+    expect(useAppStore.getState().enabledPlugins).toEqual(['export-pdf']);
+  });
+
+  it('setPluginEnabled — должен включать и выключать плагин без дублей', () => {
+    const store = useAppStore.getState();
+    store.setEnabledPlugins([]);
+    store.setBundledPluginRemoved('export-pdf', true);
+    store.setPluginEnabled('export-pdf', true);
+    store.setPluginEnabled('export-pdf', true);
+    expect(useAppStore.getState().enabledPlugins).toEqual(['export-pdf']);
+    expect(useAppStore.getState().removedBundledPlugins).toEqual([]);
+    store.setPluginEnabled('export-pdf', false);
+    expect(useAppStore.getState().enabledPlugins).toEqual([]);
+  });
+
+  it('setBundledPluginRemoved — должен запоминать удалённые bundled-плагины без дублей', () => {
+    const store = useAppStore.getState();
+    store.setBundledPluginRemoved('export-pdf', true);
+    store.setBundledPluginRemoved('export-pdf', true);
+    expect(useAppStore.getState().removedBundledPlugins).toEqual(['export-pdf']);
+    store.setBundledPluginRemoved('export-pdf', false);
+    expect(useAppStore.getState().removedBundledPlugins).toEqual([]);
+  });
+
+  it('мигрирует старый document-designer в export-pdf', () => {
+    useAppStore.getState().setEnabledPlugins(['document-designer', 'export-pdf']);
+    expect(useAppStore.getState().enabledPlugins).toEqual(['export-pdf']);
+  });
+
   it('updateSettings — должен обновлять настройки из объекта Settings', () => {
     useAppStore.getState().updateSettings({
       font_family: 'Georgia',
@@ -93,6 +131,8 @@ describe('appStore', () => {
       theme: 'dark',
       language: 'en',
       recent_files: ['test.md'],
+      enabled_plugins: ['export-pdf'],
+      removed_bundled_plugins: ['document-designer'],
     });
     const state = useAppStore.getState();
     expect(state.fontFamily).toBe('Georgia');
@@ -100,6 +140,8 @@ describe('appStore', () => {
     expect(state.theme).toBe('dark');
     expect(state.language).toBe('en');
     expect(state.recentFiles).toEqual(['test.md']);
+    expect(state.enabledPlugins).toEqual(['export-pdf']);
+    expect(state.removedBundledPlugins).toEqual(['export-pdf']);
   });
 
   it('updateSettings — частичное обновление не затирает остальные поля', () => {

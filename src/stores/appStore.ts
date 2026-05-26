@@ -4,6 +4,10 @@ import type { Language } from '../i18n';
 
 type Theme = AppState['theme'];
 
+function normalizePluginIds(pluginIds: string[]): string[] {
+  return [...new Set(pluginIds.map((id) => id === 'document-designer' ? 'export-pdf' : id))];
+}
+
 export const useAppStore = create<AppState>((set) => ({
   // Файл
   filePath: null,
@@ -21,6 +25,8 @@ export const useAppStore = create<AppState>((set) => ({
   pageWidth: 816,
   s3: null,
   s3Verified: false,
+  enabledPlugins: ['export-pdf'],
+  removedBundledPlugins: [],
 
   // Действия
   setContent: (content) => set((state) =>
@@ -42,6 +48,31 @@ export const useAppStore = create<AppState>((set) => ({
   // чтобы кнопка S3 в Toolbar не горела зелёным с устаревшими данными.
   setS3Config: (s3) => set({ s3, s3Verified: false }),
   setS3Verified: (s3Verified) => set({ s3Verified }),
+  setEnabledPlugins: (enabledPlugins) => set({ enabledPlugins: normalizePluginIds(enabledPlugins) }),
+  setPluginEnabled: (pluginId, enabled) => set((state) => {
+    const normalizedPluginId = pluginId === 'document-designer' ? 'export-pdf' : pluginId;
+    const current = new Set(normalizePluginIds(state.enabledPlugins));
+    if (enabled) {
+      current.add(normalizedPluginId);
+      return {
+        enabledPlugins: [...current],
+        removedBundledPlugins: normalizePluginIds(state.removedBundledPlugins).filter((id) => id !== normalizedPluginId),
+      };
+    } else {
+      current.delete(normalizedPluginId);
+    }
+    return { enabledPlugins: [...current] };
+  }),
+  setBundledPluginRemoved: (pluginId, removed) => set((state) => {
+    const normalizedPluginId = pluginId === 'document-designer' ? 'export-pdf' : pluginId;
+    const current = new Set(normalizePluginIds(state.removedBundledPlugins));
+    if (removed) {
+      current.add(normalizedPluginId);
+    } else {
+      current.delete(normalizedPluginId);
+    }
+    return { removedBundledPlugins: [...current] };
+  }),
   updateSettings: (settings: Partial<Settings>) => set((state) => ({
     fontFamily: settings.font_family ?? state.fontFamily,
     fontSize: settings.font_size ?? state.fontSize,
@@ -56,5 +87,9 @@ export const useAppStore = create<AppState>((set) => ({
     // через setS3Config (т.к. ?? для null также возьмёт правую сторону).
     s3: settings.s3 ?? state.s3,
     s3Verified: settings.s3_verified ?? state.s3Verified,
+    enabledPlugins: settings.enabled_plugins ? normalizePluginIds(settings.enabled_plugins) : state.enabledPlugins,
+    removedBundledPlugins: settings.removed_bundled_plugins
+      ? normalizePluginIds(settings.removed_bundled_plugins)
+      : state.removedBundledPlugins,
   })),
 }));

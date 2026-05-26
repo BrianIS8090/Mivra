@@ -1,0 +1,11 @@
+{
+  "id": "markdown-toc",
+  "name": "Markdown TOC",
+  "version": "1.0.4",
+  "description": "Создаёт содержание текущего Markdown-файла и показывает его в модальном окне.",
+  "author": "Mivra Team",
+  "entry": "index.js",
+  "styles": "style.css",
+  "permissions": ["document:read", "dialog"],
+  "apiVersion": 1
+}

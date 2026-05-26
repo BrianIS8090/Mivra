@@ -10,6 +10,7 @@ export const ru = {
   saveAs: 'Сохранить как',
   print: 'Печать',
   help: 'Справка',
+  plugins: 'Плагины',
   
   // Тема
   themeLight: 'Светлая',
@@ -63,6 +64,25 @@ export const ru = {
   pageWidthTooltip: 'Ширина страницы (px)',
   insertAsset: 'Вставить файл',
   insertAssetTooltip: 'Вставить ассет (Ctrl+Shift+A)',
+  pluginsTooltip: 'Открыть меню плагинов',
+
+  // Плагины
+  pluginManagerTitle: 'Менеджер плагинов',
+  pluginMenuEmpty: 'Нет активных плагинов',
+  pluginBuiltin: 'Встроенный',
+  pluginExternal: 'Установленный',
+  pluginExternalRuntimeDisabled: 'Сторонний код не исполняется в этой версии',
+  pluginAdd: 'Добавить плагин',
+  pluginAddFolder: 'Добавить папку',
+  pluginAddPackage: 'Добавить пакет',
+  pluginDelete: 'Удалить',
+  pluginEnable: 'Включить',
+  pluginDisable: 'Выключить',
+  pluginEnabledStatus: 'Включён',
+  pluginDisabledStatus: 'Отключён',
+  pluginInstallError: 'Не удалось установить плагин',
+  pluginLoadError: 'Не удалось загрузить список плагинов',
+  pluginDeleteError: 'Не удалось удалить плагин',
 
   // Справка
   helpTitle: 'Справка',

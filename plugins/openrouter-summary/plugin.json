@@ -1,0 +1,11 @@
+{
+  "id": "openrouter-summary",
+  "name": "OpenRouter Summary",
+  "version": "1.0.1",
+  "description": "Суммаризация текущего Markdown-файла через выбранную модель OpenRouter.",
+  "author": "Mivra Team",
+  "entry": "index.js",
+  "styles": "style.css",
+  "permissions": ["document:read", "dialog"],
+  "apiVersion": 1
+}

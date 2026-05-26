@@ -10,6 +10,7 @@ import { useTheme } from './hooks/useTheme';
 import { useExit } from './hooks/useExit';
 import { useMarkdownActions } from './hooks/useMarkdownActions';
 import { useAppStore } from './stores/appStore';
+import { PluginHost } from './plugins/PluginHost';
 import * as tauri from './utils/tauri';
 import { findBaseDir } from './utils/paths';
 import { confirmUnsavedChanges } from './utils/dialogs';
@@ -235,6 +236,7 @@ function App() {
     <div className="app">
       <TitleBar />
       <Toolbar />
+      <PluginHost />
       <Editor />
       <StatusBar />
     </div>

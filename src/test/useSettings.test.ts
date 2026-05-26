@@ -15,6 +15,8 @@ describe('useSettings', () => {
       fontSize: 15,
       theme: 'system',
       recentFiles: [],
+      enabledPlugins: ['export-pdf'],
+      removedBundledPlugins: [],
     });
     // Мок read_settings при монтировании
     mockedInvoke.mockResolvedValue({
@@ -22,6 +24,8 @@ describe('useSettings', () => {
       font_size: 15,
       theme: 'system',
       recent_files: [],
+      enabled_plugins: ['export-pdf'],
+      removed_bundled_plugins: [],
     });
   });
 
@@ -35,6 +39,8 @@ describe('useSettings', () => {
       font_size: 18,
       theme: 'dark',
       recent_files: ['file.md'],
+      enabled_plugins: ['export-pdf'],
+      removed_bundled_plugins: [],
     });
 
     renderHook(() => useSettings());
@@ -79,5 +85,31 @@ describe('useSettings', () => {
 
     act(() => result.current.changeTheme('light'));
     expect(useAppStore.getState().theme).toBe('light');
+  });
+
+  it('должен сохранять список включённых плагинов', async () => {
+    mockedInvoke.mockImplementation((cmd) => {
+      if (cmd === 'read_settings') {
+        return Promise.resolve({
+          font_family: 'Segoe UI Variable',
+          font_size: 15,
+          theme: 'system',
+          recent_files: [],
+          enabled_plugins: ['export-pdf'],
+          removed_bundled_plugins: ['export-pdf'],
+        });
+      }
+      return Promise.resolve(true);
+    });
+
+    renderHook(() => useSettings());
+    await vi.advanceTimersByTimeAsync(500);
+
+    expect(mockedInvoke).toHaveBeenCalledWith('write_settings', {
+      settings: expect.objectContaining({
+        enabled_plugins: ['export-pdf'],
+        removed_bundled_plugins: ['export-pdf'],
+      }),
+    });
   });
 });

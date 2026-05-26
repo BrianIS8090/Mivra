@@ -7,6 +7,7 @@ export const en: Translations = {
   saveAs: 'Save As',
   print: 'Print',
   help: 'Help',
+  plugins: 'Plugins',
   
   // Theme
   themeLight: 'Light',
@@ -60,6 +61,25 @@ export const en: Translations = {
   pageWidthTooltip: 'Page width (px)',
   insertAsset: 'Insert file',
   insertAssetTooltip: 'Insert asset (Ctrl+Shift+A)',
+  pluginsTooltip: 'Open plugin menu',
+
+  // Plugins
+  pluginManagerTitle: 'Plugin Manager',
+  pluginMenuEmpty: 'No active plugins',
+  pluginBuiltin: 'Built-in',
+  pluginExternal: 'Installed',
+  pluginExternalRuntimeDisabled: 'External code is not executed in this version',
+  pluginAdd: 'Add plugin',
+  pluginAddFolder: 'Add folder',
+  pluginAddPackage: 'Add package',
+  pluginDelete: 'Delete',
+  pluginEnable: 'Enable',
+  pluginDisable: 'Disable',
+  pluginEnabledStatus: 'Enabled',
+  pluginDisabledStatus: 'Disabled',
+  pluginInstallError: 'Failed to install plugin',
+  pluginLoadError: 'Failed to load plugins',
+  pluginDeleteError: 'Failed to delete plugin',
 
   // Help
   helpTitle: 'Help',
