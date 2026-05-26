@@ -54,6 +54,10 @@ export function createMivraPluginApi(pluginId: string, manifest?: PluginManifest
           callback(state.content);
         });
       },
+      setContent: (content) => {
+        requirePluginPermission(manifest, 'document:write');
+        useAppStore.getState().setContent(content);
+      },
     },
     settings: {
       getLanguage: () => useAppStore.getState().language,

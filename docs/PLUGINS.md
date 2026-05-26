@@ -22,6 +22,7 @@ my-plugin/
 - добавлять действия в раскрывающееся меню `Плагины`;
 - открывать собственные диалоги;
 - читать текущий Markdown-документ при permission `document:read`;
+- заменять текущий Markdown-документ при permission `document:write`;
 - сохранять HTML/PDF при permissions `export:html` и `export:pdf`;
 - подключать CSS и assets из своей папки.
 
@@ -119,6 +120,7 @@ C:/Users/<User>/AppData/Roaming/com.brian.mivra/plugins/export-pdf/
 ```ts
 type PluginPermission =
   | 'document:read'
+  | 'document:write'
   | 'dialog'
   | 'export:html'
   | 'export:pdf';
@@ -129,11 +131,12 @@ type PluginPermission =
 | Permission | Доступ |
 | --- | --- |
 | `document:read` | `api.document.getContent()`, `api.document.getFilePath()`, `api.document.subscribeContent(...)` |
+| `document:write` | `api.document.setContent(...)` |
 | `dialog` | `api.dialogs.register(...)`, `api.dialogs.registerRenderer(...)` |
 | `export:html` | `api.exports.saveHtml(...)` |
 | `export:pdf` | `api.exports.savePdfBytes(...)` |
 
-Регистрация пункта в меню `Плагины` доступна активированному плагину без отдельного permission. Но чтение документа, диалоги и экспорт проверяются явно.
+Регистрация пункта в меню `Плагины` доступна активированному плагину без отдельного permission. Но чтение документа, запись документа, диалоги и экспорт проверяются явно.
 
 Запрашивайте минимальные permissions. Например, если плагин только открывает окно и показывает статический UI, достаточно `["dialog"]`.
 
@@ -272,6 +275,7 @@ type MivraPluginApi = {
     getContent(): string;
     getFilePath(): string | null;
     subscribeContent(callback: (content: string) => void): () => void;
+    setContent(content: string): void;
   };
   settings: {
     getLanguage(): 'ru' | 'en';
@@ -335,6 +339,14 @@ const unsubscribe = api.document.subscribeContent((nextContent) => {
 ```
 
 Для этого нужен permission `document:read`.
+
+Пример замены текущего Markdown:
+
+```js
+api.document.setContent(translatedMarkdown);
+```
+
+Для этого нужен permission `document:write`. Запись через `setContent` помечает документ изменённым, но не сохраняет файл автоматически.
 
 ### `api.settings`
 
@@ -661,6 +673,39 @@ Compress-Archive -Path plugins\openrouter-summary\* -DestinationPath plugins\ope
 ```
 
 API-ключ OpenRouter вводится пользователем в окне плагина. По умолчанию ключ не сохраняется; сохранение включается отдельным чекбоксом внутри диалога.
+
+## OpenRouter Translate как внешний плагин с записью документа
+
+`OpenRouter Translate` переводит текущий Markdown через OpenRouter Chat Completions API в направлениях `English → Русский` и `Русский → English`. Перевод показывается в диалоге и применяется к редактору только после явного нажатия `Применить перевод`.
+
+Исходники:
+
+```text
+plugins/openrouter-translate/
+  plugin.json
+  index.js
+  style.css
+```
+
+Для установки как папки выберите именно:
+
+```text
+plugins/openrouter-translate/
+```
+
+Для распространения соберите `.mivraplugin`:
+
+```powershell
+Compress-Archive -Path plugins\openrouter-translate\* -DestinationPath plugins\openrouter-translate-1.0.0.mivraplugin -Force
+```
+
+Плагин запрашивает:
+
+```json
+["document:read", "document:write", "dialog"]
+```
+
+`document:write` нужен только для кнопки `Применить перевод`. Сам запрос к OpenRouter не меняет документ автоматически.
 
 ## Типовые ошибки
 

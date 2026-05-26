@@ -108,4 +108,23 @@ describe('plugin registry', () => {
       enabled: false,
     })).toThrow('plugin_permission_unsupported');
   });
+
+  it('принимает document:write permission из backend manifest', async () => {
+    const { pluginInfoToManifest } = await import('../plugins/pluginManifest');
+
+    const manifest = pluginInfoToManifest({
+      id: 'writer-plugin',
+      name: 'Writer',
+      version: '1.0.0',
+      description: 'Writer plugin',
+      author: 'Mivra',
+      entry: 'index.js',
+      styles: null,
+      permissions: ['document:read', 'document:write', 'dialog'],
+      apiVersion: 1,
+      enabled: false,
+    });
+
+    expect(manifest.permissions).toEqual(['document:read', 'document:write', 'dialog']);
+  });
 });

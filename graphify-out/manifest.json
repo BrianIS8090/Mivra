@@ -1,7 +1,7 @@
 {
   "C:\\Users\\Brian\\Downloads\\Mivra\\package.json": {
-    "mtime": 1779778736.3564663,
-    "ast_hash": "98c10c6b2f60a2a02f8101d572eb205f",
+    "mtime": 1779783067.8369765,
+    "ast_hash": "32d372247c71345d958b896626f51ab8",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\tsconfig.json": {
@@ -30,13 +30,13 @@
     "semantic_hash": "b43cb9abf07750c2c4e5a019b14283b7"
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\App.tsx": {
-    "mtime": 1779252918.5329359,
-    "ast_hash": "5e691cffe3689d33f0cb59b049c4dbc9",
+    "mtime": 1779783067.9274695,
+    "ast_hash": "153693bf2fcf0e36bc839f314b691aa6",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\bindings.ts": {
-    "mtime": 1779781916.8867025,
-    "ast_hash": "5491ee9f2c75f85474dae1a3785fcb73",
+    "mtime": 1779783067.9274695,
+    "ast_hash": "54ddf244c9c4ab4bf3460803d6d24583",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\main.tsx": {
@@ -100,8 +100,8 @@
     "semantic_hash": "a93d39d18ccc8fe07911aeb1da51e439"
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\components\\Toolbar\\Toolbar.tsx": {
-    "mtime": 1779337998.954191,
-    "ast_hash": "ddacfe6a1bb82ba5dc4cb37aac410b0a",
+    "mtime": 1779783067.928469,
+    "ast_hash": "ab568e5ec82de39cc14fd899959e2336",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\hooks\\useExit.ts": {
@@ -125,8 +125,8 @@
     "semantic_hash": "82614772aa79306c8c87e05b3ec37f34"
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\hooks\\useSettings.ts": {
-    "mtime": 1779347951.8313527,
-    "ast_hash": "29aeaf4785c9f31b7099994b50a948e6",
+    "mtime": 1779783067.9294717,
+    "ast_hash": "98bb5019127f20f6c2abbb1a689553a0",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\hooks\\useTheme.ts": {
@@ -140,8 +140,8 @@
     "semantic_hash": "9038636d7f0ac30a27f6e2309750cd1b"
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\i18n\\en.ts": {
-    "mtime": 1779772086.800861,
-    "ast_hash": "4103e75ce88c84a219e5d79d18a8991c",
+    "mtime": 1779783067.9294717,
+    "ast_hash": "c3dfecf94e1c4a7d4e8769aad01b6b12",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\i18n\\index.ts": {
@@ -150,13 +150,13 @@
     "semantic_hash": "595c0ffd343cc30d2696f8854dc0c8a1"
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\i18n\\ru.ts": {
-    "mtime": 1779772086.8003283,
-    "ast_hash": "a4cf44504e4f63f4e7f15ef79a67a852",
+    "mtime": 1779783067.9294717,
+    "ast_hash": "0da4cc7a26429185b5888bd8892f8c96",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\stores\\appStore.ts": {
-    "mtime": 1779347937.9950428,
-    "ast_hash": "d2ab2fe06d5de0b1a5009b4730a8dd7f",
+    "mtime": 1779783067.9330528,
+    "ast_hash": "69ae52ca9766ca77186b8848beacdd13",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\stores\\toastStore.ts": {
@@ -165,8 +165,8 @@
     "semantic_hash": "63aceedc7a20620b80fedd35097c295e"
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\test\\appStore.test.ts": {
-    "mtime": 1779347984.8614688,
-    "ast_hash": "0b1f16a5fcb9d61dc231312305d96f77",
+    "mtime": 1779783067.9349966,
+    "ast_hash": "f18280c0264d23da67ec5b8615079030",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\test\\headingBackspace.test.ts": {
@@ -210,8 +210,8 @@
     "semantic_hash": "9547d179f91b6cb5f7cb18a5167b1f53"
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\test\\useSettings.test.ts": {
-    "mtime": 1779348007.2528305,
-    "ast_hash": "7013efdd9a7477b33e83cdf420e28fab",
+    "mtime": 1779783067.93851,
+    "ast_hash": "1c93c8964587e752d6dfa0d307b4b15b",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\test\\useTheme.test.ts": {
@@ -220,8 +220,8 @@
     "semantic_hash": "be5a88415f943487f105474aa32cce9b"
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\types\\index.ts": {
-    "mtime": 1779347910.3904836,
-    "ast_hash": "81305bfe7d712e2b105831224ef30ef8",
+    "mtime": 1779783067.93851,
+    "ast_hash": "627b718ca5b2ff3ef36c18317d75c5b9",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\utils\\dialogs.ts": {
@@ -240,18 +240,18 @@
     "semantic_hash": "35ba3e958e053f45de2b22732e260cdb"
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\utils\\tauri.ts": {
-    "mtime": 1779343218.7100008,
-    "ast_hash": "c2be9fde17311b48199311b6791390ef",
+    "mtime": 1779783067.93851,
+    "ast_hash": "3ff646446d365a07c81aca17506cf9d7",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src-tauri\\build.rs": {
-    "mtime": 1779254901.6368666,
-    "ast_hash": "9e949d967099bcc42cfa6f8765a6c938",
+    "mtime": 1779783067.8618011,
+    "ast_hash": "8e6c89bd412b755ef41bd9bb191f2e31",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src-tauri\\tauri.conf.json": {
-    "mtime": 1779778736.359578,
-    "ast_hash": "4dec7a6356eca241a7e7f25fdc46bc88",
+    "mtime": 1779783067.9264705,
+    "ast_hash": "838ad27effc9e8707098a8fc1b60ac52",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src-tauri\\capabilities\\default.json": {
@@ -290,13 +290,13 @@
     "semantic_hash": "10688424df21ddaf3294deb7f639b1dc"
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src-tauri\\src\\commands.rs": {
-    "mtime": 1779782393.3948524,
-    "ast_hash": "4fd2634a360e3a63fa3de02410835242",
+    "mtime": 1779790518.9175854,
+    "ast_hash": "00f50aec2826e708c74914d1ba1a4707",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src-tauri\\src\\lib.rs": {
-    "mtime": 1779343437.182395,
-    "ast_hash": "29f779e0acedcad04582397742a9239d",
+    "mtime": 1779783067.9264705,
+    "ast_hash": "fc45f1dca2224f2a3e88f0cfe63f85c5",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src-tauri\\src\\main.rs": {
@@ -315,14 +315,14 @@
     "semantic_hash": "01988e9f804ed6687206b4b3ffdf4637"
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\AGENTS.md": {
-    "mtime": 1777527737.6105893,
-    "ast_hash": "301401763cd8ff756681ca924568b0ed",
-    "semantic_hash": "301401763cd8ff756681ca924568b0ed"
+    "mtime": 1779790131.8826132,
+    "ast_hash": "d685ead0033ae6f4284dd116931d022c",
+    "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\CLAUDE.md": {
-    "mtime": 1777527737.6111088,
-    "ast_hash": "c669cc477bd3fa9d83c77f549e4e7e1a",
-    "semantic_hash": "c669cc477bd3fa9d83c77f549e4e7e1a"
+    "mtime": 1779790131.8851564,
+    "ast_hash": "fd53a10966b80de7db03c8875974edff",
+    "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\DEVELOPMENT.md": {
     "mtime": 1773737176.5912368,
@@ -335,9 +335,9 @@
     "semantic_hash": "f370b62d5a9998b479df0e48ba5d93aa"
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\README.md": {
-    "mtime": 1777527737.6116195,
-    "ast_hash": "0eabc4894f477c5ae9741768c1afee93",
-    "semantic_hash": "0eabc4894f477c5ae9741768c1afee93"
+    "mtime": 1779783067.8322637,
+    "ast_hash": "f2c6c65ed6b15a1ebe443fcf11ca6794",
+    "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\RELEASE.md": {
     "mtime": 1777454694.3197937,
@@ -670,32 +670,32 @@
     "semantic_hash": "65ef936a259fe0bfcdae6e70b643cf8b"
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\.claude\\skills\\gitnexus\\gitnexus-cli\\SKILL.md": {
-    "mtime": 1777462756.9722264,
-    "ast_hash": "740fcac055f7848cc71579a2f4451e52",
-    "semantic_hash": "740fcac055f7848cc71579a2f4451e52"
+    "mtime": 1779790131.9205277,
+    "ast_hash": "8bc4ec1bb5ba25c3da58052cdaf14e43",
+    "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\.claude\\skills\\gitnexus\\gitnexus-debugging\\SKILL.md": {
-    "mtime": 1777462756.9627025,
+    "mtime": 1779790131.8988755,
     "ast_hash": "3998c14d1bb3558b716ea55d9971826b",
     "semantic_hash": "3998c14d1bb3558b716ea55d9971826b"
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\.claude\\skills\\gitnexus\\gitnexus-exploring\\SKILL.md": {
-    "mtime": 1777462756.9617019,
+    "mtime": 1779790131.8924382,
     "ast_hash": "e938f38cf262c7daad36be1794517ca2",
     "semantic_hash": "e938f38cf262c7daad36be1794517ca2"
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\.claude\\skills\\gitnexus\\gitnexus-guide\\SKILL.md": {
-    "mtime": 1777462756.969725,
+    "mtime": 1779790131.9160128,
     "ast_hash": "52a6df29e7e6161fc0ccfc3a42a1cb88",
     "semantic_hash": "52a6df29e7e6161fc0ccfc3a42a1cb88"
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\.claude\\skills\\gitnexus\\gitnexus-impact-analysis\\SKILL.md": {
-    "mtime": 1777462756.965218,
+    "mtime": 1779790131.9038749,
     "ast_hash": "aad191ea3512d8a10e3749f24cabca46",
     "semantic_hash": "aad191ea3512d8a10e3749f24cabca46"
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\.claude\\skills\\gitnexus\\gitnexus-refactoring\\SKILL.md": {
-    "mtime": 1777462756.9677198,
+    "mtime": 1779790131.909392,
     "ast_hash": "9ba618bb478c9fe1efb360d255a25eba",
     "semantic_hash": "9ba618bb478c9fe1efb360d255a25eba"
   },
@@ -1025,9 +1025,9 @@
     "semantic_hash": "109c00a0ccdb218fcea4ab4e60168453"
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\.github\\workflows\\release.yml": {
-    "mtime": 1777528453.3139973,
-    "ast_hash": "5b43f267261f45ba711069a4b381bf96",
-    "semantic_hash": "5b43f267261f45ba711069a4b381bf96"
+    "mtime": 1779784914.5287936,
+    "ast_hash": "1efdf33d46b183b78595ba8c1e5188a2",
+    "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\docs\\S3.md": {
     "mtime": 1777527737.6121466,
@@ -1295,58 +1295,58 @@
     "semantic_hash": "e6ceafb5146444d2f33ffb37d2b3dcba"
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\components\\PluginManager\\PluginManagerDialog.tsx": {
-    "mtime": 1779772086.7992663,
-    "ast_hash": "cec7326707d7a184ca27233530ee744e",
+    "mtime": 1779783067.928469,
+    "ast_hash": "10723f3cd1cb419cad603e92d2d5721a",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\plugins\\builtinPlugins.ts": {
-    "mtime": 1779338747.7928674,
-    "ast_hash": "d1d4a8bb5cfd25ef5b08100ec48b4a35",
+    "mtime": 1779783067.9310448,
+    "ast_hash": "3fb7b51eda5c2319f1c275522e9446c4",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\plugins\\mivraApi.ts": {
-    "mtime": 1779339360.7672105,
-    "ast_hash": "9f6aa6a5e36dc238693543af1e2af2e8",
+    "mtime": 1779790518.9165263,
+    "ast_hash": "b0003fdb4187271e27d4efcd71439e9c",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\plugins\\PluginDialogHost.tsx": {
-    "mtime": 1779338725.885999,
-    "ast_hash": "0b611dfe7351037295f1396f8d25188c",
+    "mtime": 1779783067.9310448,
+    "ast_hash": "809c7d7a7066454f7e0facc87db20f3b",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\plugins\\PluginHost.tsx": {
-    "mtime": 1779349540.1160948,
-    "ast_hash": "c1859c0094e5d6b3da6e5fd6a1460702",
+    "mtime": 1779783067.9310448,
+    "ast_hash": "4c10bd24cf34fa2ab4e477da455473e0",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\plugins\\pluginStore.ts": {
-    "mtime": 1779349531.657469,
-    "ast_hash": "e84574d6fb63410b78e08732a87bbb0a",
+    "mtime": 1779783067.9330528,
+    "ast_hash": "9a531501217017bc8934256f2b1bd317",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\plugins\\types.ts": {
-    "mtime": 1779338695.5514383,
-    "ast_hash": "cf11cadec9863341c4157964d0e5d324",
+    "mtime": 1779790518.9159846,
+    "ast_hash": "9274ab51db33f669856c55628cde7afa",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\test\\pluginManager.test.tsx": {
-    "mtime": 1779772086.8013957,
-    "ast_hash": "da8dadd0d34294d0de01f5ccb3f2891f",
+    "mtime": 1779783067.9375112,
+    "ast_hash": "59a82e9a952d3d5c0b5df9331f35861d",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\test\\pluginRegistry.test.ts": {
-    "mtime": 1779771634.564899,
-    "ast_hash": "cb44402d578c884f8c5cfd7c103285fe",
+    "mtime": 1779790233.85345,
+    "ast_hash": "fe7c0d7588d8426089361fb7dd3ede5e",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\test\\exportPdfDefinition.test.ts": {
-    "mtime": 1779339067.0034018,
-    "ast_hash": "f8ff10459d0bf694810583c978fb4492",
+    "mtime": 1779783067.9360027,
+    "ast_hash": "191a8d809f55fec26a0a14503dc5fc7f",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\test\\exportPdfRender.test.ts": {
-    "mtime": 1779339061.2944155,
-    "ast_hash": "939631d0e3f3c00c7ae45d593f787480",
+    "mtime": 1779783067.9360027,
+    "ast_hash": "6dbff2a68e4594c179d870b709c1844f",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\docs\\superpowers\\plans\\2026-05-20-plugin-system-export-pdf.md": {
@@ -1355,23 +1355,23 @@
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\test\\exportPdfBytes.test.ts": {
-    "mtime": 1779770042.9796338,
-    "ast_hash": "29bfcdaf57896af2deb7ef87198d072e",
+    "mtime": 1779783067.9349966,
+    "ast_hash": "8a42bac1c7ba1bc8409ed3eb9f029e27",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\test\\exportPdfDialog.test.tsx": {
-    "mtime": 1779769140.979749,
-    "ast_hash": "abca5c19b6cfe6bdd95ad35b534bc1ed",
+    "mtime": 1779783067.9360027,
+    "ast_hash": "4a8e262897fcf5d4cb73273d4bbd5ae7",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\test\\Toolbar.test.tsx": {
-    "mtime": 1779339307.3195298,
-    "ast_hash": "f3a2a7e96263044e6e3f93e0ef125688",
+    "mtime": 1779783067.9349966,
+    "ast_hash": "cea1a69b8dbeea4626b90d8b0c122e06",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\docs\\PLUGINS.md": {
-    "mtime": 1779777909.218637,
-    "ast_hash": "6997e710d764b9bfa9c5309e655d130a",
+    "mtime": 1779790592.3830123,
+    "ast_hash": "8f61eedcc7a8489695258afcc53ef0fd",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\docs\\superpowers\\plans\\2026-05-20-external-plugin-runtime.md": {
@@ -1380,173 +1380,203 @@
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\plugins\\export-pdf\\package.json": {
-    "mtime": 1779339010.0778344,
-    "ast_hash": "354111a3539c56c44fc3b502a98efa6d",
+    "mtime": 1779783067.8525646,
+    "ast_hash": "9fe78a68b25ea9aa1fd3e207b2896df7",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\plugins\\export-pdf\\plugin.json": {
-    "mtime": 1779770135.741085,
-    "ast_hash": "4bef18ed35601e1fcf8ebfb40c5e743b",
+    "mtime": 1779783067.8525646,
+    "ast_hash": "62ea8b67fe626402a93a791bad8e8c5d",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\plugins\\export-pdf\\vite.config.ts": {
-    "mtime": 1779342493.4094934,
-    "ast_hash": "a22c4a73b26a976c2ab930da3faf94b1",
+    "mtime": 1779783067.8568022,
+    "ast_hash": "dba6972c4a46b64de624a4cf75734b0b",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\plugins\\export-pdf\\scripts\\copy-manifest.mjs": {
-    "mtime": 1779339004.7490306,
-    "ast_hash": "1eeedeb8ce565531b726a10b22561759",
+    "mtime": 1779783067.8535652,
+    "ast_hash": "b68439eaf9daa8f93f8b8469fba8ac02",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\plugins\\export-pdf\\src\\ExportPdfDialog.tsx": {
-    "mtime": 1779769229.51498,
-    "ast_hash": "cbb9cf5843fb4a6f21f02e48f049d169",
+    "mtime": 1779783067.8535652,
+    "ast_hash": "234012576f6468be77d159473fb3f177",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\plugins\\export-pdf\\src\\pdfDefinition.ts": {
-    "mtime": 1779770115.3505073,
-    "ast_hash": "cddea28c6f21fb8015265988da4e83fb",
+    "mtime": 1779783067.8545647,
+    "ast_hash": "db72f466b4441349ffc0961fc54288e1",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\plugins\\export-pdf\\src\\pdfFonts.ts": {
-    "mtime": 1779260872.7868204,
-    "ast_hash": "72e573cf0a0e51c7c169a2f6f675655d",
+    "mtime": 1779783067.8545647,
+    "ast_hash": "d73773f3717fd399fd1c755cc3938a62",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\plugins\\export-pdf\\src\\pdfMakeClient.ts": {
-    "mtime": 1779343274.1187024,
-    "ast_hash": "b67817018f978d8030b6f0fe3eb85e01",
+    "mtime": 1779783067.8557954,
+    "ast_hash": "14c9ea620dd081d022cd76cdd3628a0a",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\plugins\\export-pdf\\src\\PdfPreviewPages.tsx": {
-    "mtime": 1779270052.9835768,
-    "ast_hash": "d3add2977ad36c8417bb42d0d88f834c",
+    "mtime": 1779783067.8535652,
+    "ast_hash": "64c8d82980c577c2c4d83243419a63af",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\plugins\\export-pdf\\src\\presets.ts": {
-    "mtime": 1779260521.3877432,
-    "ast_hash": "12fa356f953e3162a29c87ed550c05a1",
+    "mtime": 1779783067.8557954,
+    "ast_hash": "c32168be05ed95c002b56558901420c7",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\plugins\\export-pdf\\src\\register.tsx": {
-    "mtime": 1779338943.7801542,
-    "ast_hash": "ff7bc249bdbd10c070e1eeaaf2b39327",
+    "mtime": 1779783067.8557954,
+    "ast_hash": "df51b24753a9dfd823ea5515c195172f",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\plugins\\export-pdf\\src\\types.ts": {
-    "mtime": 1779260515.8802025,
-    "ast_hash": "04e39dc95d19f9ad9b4bce6aa3054104",
+    "mtime": 1779783067.8557954,
+    "ast_hash": "5f5ce5eec99114f88a92865bea162a70",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\plugins\\externalPluginLoader.ts": {
-    "mtime": 1779772924.2569747,
-    "ast_hash": "f9b083326645134f32913ec46b9c83fd",
+    "mtime": 1779783067.9320514,
+    "ast_hash": "c35d5fbb47e26639f063c9a0a1db3ea2",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\plugins\\externalPluginRegistry.ts": {
-    "mtime": 1779342047.9491513,
-    "ast_hash": "3d4c435ac8e6f2573dff87319a0aba58",
+    "mtime": 1779783067.9320514,
+    "ast_hash": "9e94670bdf46fda68d866684cae1bc9f",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\plugins\\externalPluginTypes.ts": {
-    "mtime": 1779343218.7100008,
-    "ast_hash": "b5849c9483aa942d595c39583a820f0d",
+    "mtime": 1779783067.9320514,
+    "ast_hash": "e1db0513ed76d007a5a1dff38ddba0d6",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\plugins\\pluginManifest.ts": {
-    "mtime": 1779771693.9533062,
-    "ast_hash": "83ed136c178d2bf5521521186b9aa2a1",
+    "mtime": 1779790518.9165263,
+    "ast_hash": "d4ba627e90c245d450b8bcc1331e205e",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\plugins\\pluginPermissions.ts": {
-    "mtime": 1779338684.4353206,
-    "ast_hash": "5570d4983b68d9526e0eba83f31813e8",
+    "mtime": 1779783067.9330528,
+    "ast_hash": "9b5387f942ca83888946e127dae8ae71",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\test\\externalPluginLoader.test.ts": {
-    "mtime": 1779772933.656481,
-    "ast_hash": "55ab37661c5e05b9d9451c9b57e95cc9",
+    "mtime": 1779783067.9365084,
+    "ast_hash": "e83ce695336efaffcbd38681adc80227",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\test\\externalPluginRegistry.test.ts": {
-    "mtime": 1779342047.9503205,
-    "ast_hash": "c9ac512a7b462f87e8bf3a31f96d1036",
+    "mtime": 1779783067.9365084,
+    "ast_hash": "a925fffdf9bcf91f8b6a6aa841903802",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\test\\pluginPermissions.test.ts": {
-    "mtime": 1779338599.8267508,
-    "ast_hash": "4843a53fcd3790d4a194bc08b6f67d15",
+    "mtime": 1779790233.8524256,
+    "ast_hash": "ccd59f2aba373aedcd76b2038c28ea88",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src-tauri\\bundled-plugins\\export-pdf\\index.js": {
-    "mtime": 1779780560.387394,
-    "ast_hash": "6f115b0d25c48d57a148ec0cfadd37b3",
+    "mtime": 1779783067.9244623,
+    "ast_hash": "1c446c3fc3b63cd8e2195f0517110f25",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src-tauri\\bundled-plugins\\export-pdf\\plugin.json": {
-    "mtime": 1779770135.741085,
-    "ast_hash": "4bef18ed35601e1fcf8ebfb40c5e743b",
+    "mtime": 1779783067.9244623,
+    "ast_hash": "62ea8b67fe626402a93a791bad8e8c5d",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src-tauri\\bundled-plugins\\export-pdf\\assets\\pdf.worker-B1D2UnXD.mjs": {
-    "mtime": 1779780560.387394,
-    "ast_hash": "b169314e56c737213dba6418ab0b6512",
+    "mtime": 1779783067.9129293,
+    "ast_hash": "f6f2e1843c06c33cfa1a2526350e68a4",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\docs\\PLUGIN_USER_GUIDE.md": {
-    "mtime": 1779777921.864459,
-    "ast_hash": "6320c596008beb346fb3765984d02139",
+    "mtime": 1779790592.38353,
+    "ast_hash": "9f710647629ca6180ed7652c75d71c2f",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\test\\PluginHost.test.tsx": {
-    "mtime": 1779349498.6966407,
-    "ast_hash": "ba0b21a2b9428539164d6f560f50e56e",
+    "mtime": 1779783067.9330528,
+    "ast_hash": "5021db861fb7a5e83b39bfe0256dfa01",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\plugins\\markdown-toc\\index.js": {
-    "mtime": 1779774705.0502546,
-    "ast_hash": "0c495cf06744eeda9f0c958216760fe5",
+    "mtime": 1779783067.857802,
+    "ast_hash": "e85cef6859dcb407710c425cc4e4dd0e",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\plugins\\markdown-toc\\plugin.json": {
-    "mtime": 1779775027.687451,
-    "ast_hash": "ef10acd6b0de164c4f2e243596d299c7",
+    "mtime": 1779783067.857802,
+    "ast_hash": "b411d499074446d17e0fd18268b5ac85",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\test\\markdownTocPlugin.test.ts": {
-    "mtime": 1779775007.4895525,
-    "ast_hash": "46dfde56c298b52b0576ff9ad0d5d13c",
+    "mtime": 1779783067.9365084,
+    "ast_hash": "40edf2fb92c29d439d242d42ab2be684",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\test\\pluginManagerStyles.test.ts": {
-    "mtime": 1779775906.2093835,
-    "ast_hash": "779dba9178f28b0b985cc0db914b4a38",
+    "mtime": 1779783067.9375112,
+    "ast_hash": "f08c58340911b83b54eaf9a36f5f6649",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\docs\\mockups\\openrouter-summary-modal.html": {
-    "mtime": 1779776662.376551,
-    "ast_hash": "ff0122a61a981eb43aeb044b46c55b62",
+    "mtime": 1779783067.8359704,
+    "ast_hash": "880137219021b9bee7175254fb031036",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\docs\\mockups\\openrouter-summary-modal-mockup.png": {
-    "mtime": 1779776696.9388142,
+    "mtime": 1779783067.8347347,
     "ast_hash": "624c1dd28beeb970fb16d43590b16699",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\plugins\\openrouter-summary\\index.js": {
-    "mtime": 1779777863.9230728,
-    "ast_hash": "9923260bc045644aff92c45e024c2f1c",
+    "mtime": 1779783067.8588016,
+    "ast_hash": "978cf8bda44393d2ca2d226d11fdd4b9",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\plugins\\openrouter-summary\\plugin.json": {
-    "mtime": 1779777810.691555,
-    "ast_hash": "7b491b7f68446c938b95822b5f651759",
+    "mtime": 1779783067.859802,
+    "ast_hash": "438bb9ace550f33369cc8c97850166a7",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\test\\openRouterSummaryPlugin.test.ts": {
-    "mtime": 1779777827.4595103,
-    "ast_hash": "260717f7de6dcf9f4fbbd472b9128ab1",
+    "mtime": 1779783067.9365084,
+    "ast_hash": "ee52deff4a0d26df077bd4a434389df4",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\Brian\\Downloads\\Mivra\\.gitnexus\\meta.json": {
+    "mtime": 1779790131.7994585,
+    "ast_hash": "c8152ef35a379cac98bb9646d585cd14",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\Brian\\Downloads\\Mivra\\.gitnexus\\parse-cache\\8c7b22c048c3c2f9ebc2a4b244303cbda6afa1077b3c1ab2fa9687ecf5ba5490.json": {
+    "mtime": 1779790131.8273704,
+    "ast_hash": "7c7cddf0c341f42dfccfe7b434cf5708",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\Brian\\Downloads\\Mivra\\.gitnexus\\parse-cache\\index.json": {
+    "mtime": 1779790131.8283713,
+    "ast_hash": "05c02199d162796b8826578cbd97ef0e",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\Brian\\Downloads\\Mivra\\plugins\\openrouter-translate\\index.js": {
+    "mtime": 1779790518.9181044,
+    "ast_hash": "3ae28da07cf7b4b4e46137a134a0577e",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\Brian\\Downloads\\Mivra\\plugins\\openrouter-translate\\plugin.json": {
+    "mtime": 1779790518.9181044,
+    "ast_hash": "2baca64b8f95d5444d46e8116d253258",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\Brian\\Downloads\\Mivra\\src\\test\\openRouterTranslatePlugin.test.ts": {
+    "mtime": 1779790233.8544884,
+    "ast_hash": "a0923fe9e746f3b6148191b4707edc5e",
     "semantic_hash": ""
   }
 }
