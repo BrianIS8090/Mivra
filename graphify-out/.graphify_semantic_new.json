@@ -1,0 +1,1212 @@
+{
+  "nodes": [
+    {
+      "id": "skill_tauri",
+      "label": "Tauri Skill",
+      "file_type": "document",
+      "source_file": ".agents/skills/tauri/SKILL.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "tauri_advanced_patterns",
+      "label": "Tauri Advanced Patterns",
+      "file_type": "document",
+      "source_file": ".agents/skills/tauri/references/advanced-patterns.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "tauri_security_examples",
+      "label": "Tauri Security Examples",
+      "file_type": "document",
+      "source_file": ".agents/skills/tauri/references/security-examples.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "tauri_threat_model",
+      "label": "Tauri Threat Model",
+      "file_type": "document",
+      "source_file": ".agents/skills/tauri/references/threat-model.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "skill_ts_advanced_types",
+      "label": "TypeScript Advanced Types Skill",
+      "file_type": "document",
+      "source_file": ".agents/skills/typescript-advanced-types/SKILL.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "vercel_react_agents",
+      "label": "Vercel React Agents",
+      "file_type": "document",
+      "source_file": ".agents/skills/vercel-react-best-practices/AGENTS.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "skill_vercel_react",
+      "label": "Vercel React Best Practices",
+      "file_type": "document",
+      "source_file": ".agents/skills/vercel-react-best-practices/SKILL.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "vercel_rule_advanced_event_refs",
+      "label": "Advanced Event Handler Refs",
+      "file_type": "document",
+      "source_file": ".agents/skills/vercel-react-best-practices/rules/advanced-event-handler-refs.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "vercel_rule_advanced_init_once",
+      "label": "Advanced Init Once",
+      "file_type": "document",
+      "source_file": ".agents/skills/vercel-react-best-practices/rules/advanced-init-once.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "vercel_rule_advanced_use_latest",
+      "label": "Advanced Use Latest",
+      "file_type": "document",
+      "source_file": ".agents/skills/vercel-react-best-practices/rules/advanced-use-latest.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "vercel_rule_async_api_routes",
+      "label": "Async API Routes",
+      "file_type": "document",
+      "source_file": ".agents/skills/vercel-react-best-practices/rules/async-api-routes.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "vercel_rule_async_defer_await",
+      "label": "Async Defer Await",
+      "file_type": "document",
+      "source_file": ".agents/skills/vercel-react-best-practices/rules/async-defer-await.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "vercel_rule_async_dependencies",
+      "label": "Async Dependencies",
+      "file_type": "document",
+      "source_file": ".agents/skills/vercel-react-best-practices/rules/async-dependencies.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "vercel_rule_async_parallel",
+      "label": "Async Parallel",
+      "file_type": "document",
+      "source_file": ".agents/skills/vercel-react-best-practices/rules/async-parallel.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "vercel_rule_async_suspense_boundaries",
+      "label": "Async Suspense Boundaries",
+      "file_type": "document",
+      "source_file": ".agents/skills/vercel-react-best-practices/rules/async-suspense-boundaries.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "vercel_rule_bundle_barrel_imports",
+      "label": "Bundle Barrel Imports",
+      "file_type": "document",
+      "source_file": ".agents/skills/vercel-react-best-practices/rules/bundle-barrel-imports.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "vercel_rule_bundle_conditional",
+      "label": "Bundle Conditional",
+      "file_type": "document",
+      "source_file": ".agents/skills/vercel-react-best-practices/rules/bundle-conditional.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "vercel_rule_bundle_defer_third_party",
+      "label": "Bundle Defer Third Party",
+      "file_type": "document",
+      "source_file": ".agents/skills/vercel-react-best-practices/rules/bundle-defer-third-party.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "vercel_rule_bundle_dynamic_imports",
+      "label": "Bundle Dynamic Imports",
+      "file_type": "document",
+      "source_file": ".agents/skills/vercel-react-best-practices/rules/bundle-dynamic-imports.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "vercel_rule_bundle_preload",
+      "label": "Bundle Preload",
+      "file_type": "document",
+      "source_file": ".agents/skills/vercel-react-best-practices/rules/bundle-preload.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "vercel_rule_client_event_listeners",
+      "label": "Client Event Listeners",
+      "file_type": "document",
+      "source_file": ".agents/skills/vercel-react-best-practices/rules/client-event-listeners.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "vercel_rule_client_localstorage_schema",
+      "label": "Client Localstorage Schema",
+      "file_type": "document",
+      "source_file": ".agents/skills/vercel-react-best-practices/rules/client-localstorage-schema.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "client_passive_event_listeners",
+      "label": "Use Passive Event Listeners for Scrolling Performance",
+      "file_type": "document",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\client-passive-event-listeners.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "client_swr_dedup",
+      "label": "Use SWR for Automatic Deduplication",
+      "file_type": "document",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\client-swr-dedup.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "swr",
+      "label": "SWR",
+      "file_type": "concept",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\client-swr-dedup.md",
+      "source_location": null,
+      "source_url": "https://swr.vercel.app",
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "js_batch_dom_css",
+      "label": "Avoid Layout Thrashing",
+      "file_type": "document",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\js-batch-dom-css.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "layout_thrashing",
+      "label": "Layout Thrashing",
+      "file_type": "concept",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\js-batch-dom-css.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "js_cache_function_results",
+      "label": "Cache Repeated Function Calls",
+      "file_type": "document",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\js-cache-function-results.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "vercel_dashboard_fast",
+      "label": "How we made the Vercel Dashboard twice as fast",
+      "file_type": "document",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\js-cache-function-results.md",
+      "source_location": null,
+      "source_url": "https://vercel.com/blog/how-we-made-the-vercel-dashboard-twice-as-fast",
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "js_cache_property_access",
+      "label": "Cache Property Access in Loops",
+      "file_type": "document",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\js-cache-property-access.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "js_cache_storage",
+      "label": "Cache Storage API Calls",
+      "file_type": "document",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\js-cache-storage.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "js_combine_iterations",
+      "label": "Combine Multiple Array Iterations",
+      "file_type": "document",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\js-combine-iterations.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "js_early_exit",
+      "label": "Early Return from Functions",
+      "file_type": "document",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\js-early-exit.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "js_hoist_regexp",
+      "label": "Hoist RegExp Creation",
+      "file_type": "document",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\js-hoist-regexp.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "js_index_maps",
+      "label": "Build Index Maps for Repeated Lookups",
+      "file_type": "document",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\js-index-maps.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "js_length_check_first",
+      "label": "Early Length Check for Array Comparisons",
+      "file_type": "document",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\js-length-check-first.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "js_min_max_loop",
+      "label": "Use Loop for Min/Max Instead of Sort",
+      "file_type": "document",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\js-min-max-loop.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "js_set_map_lookups",
+      "label": "Use Set/Map for O(1) Lookups",
+      "file_type": "document",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\js-set-map-lookups.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "js_tosorted_immutable",
+      "label": "Use toSorted() Instead of sort() for Immutability",
+      "file_type": "document",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\js-tosorted-immutable.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "react_immutability",
+      "label": "React Immutability Model",
+      "file_type": "concept",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\js-tosorted-immutable.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "rendering_activity",
+      "label": "Use Activity Component for Show/Hide",
+      "file_type": "document",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\rendering-activity.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "react_activity",
+      "label": "React Activity Component",
+      "file_type": "concept",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\rendering-activity.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "rendering_animate_svg_wrapper",
+      "label": "Animate SVG Wrapper Instead of SVG Element",
+      "file_type": "document",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\rendering-animate-svg-wrapper.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "hardware_acceleration",
+      "label": "Hardware Acceleration",
+      "file_type": "concept",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\rendering-animate-svg-wrapper.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "rendering_conditional_render",
+      "label": "Use Explicit Conditional Rendering",
+      "file_type": "document",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\rendering-conditional-render.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "rendering_content_visibility",
+      "label": "CSS content-visibility for Long Lists",
+      "file_type": "document",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\rendering-content-visibility.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "rendering_hoist_jsx",
+      "label": "Hoist Static JSX Elements",
+      "file_type": "document",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\rendering-hoist-jsx.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "react_compiler",
+      "label": "React Compiler",
+      "file_type": "concept",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\rendering-hoist-jsx.md",
+      "source_location": null,
+      "source_url": "https://react.dev/learn/react-compiler",
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "rendering_hydration_no_flicker",
+      "label": "Prevent Hydration Mismatch Without Flickering",
+      "file_type": "document",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\rendering-hydration-no-flicker.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "rendering_hydration_suppress_warning",
+      "label": "Suppress Expected Hydration Mismatches",
+      "file_type": "document",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\rendering-hydration-suppress-warning.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "rendering_svg_precision",
+      "label": "Optimize SVG Precision",
+      "file_type": "document",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\rendering-svg-precision.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "svgo",
+      "label": "SVGO",
+      "file_type": "concept",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\rendering-svg-precision.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "doc_usetransition_loading",
+      "label": "Use useTransition Over Manual Loading States",
+      "file_type": "document",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\rendering-usetransition-loading.md"
+    },
+    {
+      "id": "doc_defer_reads",
+      "label": "Defer State Reads to Usage Point",
+      "file_type": "document",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\rerender-defer-reads.md"
+    },
+    {
+      "id": "doc_narrow_effect",
+      "label": "Narrow Effect Dependencies",
+      "file_type": "document",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\rerender-dependencies.md"
+    },
+    {
+      "id": "doc_derive_render",
+      "label": "Calculate Derived State During Rendering",
+      "file_type": "document",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\rerender-derived-state-no-effect.md"
+    },
+    {
+      "id": "doc_subscribe_derived",
+      "label": "Subscribe to Derived State",
+      "file_type": "document",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\rerender-derived-state.md"
+    },
+    {
+      "id": "doc_functional_setstate",
+      "label": "Use Functional setState Updates",
+      "file_type": "document",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\rerender-functional-setstate.md"
+    },
+    {
+      "id": "doc_lazy_state_init",
+      "label": "Use Lazy State Initialization",
+      "file_type": "document",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\rerender-lazy-state-init.md"
+    },
+    {
+      "id": "doc_memo_default_value",
+      "label": "Extract Default Non-primitive Parameter Value from Memoized Component to Constant",
+      "file_type": "document",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\rerender-memo-with-default-value.md"
+    },
+    {
+      "id": "doc_extract_memoized",
+      "label": "Extract to Memoized Components",
+      "file_type": "document",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\rerender-memo.md"
+    },
+    {
+      "id": "doc_interaction_event_handler",
+      "label": "Put Interaction Logic in Event Handlers",
+      "file_type": "document",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\rerender-move-effect-to-event.md"
+    },
+    {
+      "id": "doc_no_simple_usememo",
+      "label": "Do not wrap a simple expression with a primitive result type in useMemo",
+      "file_type": "document",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\rerender-simple-expression-in-memo.md"
+    },
+    {
+      "id": "doc_use_transitions",
+      "label": "Use Transitions for Non-Urgent Updates",
+      "file_type": "document",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\rerender-transitions.md"
+    },
+    {
+      "id": "doc_useref_transient",
+      "label": "Use useRef for Transient Values",
+      "file_type": "document",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\rerender-use-ref-transient-values.md"
+    },
+    {
+      "id": "doc_server_after",
+      "label": "Use after() for Non-Blocking Operations",
+      "file_type": "document",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\server-after-nonblocking.md"
+    },
+    {
+      "id": "doc_server_auth",
+      "label": "Authenticate Server Actions Like API Routes",
+      "file_type": "document",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\server-auth-actions.md"
+    },
+    {
+      "id": "doc_server_cache_lru",
+      "label": "Cross-Request LRU Caching",
+      "file_type": "document",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\server-cache-lru.md"
+    },
+    {
+      "id": "doc_server_react_cache",
+      "label": "Per-Request Deduplication with React.cache()",
+      "file_type": "document",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\server-cache-react.md"
+    },
+    {
+      "id": "doc_server_dedup_props",
+      "label": "Avoid Duplicate Serialization in RSC Props",
+      "file_type": "document",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\server-dedup-props.md"
+    },
+    {
+      "id": "doc_server_parallel",
+      "label": "Parallel Data Fetching with Component Composition",
+      "file_type": "document",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\server-parallel-fetching.md"
+    },
+    {
+      "id": "doc_server_serialization",
+      "label": "Minimize Serialization at RSC Boundaries",
+      "file_type": "document",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\server-serialization.md"
+    },
+    {
+      "id": "doc_gitnexus_cli",
+      "label": "GitNexus CLI Commands",
+      "file_type": "document",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.claude\\skills\\gitnexus\\gitnexus-cli\\SKILL.md"
+    },
+    {
+      "id": "doc_gitnexus_debugging",
+      "label": "Debugging with GitNexus",
+      "file_type": "document",
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.claude\\skills\\gitnexus\\gitnexus-debugging\\SKILL.md"
+    },
+    {
+      "id": "concept_usetransition",
+      "label": "useTransition",
+      "file_type": "concept"
+    },
+    {
+      "id": "concept_usestate",
+      "label": "useState",
+      "file_type": "concept"
+    },
+    {
+      "id": "concept_useeffect",
+      "label": "useEffect",
+      "file_type": "concept"
+    },
+    {
+      "id": "concept_usecallback",
+      "label": "useCallback",
+      "file_type": "concept"
+    },
+    {
+      "id": "concept_usememo",
+      "label": "useMemo",
+      "file_type": "concept"
+    },
+    {
+      "id": "concept_useref",
+      "label": "useRef",
+      "file_type": "concept"
+    },
+    {
+      "id": "concept_memo",
+      "label": "memo",
+      "file_type": "concept"
+    },
+    {
+      "id": "concept_after",
+      "label": "after",
+      "file_type": "concept"
+    },
+    {
+      "id": "concept_react_cache",
+      "label": "React.cache()",
+      "file_type": "concept"
+    },
+    {
+      "id": "concept_rsc",
+      "label": "React Server Components",
+      "file_type": "concept"
+    },
+    {
+      "id": "concept_server_actions",
+      "label": "Server Actions",
+      "file_type": "concept"
+    },
+    {
+      "id": "concept_gitnexus_cli",
+      "label": "GitNexus CLI",
+      "file_type": "concept"
+    },
+    {
+      "id": "concept_gitnexus_debugging",
+      "label": "GitNexus Debugging",
+      "file_type": "concept"
+    }
+  ],
+  "edges": [
+    {
+      "source": "skill_tauri",
+      "target": "tauri_advanced_patterns",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": ".agents/skills/tauri/SKILL.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "skill_tauri",
+      "target": "tauri_security_examples",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": ".agents/skills/tauri/SKILL.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "skill_tauri",
+      "target": "tauri_threat_model",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": ".agents/skills/tauri/SKILL.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "tauri_security_examples",
+      "target": "tauri_threat_model",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": ".agents/skills/tauri/references/security-examples.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "vercel_react_agents",
+      "target": "skill_vercel_react",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": ".agents/skills/vercel-react-best-practices/AGENTS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "skill_vercel_react",
+      "target": "vercel_rule_advanced_event_refs",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": ".agents/skills/vercel-react-best-practices/SKILL.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "skill_vercel_react",
+      "target": "vercel_rule_advanced_init_once",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": ".agents/skills/vercel-react-best-practices/SKILL.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "skill_vercel_react",
+      "target": "vercel_rule_advanced_use_latest",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": ".agents/skills/vercel-react-best-practices/SKILL.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "skill_vercel_react",
+      "target": "vercel_rule_async_api_routes",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": ".agents/skills/vercel-react-best-practices/SKILL.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "skill_vercel_react",
+      "target": "vercel_rule_async_defer_await",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": ".agents/skills/vercel-react-best-practices/SKILL.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "skill_vercel_react",
+      "target": "vercel_rule_async_dependencies",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": ".agents/skills/vercel-react-best-practices/SKILL.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "skill_vercel_react",
+      "target": "vercel_rule_async_parallel",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": ".agents/skills/vercel-react-best-practices/SKILL.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "skill_vercel_react",
+      "target": "vercel_rule_async_suspense_boundaries",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": ".agents/skills/vercel-react-best-practices/SKILL.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "skill_vercel_react",
+      "target": "vercel_rule_bundle_barrel_imports",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": ".agents/skills/vercel-react-best-practices/SKILL.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "skill_vercel_react",
+      "target": "vercel_rule_bundle_conditional",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": ".agents/skills/vercel-react-best-practices/SKILL.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "skill_vercel_react",
+      "target": "vercel_rule_bundle_defer_third_party",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": ".agents/skills/vercel-react-best-practices/SKILL.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "skill_vercel_react",
+      "target": "vercel_rule_bundle_dynamic_imports",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": ".agents/skills/vercel-react-best-practices/SKILL.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "skill_vercel_react",
+      "target": "vercel_rule_bundle_preload",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": ".agents/skills/vercel-react-best-practices/SKILL.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "skill_vercel_react",
+      "target": "vercel_rule_client_event_listeners",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": ".agents/skills/vercel-react-best-practices/SKILL.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "skill_vercel_react",
+      "target": "vercel_rule_client_localstorage_schema",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": ".agents/skills/vercel-react-best-practices/SKILL.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "client_swr_dedup",
+      "target": "swr",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\client-swr-dedup.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "js_batch_dom_css",
+      "target": "layout_thrashing",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\js-batch-dom-css.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "js_cache_function_results",
+      "target": "vercel_dashboard_fast",
+      "relation": "cites",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\js-cache-function-results.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "js_tosorted_immutable",
+      "target": "react_immutability",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\js-tosorted-immutable.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "rendering_activity",
+      "target": "react_activity",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\rendering-activity.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "rendering_animate_svg_wrapper",
+      "target": "hardware_acceleration",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\rendering-animate-svg-wrapper.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "rendering_hoist_jsx",
+      "target": "react_compiler",
+      "relation": "cites",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\rendering-hoist-jsx.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "rendering_svg_precision",
+      "target": "svgo",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\rendering-svg-precision.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "doc_usetransition_loading",
+      "target": "concept_usetransition",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "doc_usetransition_loading",
+      "target": "concept_usestate",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "doc_narrow_effect",
+      "target": "concept_useeffect",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "doc_derive_render",
+      "target": "concept_usestate",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "doc_derive_render",
+      "target": "concept_useeffect",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "doc_functional_setstate",
+      "target": "concept_usestate",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "doc_functional_setstate",
+      "target": "concept_usecallback",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "doc_lazy_state_init",
+      "target": "concept_usestate",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "doc_memo_default_value",
+      "target": "concept_memo",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "doc_extract_memoized",
+      "target": "concept_memo",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "doc_extract_memoized",
+      "target": "concept_usememo",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "doc_interaction_event_handler",
+      "target": "concept_useeffect",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "doc_no_simple_usememo",
+      "target": "concept_usememo",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "doc_useref_transient",
+      "target": "concept_useref",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "doc_server_after",
+      "target": "concept_after",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "doc_server_auth",
+      "target": "concept_server_actions",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "doc_server_react_cache",
+      "target": "concept_react_cache",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "doc_server_dedup_props",
+      "target": "concept_rsc",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "doc_server_parallel",
+      "target": "concept_rsc",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "doc_server_serialization",
+      "target": "concept_rsc",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "doc_gitnexus_cli",
+      "target": "concept_gitnexus_cli",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "doc_gitnexus_debugging",
+      "target": "concept_gitnexus_debugging",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    }
+  ],
+  "hyperedges": [],
+  "input_tokens": 0,
+  "output_tokens": 0
+}

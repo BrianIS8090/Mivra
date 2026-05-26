@@ -1,0 +1,1 @@
+{"nodes": [{"id": "doc_no_simple_usememo", "label": "Do not wrap a simple expression with a primitive result type in useMemo", "file_type": "document", "source_file": "C:\\Users\\Brian\\Downloads\\Mivra\\.agents\\skills\\vercel-react-best-practices\\rules\\rerender-simple-expression-in-memo.md"}], "edges": [], "hyperedges": []}

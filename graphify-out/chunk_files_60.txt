@@ -1,0 +1,13 @@
+C:\Users\Brian\Downloads\Mivra\src\test\useS3Upload.test.ts
+C:\Users\Brian\Downloads\Mivra\src\test\useSettings.test.ts
+C:\Users\Brian\Downloads\Mivra\src\test\useTheme.test.ts
+C:\Users\Brian\Downloads\Mivra\src\types\index.ts
+C:\Users\Brian\Downloads\Mivra\src\utils\dialogs.ts
+C:\Users\Brian\Downloads\Mivra\src\utils\mermaid.ts
+C:\Users\Brian\Downloads\Mivra\src\utils\paths.ts
+C:\Users\Brian\Downloads\Mivra\src\utils\tauri.ts
+C:\Users\Brian\Downloads\Mivra\src\vite-env.d.ts
+C:\Users\Brian\Downloads\Mivra\test-mermaid.md
+C:\Users\Brian\Downloads\Mivra\tsconfig.json
+C:\Users\Brian\Downloads\Mivra\tsconfig.node.json
+C:\Users\Brian\Downloads\Mivra\vite.config.ts
