@@ -12,7 +12,52 @@ on:
         type: string
 
 jobs:
+  prepare-release:
+    permissions:
+      contents: write
+    runs-on: ubuntu-22.04
+    outputs:
+      release_id: ${{ steps.release.outputs.release_id }}
+      tag_name: ${{ steps.meta.outputs.tag_name }}
+    steps:
+      - name: Resolve release tag
+        id: meta
+        run: echo "tag_name=${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}" >> "$GITHUB_OUTPUT"
+
+      - name: Create or find release
+        id: release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ steps.meta.outputs.tag_name }}
+        run: |
+          release_id="$(gh release view "$TAG_NAME" --json databaseId --jq .databaseId 2>/dev/null || true)"
+
+          if [ -z "$release_id" ]; then
+            cat > release-notes.md <<EOF
+          ## Mivra $TAG_NAME
+
+          Скачайте установщик для вашей платформы ниже.
+
+          | Платформа | Файл |
+          |-----------|------|
+          | Windows | `.exe` |
+          | macOS (Apple Silicon) | `.dmg` (aarch64) |
+          | macOS (Intel) | `.dmg` (x64) |
+          | Linux | `.deb`, `.AppImage` |
+          EOF
+
+            gh release create "$TAG_NAME" \
+              --title "Mivra $TAG_NAME" \
+              --notes-file release-notes.md \
+              --target "$GITHUB_SHA"
+
+            release_id="$(gh release view "$TAG_NAME" --json databaseId --jq .databaseId)"
+          fi
+
+          echo "release_id=$release_id" >> "$GITHUB_OUTPUT"
+
   release:
+    needs: prepare-release
     permissions:
       contents: write
     strategy:
@@ -60,14 +105,15 @@ jobs:
         run: npm ci
 
       - name: Build Tauri app
-        uses: tauri-apps/tauri-action@v1
+        uses: tauri-apps/tauri-action@v0.6.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tagName: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
-          releaseName: "Mivra ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}"
+          releaseId: ${{ needs.prepare-release.outputs.release_id }}
+          tagName: ${{ needs.prepare-release.outputs.tag_name }}
+          releaseName: "Mivra ${{ needs.prepare-release.outputs.tag_name }}"
           releaseBody: |
-            ## Mivra ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+            ## Mivra ${{ needs.prepare-release.outputs.tag_name }}
 
             Скачайте установщик для вашей платформы ниже.
 
