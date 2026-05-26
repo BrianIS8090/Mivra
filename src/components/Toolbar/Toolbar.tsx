@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useFile } from '../../hooks/useFile';
 import { useSettings } from '../../hooks/useSettings';
 import { useTheme } from '../../hooks/useTheme';
 import { useAppStore } from '../../stores/appStore';
+import { usePluginStore } from '../../plugins/pluginStore';
 import { getTranslations } from '../../i18n';
 import { HelpDialog } from '../Help/HelpDialog';
+import { PluginManagerDialog } from '../PluginManager/PluginManagerDialog';
 import { S3SettingsDialog } from '../S3Settings/S3SettingsDialog';
 import './toolbar.css';
 
@@ -21,6 +23,10 @@ const FONT_OPTIONS = [
 export function Toolbar() {
   const [showHelp, setShowHelp] = useState(false);
   const [showS3, setShowS3] = useState(false);
+  const [showPlugins, setShowPlugins] = useState(false);
+  const [isFontMenuOpen, setIsFontMenuOpen] = useState(false);
+  const [isPluginMenuOpen, setIsPluginMenuOpen] = useState(false);
+  const pluginMenuRef = useRef<HTMLDivElement>(null);
   const { open, save, saveAs, reload, filePath } = useFile();
   const { fontFamily, fontSize, language, pageWidth, changeFontFamily, changeFontSize, changeLanguage, changePageWidth } = useSettings();
   const [pageWidthDraft, setPageWidthDraft] = useState(String(pageWidth));
@@ -44,6 +50,11 @@ export function Toolbar() {
   const setEditorMode = useAppStore((s) => s.setEditorMode);
   const s3 = useAppStore((s) => s.s3);
   const s3Verified = useAppStore((s) => s.s3Verified);
+  const pluginButtons = usePluginStore((s) => s.toolbarButtons);
+  const sortedPluginButtons = useMemo(
+    () => pluginButtons.slice().sort((a, b) => (a.order ?? 100) - (b.order ?? 100)),
+    [pluginButtons],
+  );
   
   const t = getTranslations(language);
 
@@ -54,6 +65,35 @@ export function Toolbar() {
   const toggleLanguage = () => {
     changeLanguage(language === 'ru' ? 'en' : 'ru');
   };
+
+  const selectFontFamily = (family: string) => {
+    changeFontFamily(family);
+    setIsFontMenuOpen(false);
+  };
+
+  useEffect(() => {
+    if (!isPluginMenuOpen) return;
+
+    const closeOnPointerDown = (event: PointerEvent) => {
+      if (!pluginMenuRef.current?.contains(event.target as Node)) {
+        setIsPluginMenuOpen(false);
+      }
+    };
+
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsPluginMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('pointerdown', closeOnPointerDown);
+    document.addEventListener('keydown', closeOnEscape);
+
+    return () => {
+      document.removeEventListener('pointerdown', closeOnPointerDown);
+      document.removeEventListener('keydown', closeOnEscape);
+    };
+  }, [isPluginMenuOpen]);
 
   return (
     <>
@@ -84,16 +124,45 @@ export function Toolbar() {
         <div className="toolbar-separator" />
 
         <div className="toolbar-group">
-          <select
-            className="toolbar-select"
-            value={fontFamily}
-            onChange={(e) => changeFontFamily(e.target.value)}
-            title={t.fontTooltip}
+          <div
+            className="toolbar-font-select"
+            onBlur={(e) => {
+              if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
+                setIsFontMenuOpen(false);
+              }
+            }}
           >
-            {FONT_OPTIONS.map((f) => (
-              <option key={f} value={f}>{f}</option>
-            ))}
-          </select>
+            <button
+              type="button"
+              className="toolbar-font-select-trigger"
+              title={t.fontTooltip}
+              aria-haspopup="listbox"
+              aria-expanded={isFontMenuOpen}
+              onClick={() => setIsFontMenuOpen((open) => !open)}
+              onKeyDown={(e) => {
+                if (e.key === 'Escape') setIsFontMenuOpen(false);
+              }}
+            >
+              {fontFamily}
+            </button>
+            {isFontMenuOpen && (
+              <div className="toolbar-font-select-menu" role="listbox" aria-label={t.fontTooltip}>
+                {FONT_OPTIONS.map((font) => (
+                  <button
+                    key={font}
+                    type="button"
+                    className={`toolbar-font-select-option${font === fontFamily ? ' toolbar-font-select-option-active' : ''}`}
+                    role="option"
+                    aria-selected={font === fontFamily}
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => selectFontFamily(font)}
+                  >
+                    {font}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
 
           <div className="toolbar-font-size">
             <button
@@ -151,6 +220,63 @@ export function Toolbar() {
         <div className="toolbar-spacer" />
 
         <div className="toolbar-group">
+          <div
+            className="toolbar-plugin-menu"
+            ref={pluginMenuRef}
+            onBlur={(e) => {
+              if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
+                setIsPluginMenuOpen(false);
+              }
+            }}
+          >
+            <button
+              type="button"
+              className="toolbar-btn"
+              onClick={() => setIsPluginMenuOpen((open) => !open)}
+              title={t.pluginsTooltip}
+              aria-haspopup="menu"
+              aria-expanded={isPluginMenuOpen}
+            >
+              {t.plugins}
+            </button>
+            {isPluginMenuOpen && (
+              <div className="toolbar-plugin-menu-popover" role="menu" aria-label={t.plugins}>
+                {sortedPluginButtons.length > 0 ? (
+                  sortedPluginButtons.map((button) => (
+                    <button
+                      key={`${button.pluginId}:${button.id}`}
+                      type="button"
+                      className="toolbar-plugin-menu-item"
+                      role="menuitem"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => {
+                        setIsPluginMenuOpen(false);
+                        button.onClick();
+                      }}
+                      title={button.title}
+                    >
+                      {button.label}
+                    </button>
+                  ))
+                ) : (
+                  <div className="toolbar-plugin-menu-empty">{t.pluginMenuEmpty}</div>
+                )}
+                <div className="toolbar-plugin-menu-separator" />
+                <button
+                  type="button"
+                  className="toolbar-plugin-menu-item"
+                  role="menuitem"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => {
+                    setIsPluginMenuOpen(false);
+                    setShowPlugins(true);
+                  }}
+                >
+                  {t.pluginManagerTitle}
+                </button>
+              </div>
+            )}
+          </div>
           <button
             className={`toolbar-btn${s3 && s3Verified ? ' toolbar-btn-s3-ok' : ''}`}
             onClick={() => setShowS3(true)}
@@ -176,6 +302,7 @@ export function Toolbar() {
 
       {showHelp && <HelpDialog onClose={() => setShowHelp(false)} />}
       {showS3 && <S3SettingsDialog onClose={() => setShowS3(false)} />}
+      {showPlugins && <PluginManagerDialog onClose={() => setShowPlugins(false)} />}
     </>
   );
 }

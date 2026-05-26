@@ -1,0 +1,11 @@
+{
+  "id": "export-pdf",
+  "name": "Export PDF",
+  "version": "1.0.4",
+  "description": "Экспорт Markdown в PDF с постраничным предпросмотром, настройкой листов и поддержкой основных Markdown-элементов.",
+  "author": "Mivra Team",
+  "entry": "index.js",
+  "styles": "style.css",
+  "permissions": ["document:read", "dialog", "export:pdf"],
+  "apiVersion": 1
+}

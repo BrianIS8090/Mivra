@@ -12,6 +12,15 @@ export const commands = {
 	getRecentFiles: () => typedError<string[], string>(__TAURI_INVOKE("get_recent_files")),
 	// Чтение файла по пути (для открытия через ассоциацию файлов)
 	readFile: (path: string) => typedError<string, string>(__TAURI_INVOKE("read_file", { path })),
+	getInstalledPlugins: () => typedError<PluginInfo[], string>(__TAURI_INVOKE("get_installed_plugins")),
+	installPlugin: (folderPath: string) => typedError<PluginInfo, string>(__TAURI_INVOKE("install_plugin", { folderPath })),
+	installPluginPackage: (packagePath: string) => typedError<PluginInfo, string>(__TAURI_INVOKE("install_plugin_package", { packagePath })),
+	uninstallPlugin: (pluginId: string) => typedError<null, string>(__TAURI_INVOKE("uninstall_plugin", { pluginId })),
+	getPluginAssetPath: (pluginId: string, relativePath: string) => typedError<string, string>(__TAURI_INVOKE("get_plugin_asset_path", { pluginId, relativePath })),
+	readPluginAssetBytes: (pluginId: string, relativePath: string) => typedError<number[], string>(__TAURI_INVOKE("read_plugin_asset_bytes", { pluginId, relativePath })),
+	ensureBundledPlugins: () => typedError<PluginInfo[], string>(__TAURI_INVOKE("ensure_bundled_plugins")),
+	exportToHtml: (html: string, defaultName: string | null) => typedError<string | null, string>(__TAURI_INVOKE("export_to_html", { html, defaultName })),
+	exportToPdf: (pdfBytes: number[], defaultName: string | null) => typedError<string | null, string>(__TAURI_INVOKE("export_to_pdf", { pdfBytes, defaultName })),
 	getPendingFile: () => __TAURI_INVOKE<string | null>("get_pending_file"),
 	// Сохранить Secret Access Key в системный keyring.
 	s3SetSecret: (secret: string) => typedError<null, string>(__TAURI_INVOKE("s3_set_secret", { secret })),
@@ -44,6 +53,19 @@ export type FileData = {
 	content: string,
 };
 
+export type PluginInfo = {
+	id: string,
+	name: string,
+	version: string,
+	description: string,
+	author: string,
+	entry: string | null,
+	styles: string | null,
+	permissions?: string[],
+	apiVersion?: number,
+	enabled?: boolean,
+};
+
 export type S3Config = {
 	endpoint: string,
 	region: string,
@@ -62,6 +84,8 @@ export type Settings = {
 	page_width?: number,
 	s3?: S3Config | null,
 	s3_verified?: boolean,
+	enabled_plugins?: string[],
+	removed_bundled_plugins?: string[],
 };
 
 /* Tauri Specta runtime */

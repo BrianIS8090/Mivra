@@ -1,6 +1,6 @@
-import { commands, type FileData, type Settings, type S3Config } from '../bindings';
+import { commands, type FileData, type PluginInfo, type Settings, type S3Config } from '../bindings';
 
-export type { S3Config };
+export type { PluginInfo, S3Config };
 
 // Тонкая обёртка над сгенерированным bindings.ts.
 // 1. Превращает discriminated union {status:'ok'|'error'} в throw-стиль,
@@ -46,6 +46,42 @@ export async function getRecentFiles(): Promise<string[]> {
 // Чтение файла по пути (для открытия через ассоциацию)
 export async function readFile(path: string): Promise<string> {
   return unwrap(commands.readFile(path));
+}
+
+export async function getInstalledPlugins(): Promise<PluginInfo[]> {
+  return unwrap(commands.getInstalledPlugins());
+}
+
+export async function ensureBundledPlugins(): Promise<PluginInfo[]> {
+  return unwrap(commands.ensureBundledPlugins());
+}
+
+export async function installPlugin(folderPath: string): Promise<PluginInfo> {
+  return unwrap(commands.installPlugin(folderPath));
+}
+
+export async function installPluginPackage(packagePath: string): Promise<PluginInfo> {
+  return unwrap(commands.installPluginPackage(packagePath));
+}
+
+export async function uninstallPlugin(pluginId: string): Promise<void> {
+  await unwrap(commands.uninstallPlugin(pluginId));
+}
+
+export async function getPluginAssetPath(pluginId: string, relativePath: string): Promise<string> {
+  return unwrap(commands.getPluginAssetPath(pluginId, relativePath));
+}
+
+export async function readPluginAssetBytes(pluginId: string, relativePath: string): Promise<Uint8Array> {
+  return new Uint8Array(await unwrap(commands.readPluginAssetBytes(pluginId, relativePath)));
+}
+
+export async function exportToHtml(html: string, defaultName?: string): Promise<string | null> {
+  return unwrap(commands.exportToHtml(html, defaultName ?? null));
+}
+
+export async function exportToPdf(bytes: Uint8Array, defaultName?: string): Promise<string | null> {
+  return unwrap(commands.exportToPdf(Array.from(bytes), defaultName ?? null));
 }
 
 // Получить путь к файлу, переданному при запуске приложения.
