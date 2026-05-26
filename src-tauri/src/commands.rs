@@ -597,7 +597,7 @@ pub async fn get_installed_plugins(app: tauri::AppHandle) -> Result<Vec<PluginIn
     }
   }
 
-  plugins.sort_by(|a, b| a.name.to_lowercase().cmp(&b.name.to_lowercase()));
+  plugins.sort_by_key(|plugin| plugin.name.to_lowercase());
   Ok(plugins)
 }
 
