@@ -2,7 +2,7 @@ import type { ComponentType } from 'react';
 
 export type PluginKind = 'builtin' | 'external';
 
-export type PluginPermission = 'document:read' | 'dialog' | 'export:html' | 'export:pdf';
+export type PluginPermission = 'document:read' | 'document:write' | 'dialog' | 'export:html' | 'export:pdf';
 
 export type PluginManifest = {
   id: string;
@@ -65,6 +65,7 @@ export type MivraPluginApi = {
     getContent: () => string;
     getFilePath: () => string | null;
     subscribeContent: (callback: (content: string) => void) => () => void;
+    setContent: (content: string) => void;
   };
   settings: {
     getLanguage: () => 'ru' | 'en';

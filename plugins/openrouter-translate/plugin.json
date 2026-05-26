@@ -1,0 +1,11 @@
+{
+  "id": "openrouter-translate",
+  "name": "OpenRouter Translate",
+  "version": "1.0.0",
+  "description": "Переводит текущий Markdown-документ через OpenRouter и применяет результат к редактору.",
+  "author": "Mivra Team",
+  "entry": "index.js",
+  "styles": "style.css",
+  "permissions": ["document:read", "document:write", "dialog"],
+  "apiVersion": 1
+}

@@ -1,0 +1,410 @@
+.openrouter-translate-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px;
+  background: rgba(0, 0, 0, 0.42);
+}
+
+.openrouter-translate-dialog {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(1080px, calc(100vw - 56px));
+  height: min(720px, calc(100vh - 56px));
+  min-width: min(720px, calc(100vw - 32px));
+  min-height: min(520px, calc(100vh - 32px));
+  max-width: calc(100vw - 56px);
+  max-height: calc(100vh - 56px);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--bg-primary);
+  box-shadow: var(--shadow);
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  container-type: inline-size;
+}
+
+.openrouter-translate-dialog.is-resizing {
+  user-select: none;
+}
+
+.openrouter-translate-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  flex: 0 0 auto;
+  padding: 22px 24px 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+.openrouter-translate-title {
+  min-width: 0;
+}
+
+.openrouter-translate-title h2 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.openrouter-translate-title p {
+  margin: 6px 0 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.openrouter-translate-close,
+.openrouter-translate-result-actions button,
+.openrouter-translate-actions button {
+  min-height: 34px;
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+}
+
+.openrouter-translate-body {
+  display: grid;
+  grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  overflow: hidden;
+}
+
+.openrouter-translate-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+  min-height: 0;
+  padding: 20px 20px 22px 24px;
+  border-right: 1px solid var(--border);
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: var(--bg-primary);
+}
+
+.openrouter-translate-result {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  padding: 20px 24px 22px;
+  overflow: hidden;
+}
+
+.openrouter-translate-field {
+  display: grid;
+  gap: 6px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.openrouter-translate-field input {
+  box-sizing: border-box;
+  width: 100%;
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.openrouter-translate-field input[type="password"] {
+  font-family: var(--font-mono);
+  letter-spacing: 1px;
+}
+
+.openrouter-translate-segments {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4px;
+  padding: 3px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-tertiary);
+}
+
+.openrouter-translate-segment {
+  min-height: 32px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+}
+
+.openrouter-translate-segment.is-active {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.12);
+}
+
+.openrouter-translate-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.openrouter-translate-check input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+}
+
+.openrouter-translate-stats {
+  display: grid;
+  gap: 8px;
+  padding-top: 2px;
+}
+
+.openrouter-translate-stat-row {
+  display: grid;
+  grid-template-columns: minmax(74px, auto) minmax(0, 1fr);
+  align-items: start;
+  gap: 12px;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.openrouter-translate-stat-row span {
+  white-space: nowrap;
+}
+
+.openrouter-translate-stat-value {
+  min-width: 0;
+  color: var(--text-primary);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  overflow-wrap: anywhere;
+}
+
+.openrouter-translate-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.openrouter-translate-primary {
+  background: var(--accent) !important;
+  color: var(--accent-text) !important;
+  border-color: var(--accent) !important;
+}
+
+.openrouter-translate-actions button:disabled,
+.openrouter-translate-result-actions button:disabled {
+  cursor: default;
+  opacity: 0.56;
+}
+
+.openrouter-translate-result-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex: 0 0 auto;
+  margin-bottom: 14px;
+}
+
+.openrouter-translate-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.openrouter-translate-status span {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: var(--accent);
+}
+
+.openrouter-translate-status.is-error span {
+  background: #dc2626;
+}
+
+.openrouter-translate-status strong {
+  min-width: 0;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.openrouter-translate-result-actions {
+  display: flex;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.openrouter-translate-result-content {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 18px;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  line-height: 1.55;
+}
+
+.openrouter-translate-result-content h2,
+.openrouter-translate-result-content h3,
+.openrouter-translate-result-content h4 {
+  margin: 0 0 10px;
+  font-size: 16px;
+}
+
+.openrouter-translate-result-content p {
+  margin: 0 0 12px;
+}
+
+.openrouter-translate-result-content ul {
+  margin: 0 0 12px;
+  padding-left: 22px;
+}
+
+.openrouter-translate-result-content pre {
+  margin: 0 0 8px;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  white-space: pre-wrap;
+}
+
+.openrouter-translate-empty {
+  color: var(--text-secondary);
+}
+
+.openrouter-translate-note {
+  flex: 0 0 auto;
+  min-height: 34px;
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.openrouter-translate-note.is-error {
+  border-color: rgba(220, 38, 38, 0.35);
+  background: rgba(220, 38, 38, 0.08);
+  color: #dc2626;
+}
+
+.openrouter-translate-resize {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: nwse-resize;
+  touch-action: none;
+}
+
+.openrouter-translate-resize::before,
+.openrouter-translate-resize::after {
+  content: "";
+  position: absolute;
+  right: 5px;
+  bottom: 5px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  opacity: 0.5;
+}
+
+.openrouter-translate-resize::before {
+  width: 10px;
+  height: 10px;
+}
+
+.openrouter-translate-resize::after {
+  right: 9px;
+  bottom: 9px;
+  width: 6px;
+  height: 6px;
+  border-width: 1px;
+}
+
+@container (max-width: 760px) {
+  .openrouter-translate-body {
+    grid-template-columns: 1fr;
+    overflow: auto;
+  }
+
+  .openrouter-translate-settings {
+    max-height: none;
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .openrouter-translate-result {
+    min-height: 420px;
+  }
+}
+
+@media (max-width: 720px) {
+  .openrouter-translate-overlay {
+    padding: 12px;
+  }
+
+  .openrouter-translate-dialog {
+    width: calc(100vw - 24px);
+    height: calc(100vh - 24px);
+    min-width: calc(100vw - 24px);
+    min-height: calc(100vh - 24px);
+  }
+
+  .openrouter-translate-header,
+  .openrouter-translate-result-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .openrouter-translate-result-actions {
+    width: 100%;
+  }
+
+  .openrouter-translate-result-actions button {
+    flex: 1 1 auto;
+  }
+}
