@@ -4,5 +4,9 @@
   "type": "module",
   "scripts": {
     "build": "vite build --config vite.config.ts && node scripts/copy-manifest.mjs"
+  },
+  "dependencies": {
+    "mammoth": "^1.12.0",
+    "xlsx": "^0.18.5"
   }
 }

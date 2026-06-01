@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { buildAppliedMarkdown } from '../../plugins/markitdown-import/src/index';
 
 type FakePluginApi = {
   toolbar: {
@@ -9,6 +10,13 @@ type FakePluginApi = {
   dialogs: {
     registerRenderer: ReturnType<typeof vi.fn>;
     open: ReturnType<typeof vi.fn>;
+  };
+  document: {
+    getContent: ReturnType<typeof vi.fn>;
+    setContent: ReturnType<typeof vi.fn>;
+  };
+  assets: {
+    saveBytes: ReturnType<typeof vi.fn>;
   };
 };
 
@@ -50,7 +58,19 @@ function createFakeApi(): FakePluginApi {
       registerRenderer: vi.fn(() => vi.fn()),
       open: vi.fn(),
     },
+    document: {
+      getContent: vi.fn(() => '# Current'),
+      setContent: vi.fn(),
+    },
+    assets: {
+      saveBytes: vi.fn(),
+    },
   };
+}
+
+async function flushPromises() {
+  await new Promise((resolveFlush) => setTimeout(resolveFlush, 0));
+  await new Promise((resolveFlush) => setTimeout(resolveFlush, 0));
 }
 
 describe('markitdown import plugin', () => {
@@ -100,5 +120,63 @@ describe('markitdown import plugin', () => {
     expect(container.querySelector('[data-markitdown-import-file]')).not.toBeNull();
 
     cleanup?.();
+  });
+
+  it('buildAppliedMarkdown применяет режимы вставки', () => {
+    expect(buildAppliedMarkdown('# Current', 'Imported', 'source.docx', 'append'))
+      .toBe('# Current\n\nImported');
+    expect(buildAppliedMarkdown('# Current', 'Imported', 'source.docx', 'replace'))
+      .toBe('Imported');
+    expect(buildAppliedMarkdown('# Current', 'Imported', 'source.docx', 'section'))
+      .toBe('# Current\n\n---\n\n## Импортировано из source.docx\n\nImported');
+  });
+
+  it('показывает ошибку для неподдержанного формата', async () => {
+    const plugin = await loadPlugin();
+    const api = createFakeApi();
+    plugin.activate(api);
+    const renderer = api.dialogs.registerRenderer.mock.calls[0][1];
+    const container = document.createElement('div');
+    renderer.render({ container, api });
+
+    const input = container.querySelector('[data-markitdown-import-file]') as HTMLInputElement;
+    Object.defineProperty(input, 'files', {
+      configurable: true,
+      value: [new File(['x'], 'archive.zip', { type: 'application/zip' })],
+    });
+    input.dispatchEvent(new Event('change'));
+    await flushPromises();
+
+    expect(container.querySelector('[data-markitdown-import-error]')?.textContent)
+      .toContain('Формат не поддерживается');
+  });
+
+  it('конвертирует текстовый файл, показывает предпросмотр и заменяет документ', async () => {
+    const plugin = await loadPlugin();
+    const api = createFakeApi();
+    plugin.activate(api);
+    const renderer = api.dialogs.registerRenderer.mock.calls[0][1];
+    const container = document.createElement('div');
+    renderer.render({ container, api });
+
+    const input = container.querySelector('[data-markitdown-import-file]') as HTMLInputElement;
+    Object.defineProperty(input, 'files', {
+      configurable: true,
+      value: [new File(['Imported\r\nText'], 'note.txt', { type: 'text/plain' })],
+    });
+    input.dispatchEvent(new Event('change'));
+    await flushPromises();
+
+    expect(container.querySelector('[data-markitdown-import-preview]')?.textContent)
+      .toBe('Imported\nText');
+
+    const mode = container.querySelector('[data-markitdown-import-mode]') as HTMLSelectElement;
+    mode.value = 'replace';
+    mode.dispatchEvent(new Event('change'));
+
+    const apply = container.querySelector('[data-markitdown-import-apply]') as HTMLButtonElement;
+    apply.click();
+
+    expect(api.document.setContent).toHaveBeenCalledWith('Imported\nText');
   });
 });

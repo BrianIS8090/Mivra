@@ -1,4 +1,4 @@
-import { normalizeTextMarkdown } from './text';
+import { normalizeTextMarkdown, readFileText } from './text';
 
 function escapeCell(value: string): string {
   return value.trim().replace(/\|/g, '\\|').replace(/\n/g, '<br>');
@@ -52,5 +52,5 @@ export function csvTextToMarkdown(csv: string): string {
 }
 
 export async function csvFileToMarkdown(file: File): Promise<string> {
-  return csvTextToMarkdown(await file.text());
+  return csvTextToMarkdown(await readFileText(file));
 }
