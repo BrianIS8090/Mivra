@@ -24,6 +24,7 @@ my-plugin/
 - читать текущий Markdown-документ при permission `document:read`;
 - заменять текущий Markdown-документ при permission `document:write`;
 - сохранять HTML/PDF при permissions `export:html` и `export:pdf`;
+- сохранять изображения и другие assets через S3 или локальную папку `assets/` при permission `assets:write`;
 - подключать CSS и assets из своей папки.
 
 Плагин не должен добавлять отдельные кнопки в основной Toolbar. Даже если метод называется `api.toolbar.registerButton(...)`, действие отображается пунктом внутри dropdown-кнопки `Плагины`. Это сделано специально, чтобы несколько плагинов не забивали интерфейс приложения.
@@ -123,7 +124,8 @@ type PluginPermission =
   | 'document:write'
   | 'dialog'
   | 'export:html'
-  | 'export:pdf';
+  | 'export:pdf'
+  | 'assets:write';
 ```
 
 Что они открывают:
@@ -135,6 +137,7 @@ type PluginPermission =
 | `dialog` | `api.dialogs.register(...)`, `api.dialogs.registerRenderer(...)` |
 | `export:html` | `api.exports.saveHtml(...)` |
 | `export:pdf` | `api.exports.savePdfBytes(...)` |
+| `assets:write` | `api.assets.saveBytes(...)` |
 
 Регистрация пункта в меню `Плагины` доступна активированному плагину без отдельного permission. Но чтение документа, запись документа, диалоги и экспорт проверяются явно.
 
@@ -285,6 +288,18 @@ type MivraPluginApi = {
     saveHtml(html: string, defaultName?: string): Promise<string | null>;
     savePdfBytes(bytes: Uint8Array, defaultName?: string): Promise<string | null>;
   };
+  assets: {
+    saveBytes(input: {
+      bytes: Uint8Array;
+      filename: string;
+      alt?: string;
+      kind?: 'image' | 'file';
+    }): Promise<{
+      url: string;
+      markdown: string;
+      storage: 's3' | 'local';
+    }>;
+  };
 };
 ```
 
@@ -377,6 +392,29 @@ const savedPath = await api.exports.savePdfBytes(bytes, 'document.pdf');
 ```
 
 Для этого нужен permission `export:pdf`.
+
+### `api.assets.saveBytes`
+
+Сохраняет бинарный asset через тот же pipeline, который Mivra использует при ручной вставке изображений:
+
+- если S3 настроен, secret сохранён и последний тест соединения прошёл, файл загружается в S3;
+- иначе файл сохраняется в локальную папку `assets/` рядом с текущим Markdown-документом;
+- если S3 не готов, а текущий документ ещё не сохранён на диск, метод вернёт ошибку `asset_base_dir_missing`.
+
+```js
+const result = await api.assets.saveBytes({
+  bytes: imageBytes,
+  filename: 'diagram.png',
+  alt: 'Диаграмма',
+  kind: 'image',
+});
+
+api.document.setContent(`${api.document.getContent()}\n\n${result.markdown}`);
+```
+
+Для `kind: 'image'` поле `markdown` будет вида `![Диаграмма](url)`. Для `kind: 'file'` — `[Диаграмма](url)`.
+
+Для этого нужен permission `assets:write`.
 
 ## React-плагин
 
