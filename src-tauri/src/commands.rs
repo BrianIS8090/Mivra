@@ -89,7 +89,7 @@ fn default_plugin_api_version() -> u32 {
 fn is_supported_plugin_permission(permission: &str) -> bool {
   matches!(
     permission,
-    "document:read" | "document:write" | "dialog" | "export:html" | "export:pdf"
+    "document:read" | "document:write" | "dialog" | "export:html" | "export:pdf" | "assets:write"
   )
 }
 
@@ -1222,6 +1222,39 @@ mod tests {
       vec![
         "document:read".to_string(),
         "document:write".to_string(),
+        "dialog".to_string()
+      ]
+    );
+    fs::remove_dir_all(&dir).ok();
+  }
+
+  #[test]
+  fn read_plugin_manifest_accepts_assets_write_permission() {
+    let dir = unique_temp_dir();
+    fs::create_dir_all(&dir).expect("Не удалось создать временную директорию");
+    fs::write(dir.join("index.js"), "console.log('x')").expect("Не удалось записать entry");
+    fs::write(
+      dir.join("plugin.json"),
+      r#"{
+        "id": "asset-plugin",
+        "name": "Asset Plugin",
+        "version": "1.0.0",
+        "description": "Test",
+        "author": "Mivra",
+        "entry": "index.js",
+        "permissions": ["document:read", "assets:write", "dialog"],
+        "apiVersion": 1
+      }"#,
+    )
+    .expect("Не удалось записать manifest");
+
+    let manifest = super::read_plugin_manifest(&dir).expect("assets:write должен быть разрешён");
+
+    assert_eq!(
+      manifest.permissions,
+      vec![
+        "document:read".to_string(),
+        "assets:write".to_string(),
         "dialog".to_string()
       ]
     );

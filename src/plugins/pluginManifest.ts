@@ -7,6 +7,7 @@ const pluginPermissions: PluginPermission[] = [
   'dialog',
   'export:html',
   'export:pdf',
+  'assets:write',
 ];
 const supportedPluginApiVersion = 1;
 
