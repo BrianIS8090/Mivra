@@ -1,0 +1,8 @@
+{
+  "name": "@mivra/markitdown-import-plugin",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vite build --config vite.config.ts && node scripts/copy-manifest.mjs"
+  }
+}
