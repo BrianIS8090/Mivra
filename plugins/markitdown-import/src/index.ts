@@ -117,12 +117,17 @@ export function buildAppliedMarkdown(
 
 function renderDialog(container: HTMLElement, state: ImportState): void {
   container.innerHTML = `
-    <div class="markitdown-import__overlay" data-markitdown-import-overlay>
+    <div
+      class="markitdown-import__overlay"
+      data-markitdown-import-overlay
+      style="position: fixed; inset: 0; z-index: 1100; display: flex; align-items: center; justify-content: center; padding: 24px; background: rgba(15, 23, 42, 0.45);"
+    >
       <section
         class="markitdown-import"
         role="dialog"
         aria-modal="true"
         aria-labelledby="markitdown-import-title"
+        style="display: flex; flex-direction: column; width: min(920px, calc(100vw - 48px)); max-height: min(760px, calc(100vh - 48px)); overflow: hidden; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--bg-primary); box-shadow: var(--shadow); color: var(--text-primary);"
       >
         <header class="markitdown-import__header">
           <div>

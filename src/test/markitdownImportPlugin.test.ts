@@ -90,7 +90,7 @@ describe('markitdown import plugin', () => {
     expect(manifest).toMatchObject({
       id: 'markitdown-import',
       name: 'Import to Markdown',
-      version: '1.0.0',
+      version: '1.0.1',
       entry: 'index.js',
       styles: 'style.css',
       permissions: ['document:read', 'document:write', 'dialog', 'assets:write'],
@@ -143,6 +143,24 @@ describe('markitdown import plugin', () => {
 
     closeButton.click();
     expect(api.dialogs.close).toHaveBeenCalledWith('markitdown-import-dialog');
+  });
+
+  it('задаёт критические modal-стили inline, если внешний CSS ещё не применился', async () => {
+    const plugin = await loadPlugin();
+    const api = createFakeApi();
+    plugin.activate(api);
+    const renderer = api.dialogs.registerRenderer.mock.calls[0][1];
+    const container = document.createElement('div');
+    renderer.render({ container, api });
+
+    const overlay = container.querySelector('[data-markitdown-import-overlay]') as HTMLElement;
+    const dialog = container.querySelector('[role="dialog"]') as HTMLElement;
+
+    expect(overlay.style.position).toBe('fixed');
+    expect(overlay.style.inset).toBe('0');
+    expect(overlay.style.display).toBe('flex');
+    expect(dialog.getAttribute('style')).toContain('width: min(920px');
+    expect(dialog.getAttribute('style')).toContain('max-height: min(760px');
   });
 
   it('buildAppliedMarkdown применяет режимы вставки', () => {
