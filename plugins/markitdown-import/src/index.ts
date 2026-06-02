@@ -31,6 +31,7 @@ type PluginApi = {
       render(context: { container: HTMLElement; api: PluginApi }): void | (() => void);
     }): () => void;
     open(id: string): void;
+    close(id: string): void;
   };
   document: {
     getContent(): string;
@@ -116,30 +117,44 @@ export function buildAppliedMarkdown(
 
 function renderDialog(container: HTMLElement, state: ImportState): void {
   container.innerHTML = `
-    <section class="markitdown-import">
-      <header class="markitdown-import__header">
-        <h2>Import to Markdown</h2>
-        <span>${state.fileName ? escapeHtml(state.fileName) : 'DOCX, XLSX, PDF, TXT, MD, CSV'}</span>
-      </header>
-      <label class="markitdown-import__field">
-        <span>Файл</span>
-        <input type="file" accept=".docx,.xlsx,.pdf,.txt,.md,.markdown,.csv" data-markitdown-import-file>
-      </label>
-      <label class="markitdown-import__field">
-        <span>Действие</span>
-        <select data-markitdown-import-mode>
-          <option value="append"${state.mode === 'append' ? ' selected' : ''}>Вставить в конец</option>
-          <option value="section"${state.mode === 'section' ? ' selected' : ''}>Вставить с заголовком</option>
-          <option value="replace"${state.mode === 'replace' ? ' selected' : ''}>Заменить документ</option>
-          <option value="copy"${state.mode === 'copy' ? ' selected' : ''}>Скопировать</option>
-        </select>
-      </label>
-      ${state.error ? `<p class="markitdown-import__error" data-markitdown-import-error>${escapeHtml(state.error)}</p>` : ''}
-      <pre class="markitdown-import__preview" data-markitdown-import-preview>${escapeHtml(
-        state.loading ? 'Конвертация...' : state.markdown,
-      )}</pre>
-      <button type="button" data-markitdown-import-apply ${state.markdown ? '' : 'disabled'}>Применить</button>
-    </section>
+    <div class="markitdown-import__overlay" data-markitdown-import-overlay>
+      <section
+        class="markitdown-import"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="markitdown-import-title"
+      >
+        <header class="markitdown-import__header">
+          <div>
+            <h2 id="markitdown-import-title">Import to Markdown</h2>
+            <span>${state.fileName ? escapeHtml(state.fileName) : 'DOCX, XLSX, PDF, TXT, MD, CSV'}</span>
+          </div>
+          <button type="button" class="markitdown-import__close" data-markitdown-import-close>Закрыть</button>
+        </header>
+        <div class="markitdown-import__body">
+          <label class="markitdown-import__field">
+            <span>Файл</span>
+            <input type="file" accept=".docx,.xlsx,.pdf,.txt,.md,.markdown,.csv" data-markitdown-import-file>
+          </label>
+          <label class="markitdown-import__field">
+            <span>Действие</span>
+            <select data-markitdown-import-mode>
+              <option value="append"${state.mode === 'append' ? ' selected' : ''}>Вставить в конец</option>
+              <option value="section"${state.mode === 'section' ? ' selected' : ''}>Вставить с заголовком</option>
+              <option value="replace"${state.mode === 'replace' ? ' selected' : ''}>Заменить документ</option>
+              <option value="copy"${state.mode === 'copy' ? ' selected' : ''}>Скопировать</option>
+            </select>
+          </label>
+          ${state.error ? `<p class="markitdown-import__error" data-markitdown-import-error>${escapeHtml(state.error)}</p>` : ''}
+          <pre class="markitdown-import__preview" data-markitdown-import-preview>${escapeHtml(
+            state.loading ? 'Конвертация...' : state.markdown,
+          )}</pre>
+        </div>
+        <footer class="markitdown-import__footer">
+          <button type="button" data-markitdown-import-apply ${state.markdown ? '' : 'disabled'}>Применить</button>
+        </footer>
+      </section>
+    </div>
   `;
 }
 
@@ -158,10 +173,14 @@ function renderImportDialog(container: HTMLElement, api: PluginApi): () => void 
     const input = container.querySelector('[data-markitdown-import-file]') as HTMLInputElement | null;
     const mode = container.querySelector('[data-markitdown-import-mode]') as HTMLSelectElement | null;
     const apply = container.querySelector('[data-markitdown-import-apply]') as HTMLButtonElement | null;
+    const close = container.querySelector('[data-markitdown-import-close]') as HTMLButtonElement | null;
+    const overlay = container.querySelector('[data-markitdown-import-overlay]') as HTMLDivElement | null;
 
     input?.addEventListener('change', onFileChange);
     mode?.addEventListener('change', onModeChange);
     apply?.addEventListener('click', onApply);
+    close?.addEventListener('click', onClose);
+    overlay?.addEventListener('click', onOverlayClick);
   };
 
   const rerender = () => {
@@ -218,10 +237,28 @@ function renderImportDialog(container: HTMLElement, api: PluginApi): () => void 
     ));
   };
 
+  const onClose = () => {
+    api.dialogs.close(dialogId);
+  };
+
+  const onOverlayClick = (event: Event) => {
+    if (event.target === event.currentTarget) {
+      onClose();
+    }
+  };
+
+  const onKeyDown = (event: KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      onClose();
+    }
+  };
+
+  document.addEventListener('keydown', onKeyDown);
   rerender();
 
   return () => {
     disposed = true;
+    document.removeEventListener('keydown', onKeyDown);
     container.innerHTML = '';
   };
 }

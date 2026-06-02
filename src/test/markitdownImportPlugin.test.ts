@@ -10,6 +10,7 @@ type FakePluginApi = {
   dialogs: {
     registerRenderer: ReturnType<typeof vi.fn>;
     open: ReturnType<typeof vi.fn>;
+    close: ReturnType<typeof vi.fn>;
   };
   document: {
     getContent: ReturnType<typeof vi.fn>;
@@ -57,6 +58,7 @@ function createFakeApi(): FakePluginApi {
     dialogs: {
       registerRenderer: vi.fn(() => vi.fn()),
       open: vi.fn(),
+      close: vi.fn(),
     },
     document: {
       getContent: vi.fn(() => '# Current'),
@@ -120,6 +122,27 @@ describe('markitdown import plugin', () => {
     expect(container.querySelector('[data-markitdown-import-file]')).not.toBeNull();
 
     cleanup?.();
+  });
+
+  it('рендерит импорт как отдельное модальное окно и закрывает его через dialog API', async () => {
+    const plugin = await loadPlugin();
+    const api = createFakeApi();
+    plugin.activate(api);
+    const renderer = api.dialogs.registerRenderer.mock.calls[0][1];
+    const container = document.createElement('div');
+    renderer.render({ container, api });
+
+    const dialog = container.querySelector('[role="dialog"]');
+    const overlay = container.querySelector('[data-markitdown-import-overlay]');
+    const closeButton = container.querySelector('[data-markitdown-import-close]') as HTMLButtonElement;
+
+    expect(overlay).not.toBeNull();
+    expect(dialog).not.toBeNull();
+    expect(dialog).toHaveAttribute('aria-modal', 'true');
+    expect(dialog).toHaveAttribute('aria-labelledby', 'markitdown-import-title');
+
+    closeButton.click();
+    expect(api.dialogs.close).toHaveBeenCalledWith('markitdown-import-dialog');
   });
 
   it('buildAppliedMarkdown применяет режимы вставки', () => {

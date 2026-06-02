@@ -30,9 +30,9 @@
     "semantic_hash": "153693bf2fcf0e36bc839f314b691aa6"
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\bindings.ts": {
-    "mtime": 1779783067.9274695,
-    "ast_hash": "54ddf244c9c4ab4bf3460803d6d24583",
-    "semantic_hash": "54ddf244c9c4ab4bf3460803d6d24583"
+    "mtime": 1780372593.575801,
+    "ast_hash": "5491ee9f2c75f85474dae1a3785fcb73",
+    "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\main.tsx": {
     "mtime": 1777527737.6235993,
@@ -1095,7 +1095,7 @@
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src-tauri\\bundled-plugins\\export-pdf\\index.js": {
-    "mtime": 1779791513.049137,
+    "mtime": 1780372569.4456284,
     "ast_hash": "6f115b0d25c48d57a148ec0cfadd37b3",
     "semantic_hash": "6f115b0d25c48d57a148ec0cfadd37b3"
   },
@@ -1105,7 +1105,7 @@
     "semantic_hash": "62ea8b67fe626402a93a791bad8e8c5d"
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src-tauri\\bundled-plugins\\export-pdf\\assets\\pdf.worker-B1D2UnXD.mjs": {
-    "mtime": 1779791513.049137,
+    "mtime": 1780372569.4456284,
     "ast_hash": "b169314e56c737213dba6418ab0b6512",
     "semantic_hash": "b169314e56c737213dba6418ab0b6512"
   },
@@ -1220,8 +1220,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\plugins\\markitdown-import\\src\\index.ts": {
-    "mtime": 1780291454.2212417,
-    "ast_hash": "5f141105f9e0ce5a9966005f940a9ac3",
+    "mtime": 1780372811.3898945,
+    "ast_hash": "3e174296b827a1b028dd39f2d7f9f9b4",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\plugins\\markitdown-import\\src\\converters\\csv.ts": {
@@ -1255,8 +1255,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\test\\markitdownImportPlugin.test.ts": {
-    "mtime": 1780291478.2342627,
-    "ast_hash": "038b1f0ad345a039635921acb041af48",
+    "mtime": 1780372761.732008,
+    "ast_hash": "8b6fc543ae555c62e858e997a3c24652",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\test\\pluginAssetsApi.test.ts": {
