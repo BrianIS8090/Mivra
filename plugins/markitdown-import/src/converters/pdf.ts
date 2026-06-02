@@ -247,7 +247,7 @@ function waitForPdfObject(store: PdfObjectStore, id: string, timeoutMs = 250): P
 
     try {
       const value = store.get(id, finish);
-      if (value !== undefined) {
+      if (value !== undefined && value !== null) {
         finish(value);
       }
     } catch {

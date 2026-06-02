@@ -1,16 +1,16 @@
 # Graph Report - Mivra  (2026-06-02)
 
 ## Corpus Check
-- 199 files · ~585,574 words
+- 199 files · ~585,742 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 8407 nodes · 15945 edges · 688 communities (315 shown, 373 thin omitted)
+- 8407 nodes · 15945 edges · 692 communities (316 shown, 376 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 140 edges (avg confidence: 0.81)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `0621fe46`
+- Built from commit: `4e1ab48e`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -697,6 +697,10 @@
 - [[_COMMUNITY_Community 685|Community 685]]
 - [[_COMMUNITY_Community 686|Community 686]]
 - [[_COMMUNITY_Community 687|Community 687]]
+- [[_COMMUNITY_Community 688|Community 688]]
+- [[_COMMUNITY_Community 689|Community 689]]
+- [[_COMMUNITY_Community 690|Community 690]]
+- [[_COMMUNITY_Community 691|Community 691]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `Ne` - 167 edges
@@ -722,7 +726,7 @@
 - `OpenRouter Summary Plugin` --references--> `MivraExternalPlugin Global`  [INFERRED]
   plugins/openrouter-summary/plugin.json → src/plugins/externalPluginTypes.ts
 
-## Communities (688 total, 373 thin omitted)
+## Communities (692 total, 376 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.08
@@ -821,48 +825,48 @@ Cohesion: 0.03
 Nodes (42): applyAssist(), Area, ariaLabel(), Caption, CheckButton, checkDimensions(), ChoiceList, computeBbox() (+34 more)
 
 ### Community 100 - "Community 100"
-Cohesion: 0.06
-Nodes (11): AppearanceStreamEvaluator, Catalog, ColorSpaceUtils, FeatureTest, fetchDest(), fetchRemoteDest(), FileSpec, NameOrNumberTree (+3 more)
+Cohesion: 0.05
+Nodes (12): AppearanceStreamEvaluator, Catalog, ColorSpaceUtils, FeatureTest, fetchDest(), fetchRemoteDest(), FileSpec, NameOrNumberTree (+4 more)
 
 ### Community 101 - "Community 101"
 Cohesion: 0.04
-Nodes (4): hu, LM, Qn, tf
+Nodes (6): l(), LM, oM(), Qn, wl, Xe
 
 ### Community 102 - "Community 102"
 Cohesion: 0.05
 Nodes (12): collectActions(), _collectJS(), getInheritableProperty(), getModificationDate(), getParentToUpdate(), GlobalImageCache, isName(), isPDFFunction() (+4 more)
 
 ### Community 103 - "Community 103"
-Cohesion: 0.07
-Nodes (17): addChildren(), $addHTML, ChunkedStream, ChunkedStreamManager, compileType3Glyph(), encodeToXmlString(), escapePDFName(), MathClamp() (+9 more)
+Cohesion: 0.06
+Nodes (18): addChildren(), $addHTML, ChunkedStream, ChunkedStreamManager, compileType3Glyph(), encodeToXmlString(), escapePDFName(), MathClamp() (+10 more)
 
 ### Community 104 - "Community 104"
-Cohesion: 0.04
-Nodes (5): BQ, ef, Ni, sf, uu
+Cohesion: 0.03
+Nodes (6): BQ, ca, ef, Ni, sf, uu
 
 ### Community 105 - "Community 105"
-Cohesion: 0.05
-Nodes (6): Ed(), eg, H0(), hn(), rr, s
+Cohesion: 0.08
+Nodes (5): Ed(), eg, H0(), hn(), s
 
 ### Community 106 - "Community 106"
 Cohesion: 0.05
 Nodes (66): add_to_recent(), atomic_write(), atomic_write_replaces_existing_file(), bundled_plugin_source(), canonical_upload_file_path(), copy_plugin_dir_copies_plain_files(), copy_plugin_dir_safely(), default_enabled_plugins() (+58 more)
 
 ### Community 108 - "Community 108"
-Cohesion: 0.06
-Nodes (14): ButtonWidgetAnnotation, ChoiceWidgetAnnotation, createDefaultAppearance(), ErrorFont, escapeString(), FakeUnicodeFont, getPdfColor(), InkAnnotation (+6 more)
+Cohesion: 0.04
+Nodes (22): ButtonWidgetAnnotation, ChoiceWidgetAnnotation, createDefaultAppearance(), createValidAbsoluteUrl(), decodeString(), ErrorFont, escapeString(), FakeUnicodeFont (+14 more)
 
 ### Community 109 - "Community 109"
-Cohesion: 0.06
+Cohesion: 0.05
 Nodes (3): So(), vM, Wh
 
 ### Community 110 - "Community 110"
-Cohesion: 0.03
-Nodes (15): AnnotationFactory, clearGlobalCaches(), clearPatternCaches(), clearPrimitiveCaches(), clearUnicodeCaches(), getNewAnnotationsMap(), GlobalColorSpaceCache, isDict() (+7 more)
+Cohesion: 0.06
+Nodes (8): AnnotationFactory, clearGlobalCaches(), clearPatternCaches(), clearPrimitiveCaches(), getNewAnnotationsMap(), isDict(), PDFDocument, XFAFactory
 
 ### Community 111 - "Community 111"
-Cohesion: 0.06
-Nodes (4): GE, Kw, q0(), yC
+Cohesion: 0.07
+Nodes (3): hu, tf, yC
 
 ### Community 112 - "Community 112"
 Cohesion: 0.26
@@ -870,15 +874,15 @@ Nodes (8): createCmapTable(), createNameTable(), createOS2Table(), createPostscr
 
 ### Community 113 - "Community 113"
 Cohesion: 0.05
-Nodes (6): Id(), l(), oM(), Vs, WE(), wl
+Nodes (5): es, GE, Id(), Vs, WE()
 
 ### Community 114 - "Community 114"
-Cohesion: 0.10
-Nodes (5): Af, cu(), iM, Nh(), pM
+Cohesion: 0.08
+Nodes (6): Af, cM(), cu(), iM, Nh(), pM
 
 ### Community 115 - "Community 115"
-Cohesion: 0.04
-Nodes (36): CmykICCBasedCS, convertCidString(), createDataNode(), fetchBinaryData(), fetchSync(), generateFont(), getEncoding(), getFontSubstitution() (+28 more)
+Cohesion: 0.08
+Nodes (18): convertCidString(), generateFont(), getEncoding(), getFontSubstitution(), getGlyphsUnicode, getSerifFonts, getStandardFontName(), getStdFontMap (+10 more)
 
 ### Community 116 - "Community 116"
 Cohesion: 0.05
@@ -890,7 +894,7 @@ Nodes (14): buildAppliedMarkdown(), api, apply, cleanup, closeButton, container,
 
 ### Community 119 - "Community 119"
 Cohesion: 0.10
-Nodes (35): HelpDialog(), HelpDialogProps, HelpTab, useExit(), useFile(), EN_PLACEHOLDERS, MarkdownAction, Placeholders (+27 more)
+Nodes (33): HelpDialog(), HelpDialogProps, HelpTab, useExit(), useFile(), useMarkdownActions(), useSettings(), useTheme() (+25 more)
 
 ### Community 120 - "Community 120"
 Cohesion: 0.06
@@ -900,17 +904,13 @@ Nodes (45): BUNDLED_PLUGIN_IDS, ExternalPlugin, Props, BuiltinPlugin, builtinPlu
 Cohesion: 0.08
 Nodes (46): build_bucket(), build_key(), build_key_normalizes_trailing_slash_in_prefix(), build_key_with_path_prefix(), build_key_without_path_prefix(), classify_error_status(), delete_secret(), delete_secret_raw() (+38 more)
 
-### Community 123 - "Community 123"
-Cohesion: 0.05
-Nodes (3): _h(), sC, VB
-
 ### Community 124 - "Community 124"
 Cohesion: 0.10
 Nodes (12): _binaryValueType(), CFFFont, encodeASCIIString(), _evalBinaryConst(), _nodesEqual(), PsJsCompiler, PSStackToTree, PsWasmCompiler (+4 more)
 
 ### Community 125 - "Community 125"
-Cohesion: 0.08
-Nodes (30): createCrepeConfig(), Editor(), LOCAL_DOC_EXTS, LOCAL_IMG_EXTS, localExtOf(), localIsAccepted(), localIsImage(), useEditorHandle() (+22 more)
+Cohesion: 0.09
+Nodes (28): createCrepeConfig(), Editor(), LOCAL_DOC_EXTS, LOCAL_IMG_EXTS, localExtOf(), localIsAccepted(), localIsImage(), useEditorHandle() (+20 more)
 
 ### Community 126 - "Community 126"
 Cohesion: 0.05
@@ -926,15 +926,15 @@ Nodes (45): dependencies, dejavu-fonts-ttf, mammoth, mermaid, @milkdown/core, @m
 
 ### Community 129 - "Community 129"
 Cohesion: 0.08
-Nodes (6): getPdfColorArray(), getQuadPoints(), getRgbColor(), isArrayEqual(), TranslatedFont, Util
+Nodes (5): getPdfColorArray(), getQuadPoints(), getRgbColor(), TranslatedFont, Util
 
 ### Community 131 - "Community 131"
 Cohesion: 0.05
 Nodes (6): BC(), Bd(), cd(), fC(), i, T0
 
 ### Community 133 - "Community 133"
-Cohesion: 0.03
-Nodes (7): _0(), Ba, $C(), destroy(), es, jC, vh
+Cohesion: 0.05
+Nodes (5): _0(), Ba, $C(), destroy(), jC
 
 ### Community 134 - "Community 134"
 Cohesion: 0.09
@@ -942,7 +942,7 @@ Nodes (43): blockToPdfContent(), blockWeight(), buildExportPdfFileName(), buildH
 
 ### Community 135 - "Community 135"
 Cohesion: 0.03
-Nodes (12): AD, al, cC, cl, iC(), kE(), nu(), ri() (+4 more)
+Nodes (11): AD, al, cC, cl, kE(), Kw, nu(), ri() (+3 more)
 
 ### Community 137 - "Community 137"
 Cohesion: 0.06
@@ -954,15 +954,15 @@ Nodes (39): Async Command Execution, Auto-Update Configuration, Batching IPC Cal
 
 ### Community 139 - "Community 139"
 Cohesion: 0.05
-Nodes (46): commands, description, identifier, commands, description, identifier, commands, description (+38 more)
+Nodes (40): commands, description, identifier, commands, description, identifier, commands, description (+32 more)
 
 ### Community 140 - "Community 140"
 Cohesion: 0.08
 Nodes (10): Ag(), Bu(), fM, MM(), OE(), p0, ru, UE() (+2 more)
 
 ### Community 141 - "Community 141"
-Cohesion: 0.12
-Nodes (4): an(), cM(), OB, Ph()
+Cohesion: 0.17
+Nodes (4): an(), _h(), OB, Ph()
 
 ### Community 142 - "Community 142"
 Cohesion: 0.05
@@ -986,15 +986,15 @@ Nodes (37): commands, description, identifier, commands, description, identifier
 
 ### Community 147 - "Community 147"
 Cohesion: 0.05
-Nodes (41): commands, description, identifier, commands, description, identifier, commands, description (+33 more)
+Nodes (37): commands, description, identifier, commands, description, identifier, commands, description (+29 more)
 
 ### Community 148 - "Community 148"
 Cohesion: 0.06
 Nodes (36): commands, description, identifier, commands, description, identifier, commands, description (+28 more)
 
 ### Community 149 - "Community 149"
-Cohesion: 0.12
-Nodes (28): commands, FileData, PluginInfo, ensureBundledPlugins(), exportToHtml(), exportToPdf(), getInstalledPlugins(), getPluginAssetPath() (+20 more)
+Cohesion: 0.11
+Nodes (32): commands, FileData, PluginInfo, S3Config, Settings, AppState, EditorMode, ensureBundledPlugins() (+24 more)
 
 ### Community 150 - "Community 150"
 Cohesion: 0.13
@@ -1077,20 +1077,16 @@ Cohesion: 0.08
 Nodes (4): CalGrayCS, CalRGBCS, DeviceCmykCS, LabCS
 
 ### Community 173 - "Community 173"
-Cohesion: 0.05
-Nodes (12): adjustMapping(), CFF, CFFDict, CFFFDSelect, CFFParser, CFFPrivateDict, CFFTopDict, Commands (+4 more)
+Cohesion: 0.03
+Nodes (26): adjustMapping(), CFF, CFFDict, CFFFDSelect, CFFParser, CmykICCBasedCS, Commands, compileGlyf() (+18 more)
 
 ### Community 174 - "Community 174"
 Cohesion: 0.08
 Nodes (3): Annotation, AnnotationBorderStyle, MarkupAnnotation
 
-### Community 175 - "Community 175"
-Cohesion: 0.06
-Nodes (3): ca, kB, XB
-
 ### Community 176 - "Community 176"
-Cohesion: 0.06
-Nodes (15): computeIDs(), computeMD5(), getIndexes(), getTrailerDict(), getXRefStreamTable(), getXRefTable(), incrementalUpdate(), MurmurHash3_64 (+7 more)
+Cohesion: 0.05
+Nodes (19): clearUnicodeCaches(), computeIDs(), computeMD5(), getIndexes(), getTrailerDict(), getXRefStreamTable(), getXRefTable(), GlobalColorSpaceCache (+11 more)
 
 ### Community 177 - "Community 177"
 Cohesion: 0.08
@@ -1157,12 +1153,12 @@ Cohesion: 0.13
 Nodes (13): Arc, calculateSHA512(), ch(), Edge, hasMargin(), Line, littleSigma(), littleSigmaPrime() (+5 more)
 
 ### Community 197 - "Community 197"
-Cohesion: 0.10
-Nodes (21): commands, description, identifier, commands, description, identifier, commands, description (+13 more)
+Cohesion: 0.12
+Nodes (17): commands, description, identifier, commands, description, identifier, commands, description (+9 more)
 
 ### Community 198 - "Community 198"
-Cohesion: 0.16
-Nodes (19): core, core:app, default_permission, global_scope_schema, permission_sets, default_permission, default_permission, global_scope_schema (+11 more)
+Cohesion: 0.19
+Nodes (16): core, core:app, default_permission, global_scope_schema, permission_sets, default_permission, default_permission, global_scope_schema (+8 more)
 
 ### Community 199 - "Community 199"
 Cohesion: 0.07
@@ -1245,12 +1241,12 @@ Cohesion: 0.14
 Nodes (13): assets, bitmap, canvas, drawImage, image, markdown, originalCreateElement, page (+5 more)
 
 ### Community 224 - "Community 224"
-Cohesion: 0.12
-Nodes (8): createValidAbsoluteUrl(), decodeString(), FreeTextAnnotation, parseAppearanceStream(), parseDefaultAppearance(), parseDocBaseUrl(), stringToUTF8String(), updateUrlHash()
+Cohesion: 0.09
+Nodes (4): isArrayEqual(), JBig2(), ObjectLoader, Page
 
 ### Community 225 - "Community 225"
-Cohesion: 0.14
-Nodes (17): Props, UnsavedChangesDialog(), UnsavedChoice, en, Language, translations, PluralForms, ru (+9 more)
+Cohesion: 0.27
+Nodes (9): Props, UnsavedChangesDialog(), UnsavedChoice, en, Language, translations, PluralForms, ru (+1 more)
 
 ### Community 226 - "Community 226"
 Cohesion: 0.14
@@ -1265,16 +1261,16 @@ Cohesion: 0.33
 Nodes (8): AssetApi, docxFileToMarkdown(), docxImageToMarkdown(), extFromContentType(), htmlToMarkdown(), markdownFromNode(), normalizeMarkdown(), tableToMarkdown()
 
 ### Community 231 - "Community 231"
-Cohesion: 0.20
-Nodes (10): description, properties, required, type, Capability, type, identifier, remote (+2 more)
-
-### Community 232 - "Community 232"
-Cohesion: 0.13
-Nodes (15): definitions, Identifier, Number, PermissionEntry, Target, Value, oneOf, anyOf (+7 more)
-
-### Community 233 - "Community 233"
 Cohesion: 0.15
 Nodes (13): properties, Identifier, default, description, type, description, oneOf, type (+5 more)
+
+### Community 232 - "Community 232"
+Cohesion: 0.15
+Nodes (13): definitions, Number, PermissionEntry, Target, Value, anyOf, description, anyOf (+5 more)
+
+### Community 233 - "Community 233"
+Cohesion: 0.20
+Nodes (10): properties, type, default, description, type, identifier, local, remote (+2 more)
 
 ### Community 234 - "Community 234"
 Cohesion: 0.15
@@ -1421,8 +1417,8 @@ Cohesion: 0.22
 Nodes (8): compilerOptions, allowSyntheticDefaultImports, composite, module, moduleResolution, resolveJsonModule, skipLibCheck, include
 
 ### Community 277 - "Community 277"
-Cohesion: 0.18
-Nodes (11): description, properties, required, type, Capability, description, type, identifier (+3 more)
+Cohesion: 0.22
+Nodes (9): properties, Identifier, description, oneOf, type, identifier, remote, anyOf (+1 more)
 
 ### Community 278 - "Community 278"
 Cohesion: 0.22
@@ -1789,24 +1785,20 @@ Cohesion: 0.50
 Nodes (4): commands, description, identifier, allow-popup
 
 ### Community 401 - "Community 401"
-Cohesion: 0.50
-Nodes (4): commands, description, identifier, allow-prepend
+Cohesion: 0.12
+Nodes (17): commands, description, identifier, commands, description, identifier, allow, commands (+9 more)
 
 ### Community 402 - "Community 402"
-Cohesion: 0.50
-Nodes (4): commands, description, identifier, allow-remove-at
+Cohesion: 0.29
+Nodes (8): applyPreview, container, result, ensureInit(), generateMermaidId(), isDarkTheme(), renderGen, renderMermaidPreview()
 
 ### Community 403 - "Community 403"
 Cohesion: 0.50
 Nodes (4): commands, description, identifier, allow-identifier
 
-### Community 404 - "Community 404"
-Cohesion: 0.50
-Nodes (4): commands, description, identifier, allow-set-accelerator
-
 ### Community 405 - "Community 405"
 Cohesion: 0.50
-Nodes (4): commands, description, identifier, allow-is-checked
+Nodes (4): commands, description, identifier, allow-bundle-type
 
 ### Community 406 - "Community 406"
 Cohesion: 0.50
@@ -1814,7 +1806,7 @@ Nodes (4): commands, description, identifier, allow-is-enabled
 
 ### Community 407 - "Community 407"
 Cohesion: 0.50
-Nodes (4): commands, description, identifier, allow-set-as-app-menu
+Nodes (4): commands, description, identifier, allow-get
 
 ### Community 408 - "Community 408"
 Cohesion: 0.50
@@ -1838,7 +1830,7 @@ Nodes (4): commands, description, identifier, allow-set-text
 
 ### Community 416 - "Community 416"
 Cohesion: 0.50
-Nodes (4): commands, description, identifier, allow-tauri-version
+Nodes (4): commands, description, identifier, allow-items
 
 ### Community 418 - "Community 418"
 Cohesion: 0.50
@@ -1870,7 +1862,7 @@ Nodes (4): commands, description, identifier, deny-remove-listener
 
 ### Community 429 - "Community 429"
 Cohesion: 0.50
-Nodes (4): commands, description, identifier, deny-app-show
+Nodes (4): commands, description, identifier, allow-set-as-windows-menu-for-nsapp
 
 ### Community 430 - "Community 430"
 Cohesion: 0.50
@@ -1886,7 +1878,7 @@ Nodes (4): default, description, type, local
 
 ### Community 434 - "Community 434"
 Cohesion: 0.50
-Nodes (4): commands, description, identifier, deny-create-default
+Nodes (4): commands, description, identifier, allow-set-checked
 
 ### Community 436 - "Community 436"
 Cohesion: 0.50
@@ -1902,11 +1894,11 @@ Nodes (4): default, description, type, local
 
 ### Community 439 - "Community 439"
 Cohesion: 0.50
-Nodes (4): commands, description, identifier, allow-set-as-window-menu
+Nodes (4): commands, description, identifier, allow-version
 
 ### Community 440 - "Community 440"
 Cohesion: 0.50
-Nodes (4): default, description, type, local
+Nodes (4): commands, description, identifier, deny-default-window-icon
 
 ### Community 441 - "Community 441"
 Cohesion: 0.50
@@ -1938,7 +1930,7 @@ Nodes (4): default, description, type, local
 
 ### Community 491 - "Community 491"
 Cohesion: 0.50
-Nodes (4): commands, description, identifier, deny-set-dock-visibility
+Nodes (4): commands, description, identifier, deny-new
 
 ### Community 492 - "Community 492"
 Cohesion: 0.40
@@ -1946,11 +1938,11 @@ Nodes (3): compileCharString(), getSubroutineBias(), Type2Compiled
 
 ### Community 494 - "Community 494"
 Cohesion: 0.50
-Nodes (4): default, description, type, description
+Nodes (4): commands, description, identifier, deny-remove-data-store
 
 ### Community 496 - "Community 496"
-Cohesion: 0.67
-Nodes (3): Identifier, description, oneOf
+Cohesion: 0.50
+Nodes (4): commands, description, identifier, deny-version
 
 ### Community 498 - "Community 498"
 Cohesion: 0.50
@@ -1960,19 +1952,35 @@ Nodes (4): 7.9 Hoist RegExp Creation, code:tsx (function Highlighter({ text, que
 Cohesion: 0.50
 Nodes (4): description, required, type, Capability
 
+### Community 688 - "Community 688"
+Cohesion: 0.50
+Nodes (4): description, required, type, Capability
+
+### Community 689 - "Community 689"
+Cohesion: 0.50
+Nodes (4): description, required, type, Capability
+
+### Community 690 - "Community 690"
+Cohesion: 0.50
+Nodes (4): default, description, type, description
+
+### Community 691 - "Community 691"
+Cohesion: 0.67
+Nodes (3): Identifier, description, oneOf
+
 ## Knowledge Gaps
 - **1782 isolated node(s):** `name`, `private`, `version`, `type`, `dev` (+1777 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **373 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **376 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Ed()` connect `Community 105` to `Community 225`, `Community 193`, `Community 131`, `Community 133`, `Community 199`, `Community 135`, `Community 175`, `Community 111`, `Community 113`, `Community 16`, `Community 94`?**
+- **Why does `Ed()` connect `Community 105` to `Community 96`, `Community 225`, `Community 193`, `Community 131`, `Community 133`, `Community 199`, `Community 135`, `Community 104`, `Community 16`, `Community 113`, `Community 94`, `Community 95`?**
   _High betweenness centrality (0.104) - this node is a cross-community bridge._
 - **Why does `callback` connect `Community 252` to `Community 120`, `Community 315`, `Community 102`?**
   _High betweenness centrality (0.050) - this node is a cross-community bridge._
-- **Why does `warn()` connect `Community 115` to `Community 129`, `Community 6`, `Community 136`, `Community 273`, `Community 150`, `Community 157`, `Community 414`, `Community 162`, `Community 291`, `Community 293`, `Community 173`, `Community 174`, `Community 176`, `Community 315`, `Community 191`, `Community 322`, `Community 201`, `Community 202`, `Community 465`, `Community 210`, `Community 93`, `Community 224`, `Community 352`, `Community 99`, `Community 100`, `Community 102`, `Community 103`, `Community 108`, `Community 110`, `Community 240`, `Community 124`?**
+- **Why does `warn()` connect `Community 173` to `Community 129`, `Community 6`, `Community 136`, `Community 273`, `Community 150`, `Community 157`, `Community 414`, `Community 162`, `Community 291`, `Community 293`, `Community 174`, `Community 176`, `Community 315`, `Community 191`, `Community 322`, `Community 201`, `Community 202`, `Community 465`, `Community 210`, `Community 93`, `Community 224`, `Community 352`, `Community 99`, `Community 100`, `Community 102`, `Community 103`, `Community 108`, `Community 110`, `Community 240`, `Community 115`, `Community 124`?**
   _High betweenness centrality (0.045) - this node is a cross-community bridge._
 - **What connects `name`, `private`, `version` to the rest of the system?**
   _1782 weakly-connected nodes found - possible documentation gaps or missing edges._
