@@ -3,10 +3,21 @@ import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
 
 const pluginDir = dirname(fileURLToPath(import.meta.url));
+const pluginId = 'markitdown-import';
 
 export default defineConfig({
   base: './',
   publicDir: false,
+  experimental: {
+    renderBuiltUrl(filename, { hostType }) {
+      if (hostType === 'js') {
+        return {
+          runtime: `window.__mivraResolvePluginAsset(${JSON.stringify(pluginId)}, ${JSON.stringify(filename)})`,
+        };
+      }
+      return { relative: true };
+    },
+  },
   build: {
     outDir: resolve(pluginDir, 'dist'),
     emptyOutDir: true,

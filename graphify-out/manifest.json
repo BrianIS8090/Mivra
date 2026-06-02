@@ -30,7 +30,7 @@
     "semantic_hash": "153693bf2fcf0e36bc839f314b691aa6"
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\bindings.ts": {
-    "mtime": 1780374273.1639593,
+    "mtime": 1780374613.9631135,
     "ast_hash": "5491ee9f2c75f85474dae1a3785fcb73",
     "semantic_hash": ""
   },
@@ -1095,7 +1095,7 @@
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src-tauri\\bundled-plugins\\export-pdf\\index.js": {
-    "mtime": 1780374265.289899,
+    "mtime": 1780374605.8786266,
     "ast_hash": "6f115b0d25c48d57a148ec0cfadd37b3",
     "semantic_hash": "6f115b0d25c48d57a148ec0cfadd37b3"
   },
@@ -1105,7 +1105,7 @@
     "semantic_hash": "62ea8b67fe626402a93a791bad8e8c5d"
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src-tauri\\bundled-plugins\\export-pdf\\assets\\pdf.worker-B1D2UnXD.mjs": {
-    "mtime": 1780374265.289899,
+    "mtime": 1780374605.8786266,
     "ast_hash": "b169314e56c737213dba6418ab0b6512",
     "semantic_hash": "b169314e56c737213dba6418ab0b6512"
   },
@@ -1205,13 +1205,13 @@
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\plugins\\markitdown-import\\plugin.json": {
-    "mtime": 1780374403.96573,
-    "ast_hash": "9914f348e0b3f5712c5b275c6cbd97bb",
+    "mtime": 1780374772.4350207,
+    "ast_hash": "a0d87f3e04a17b499a12d5d9477c02e4",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\plugins\\markitdown-import\\vite.config.ts": {
-    "mtime": 1780291169.7794034,
-    "ast_hash": "35b1249930b353fd9ade0e5fd73e5001",
+    "mtime": 1780374728.1671467,
+    "ast_hash": "56684c1eb8ddf013eafa703d9c1a806e",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\plugins\\markitdown-import\\scripts\\copy-manifest.mjs": {
@@ -1235,8 +1235,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\plugins\\markitdown-import\\src\\converters\\pdf.ts": {
-    "mtime": 1780374379.085604,
-    "ast_hash": "486ef12c2bd446dfebac199c67a84aec",
+    "mtime": 1780374722.2633727,
+    "ast_hash": "2a1f0c25b5006e9125d427ddd5309988",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\plugins\\markitdown-import\\src\\converters\\text.ts": {
@@ -1250,13 +1250,13 @@
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\test\\markitdownImportConverters.test.ts": {
-    "mtime": 1780374364.132876,
-    "ast_hash": "5c7d66e3ab3216b1ca8b0f26ed6e99c9",
+    "mtime": 1780374780.5339072,
+    "ast_hash": "6c83f9860c757f830cc80c8059c4b2e1",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\test\\markitdownImportPlugin.test.ts": {
-    "mtime": 1780374393.4103744,
-    "ast_hash": "376ee53fc1e5ea78ce581611d7fa457e",
+    "mtime": 1780374761.0763757,
+    "ast_hash": "aa29fc40c799817a40887fa578f8dffe",
     "semantic_hash": ""
   },
   "C:\\Users\\Brian\\Downloads\\Mivra\\src\\test\\pluginAssetsApi.test.ts": {

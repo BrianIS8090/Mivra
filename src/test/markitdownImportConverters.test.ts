@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { csvTextToMarkdown } from '../../plugins/markitdown-import/src/converters/csv';
 import { docxImageToMarkdown } from '../../plugins/markitdown-import/src/converters/docx';
 import { configurePdfWorker, pdfPagesToMarkdown } from '../../plugins/markitdown-import/src/converters/pdf';
@@ -6,6 +6,10 @@ import { normalizeTextMarkdown } from '../../plugins/markitdown-import/src/conve
 import { sheetRowsToMarkdown } from '../../plugins/markitdown-import/src/converters/xlsx';
 
 describe('markitdown import converters', () => {
+  afterEach(() => {
+    delete window.__mivraResolvePluginAsset;
+  });
+
   it('normalizeTextMarkdown приводит переносы строк к LF и убирает BOM', () => {
     expect(normalizeTextMarkdown('\uFEFFA\r\nB\rC')).toBe('A\nB\nC');
   });
@@ -63,5 +67,23 @@ describe('markitdown import converters', () => {
 
     expect(pdfjs.GlobalWorkerOptions.workerSrc)
       .toBe('https://asset.localhost/plugins/markitdown-import/assets/pdf.worker-test.mjs');
+  });
+
+  it('configurePdfWorker использует Mivra asset resolver для worker из пакета плагина', () => {
+    const pdfjs = { GlobalWorkerOptions: { workerSrc: '' } };
+    const resolvePluginAsset = vi.fn((pluginId: string, relativePath: string) => (
+      `https://asset.localhost/plugins/${pluginId}/${relativePath}?mivra_plugin=${pluginId}%401.0.3`
+    ));
+    window.__mivraResolvePluginAsset = resolvePluginAsset;
+
+    configurePdfWorker(
+      pdfjs,
+      './assets/pdf.worker-test.mjs',
+      'http://asset.localhost/index.js?mivra_plugin=markitdown-import%401.0.3',
+    );
+
+    expect(resolvePluginAsset).toHaveBeenCalledWith('markitdown-import', 'assets/pdf.worker-test.mjs');
+    expect(pdfjs.GlobalWorkerOptions.workerSrc)
+      .toBe('https://asset.localhost/plugins/markitdown-import/assets/pdf.worker-test.mjs?mivra_plugin=markitdown-import%401.0.3');
   });
 });

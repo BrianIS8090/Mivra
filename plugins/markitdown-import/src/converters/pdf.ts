@@ -1,10 +1,33 @@
 import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.mjs?url';
 
+const pluginId = 'markitdown-import';
+
 type PdfJsWithWorkerOptions = {
   GlobalWorkerOptions: {
     workerSrc: string;
   };
 };
+
+declare global {
+  interface Window {
+    __mivraResolvePluginAsset?: (pluginId: string, relativePath: string) => string;
+  }
+}
+
+function workerAssetPath(workerUrl: string): string | null {
+  const normalized = workerUrl.replace(/\\/g, '/');
+  const assetsIndex = normalized.lastIndexOf('/assets/');
+  if (assetsIndex >= 0) {
+    return normalized.slice(assetsIndex + 1);
+  }
+  if (normalized.startsWith('assets/')) {
+    return normalized;
+  }
+  if (normalized.startsWith('./assets/')) {
+    return normalized.slice(2);
+  }
+  return null;
+}
 
 export function pdfPagesToMarkdown(pages: string[]): string {
   return pages
@@ -18,6 +41,12 @@ export function configurePdfWorker(
   workerUrl: string = pdfWorkerUrl,
   moduleUrl: string = import.meta.url,
 ): void {
+  const relativeWorkerPath = workerAssetPath(workerUrl);
+  if (relativeWorkerPath && window.__mivraResolvePluginAsset) {
+    pdfjs.GlobalWorkerOptions.workerSrc = window.__mivraResolvePluginAsset(pluginId, relativeWorkerPath);
+    return;
+  }
+
   pdfjs.GlobalWorkerOptions.workerSrc = new URL(workerUrl, moduleUrl).toString();
 }
 
