@@ -5,9 +5,18 @@ export type XlsxColumnOption = {
   label: string;
 };
 
+export type XlsxCellData = {
+  value: unknown;
+  formatted?: string;
+  format?: string;
+  type?: string;
+};
+
+export type XlsxCellInput = unknown | XlsxCellData;
+
 export type XlsxSheetData = {
   name: string;
-  rows: unknown[][];
+  rows: XlsxCellInput[][];
 };
 
 export type XlsxWorkbookData = {
@@ -15,22 +24,71 @@ export type XlsxWorkbookData = {
   columns: XlsxColumnOption[];
 };
 
-function escapeCell(value: unknown): string {
-  return String(value ?? '').trim().replace(/\|/g, '\\|').replace(/\n/g, '<br>');
+function isCellData(value: unknown): value is XlsxCellData {
+  return Boolean(
+    value
+      && typeof value === 'object'
+      && 'value' in value
+      && ('formatted' in value || 'format' in value || 'type' in value),
+  );
 }
 
-function trimRows(rows: unknown[][]): unknown[][] {
-  const nonEmptyRows = rows.filter((row) => row.some((cell) => String(cell ?? '').trim().length > 0));
+function formatExcelDuration(value: number, format?: string): string | null {
+  if (!format || !/\[[h]+\]/i.test(format) || !/m/i.test(format)) return null;
+
+  const sign = value < 0 ? '-' : '';
+  const totalMinutes = Math.floor(Math.abs(value) * 24 * 60 + 1e-7);
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = String(totalMinutes % 60).padStart(2, '0');
+
+  if (format.includes(':')) {
+    return `${sign}${hours}:${minutes}`;
+  }
+
+  return `${sign}${hours} ч. ${minutes} м.`;
+}
+
+function cellDisplayText(value: XlsxCellInput): string {
+  if (!isCellData(value)) {
+    return String(value ?? '').trim();
+  }
+
+  if (typeof value.formatted === 'string' && value.formatted.trim().length > 0) {
+    return value.formatted.trim();
+  }
+
+  if (typeof value.value === 'number') {
+    const duration = formatExcelDuration(value.value, value.format);
+    if (duration !== null) return duration;
+
+    if (value.format && value.format !== 'General') {
+      try {
+        return XLSX.SSF.format(value.format, value.value).trim();
+      } catch {
+        return String(value.value).trim();
+      }
+    }
+  }
+
+  return String(value.value ?? '').trim();
+}
+
+function escapeCell(value: XlsxCellInput): string {
+  return cellDisplayText(value).replace(/\|/g, '\\|').replace(/\n/g, '<br>');
+}
+
+function trimRows(rows: XlsxCellInput[][]): XlsxCellInput[][] {
+  const nonEmptyRows = rows.filter((row) => row.some((cell) => cellDisplayText(cell).length > 0));
   if (nonEmptyRows.length === 0) return [];
 
   const maxWidth = Math.max(...nonEmptyRows.map((row) => row.length));
   let firstCol = 0;
   let lastCol = maxWidth - 1;
 
-  while (firstCol <= lastCol && nonEmptyRows.every((row) => !String(row[firstCol] ?? '').trim())) {
+  while (firstCol <= lastCol && nonEmptyRows.every((row) => !cellDisplayText(row[firstCol]))) {
     firstCol += 1;
   }
-  while (lastCol >= firstCol && nonEmptyRows.every((row) => !String(row[lastCol] ?? '').trim())) {
+  while (lastCol >= firstCol && nonEmptyRows.every((row) => !cellDisplayText(row[lastCol]))) {
     lastCol -= 1;
   }
 
@@ -47,12 +105,12 @@ function excludedColumnSet(options?: XlsxMarkdownOptions): Set<number> {
   return excluded instanceof Set ? excluded : new Set(excluded);
 }
 
-function filterColumns(rows: unknown[][], excludedColumns: Set<number>): unknown[][] {
+function filterColumns(rows: XlsxCellInput[][], excludedColumns: Set<number>): XlsxCellInput[][] {
   if (excludedColumns.size === 0) return rows;
   return rows.map((row) => row.filter((_cell, index) => !excludedColumns.has(index)));
 }
 
-export function sheetRowsToMarkdown(sheetName: string, rows: unknown[][], options?: XlsxMarkdownOptions): string {
+export function sheetRowsToMarkdown(sheetName: string, rows: XlsxCellInput[][], options?: XlsxMarkdownOptions): string {
   const trimmed = trimRows(rows);
   const filtered = filterColumns(trimmed, excludedColumnSet(options));
   if (filtered.length === 0 || filtered.every((row) => row.length === 0)) return `## ${sheetName}`;
@@ -85,7 +143,7 @@ function columnLetter(index: number): string {
   return label;
 }
 
-export function xlsxColumnOptionsFromRows(rows: unknown[][]): XlsxColumnOption[] {
+export function xlsxColumnOptionsFromRows(rows: XlsxCellInput[][]): XlsxColumnOption[] {
   const trimmed = trimRows(rows);
   if (trimmed.length === 0) return [];
 
@@ -94,7 +152,7 @@ export function xlsxColumnOptionsFromRows(rows: unknown[][]): XlsxColumnOption[]
 
   return Array.from({ length: width }, (_value, index) => {
     const letter = columnLetter(index);
-    const title = String(header[index] ?? '').trim() || `Столбец ${letter}`;
+    const title = cellDisplayText(header[index]) || `Столбец ${letter}`;
     return {
       index,
       label: `${letter} — ${title}`,
@@ -109,12 +167,45 @@ export function xlsxWorkbookToMarkdown(workbook: XlsxWorkbookData, options?: Xls
     .trim();
 }
 
+function xlsxSheetToRows(sheet: XLSX.WorkSheet): XlsxCellInput[][] {
+  const ref = sheet['!ref'];
+  if (!ref) return [];
+
+  const range = XLSX.utils.decode_range(ref);
+  const rows: XlsxCellInput[][] = [];
+
+  for (let rowIndex = range.s.r; rowIndex <= range.e.r; rowIndex += 1) {
+    const row: XlsxCellInput[] = [];
+
+    for (let columnIndex = range.s.c; columnIndex <= range.e.c; columnIndex += 1) {
+      const address = XLSX.utils.encode_cell({ r: rowIndex, c: columnIndex });
+      const cell = sheet[address] as XLSX.CellObject | undefined;
+
+      row.push(cell ? {
+        value: cell.v,
+        formatted: typeof cell.w === 'string' ? cell.w : undefined,
+        format: typeof cell.z === 'string' ? cell.z : undefined,
+        type: typeof cell.t === 'string' ? cell.t : undefined,
+      } : undefined);
+    }
+
+    rows.push(row);
+  }
+
+  return rows;
+}
+
 export async function xlsxFileToWorkbook(file: File): Promise<XlsxWorkbookData> {
-  const workbook = XLSX.read(await file.arrayBuffer(), { type: 'array' });
+  const workbook = XLSX.read(await file.arrayBuffer(), {
+    type: 'array',
+    cellFormula: true,
+    cellNF: true,
+    cellText: true,
+  });
   const sheets = workbook.SheetNames
     .map((sheetName): XlsxSheetData => {
       const sheet = workbook.Sheets[sheetName];
-      const rows = XLSX.utils.sheet_to_json<unknown[]>(sheet, { header: 1, raw: false });
+      const rows = xlsxSheetToRows(sheet);
       return { name: sheetName, rows };
     });
 

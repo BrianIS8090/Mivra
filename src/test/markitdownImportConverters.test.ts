@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import * as XLSX from 'xlsx';
 import { csvTextToMarkdown } from '../../plugins/markitdown-import/src/converters/csv';
 import { docxImageToMarkdown } from '../../plugins/markitdown-import/src/converters/docx';
 import {
@@ -15,6 +16,7 @@ import { normalizeTextMarkdown } from '../../plugins/markitdown-import/src/conve
 import {
   sheetRowsToMarkdown,
   xlsxColumnOptionsFromRows,
+  xlsxFileToWorkbook,
   xlsxWorkbookToMarkdown,
 } from '../../plugins/markitdown-import/src/converters/xlsx';
 
@@ -121,6 +123,27 @@ describe('markitdown import converters', () => {
       '| Name | Score |',
       '| --- | --- |',
       '| Bob | 20 |',
+    ].join('\n'));
+  });
+
+  it('xlsxFileToWorkbook сохраняет локализованный Excel-формат длительности', async () => {
+    const worksheet = XLSX.utils.aoa_to_sheet([
+      ['Сотрудник', 'Общее'],
+      ['04 May 2026, Mon', { t: 'n', v: 0.341851851851852, z: '[h] ч. mm м.' }],
+      ['Итого:', { t: 'n', v: 5.751956019, z: '[h] ч. mm м.' }],
+    ]);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Учет времени');
+    const bytes = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' }) as ArrayBuffer;
+    const file = { arrayBuffer: async () => bytes } as File;
+
+    expect(xlsxWorkbookToMarkdown(await xlsxFileToWorkbook(file))).toBe([
+      '## Учет времени',
+      '',
+      '| Сотрудник | Общее |',
+      '| --- | --- |',
+      '| 04 May 2026, Mon | 8 ч. 12 м. |',
+      '| Итого: | 138 ч. 02 м. |',
     ].join('\n'));
   });
 
@@ -490,18 +513,18 @@ describe('markitdown import converters', () => {
   it('configurePdfWorker использует Mivra asset resolver для worker из пакета плагина', () => {
     const pdfjs = { GlobalWorkerOptions: { workerSrc: '' } };
     const resolvePluginAsset = vi.fn((pluginId: string, relativePath: string) => (
-      `https://asset.localhost/plugins/${pluginId}/${relativePath}?mivra_plugin=${pluginId}%401.0.12`
+      `https://asset.localhost/plugins/${pluginId}/${relativePath}?mivra_plugin=${pluginId}%401.0.13`
     ));
     window.__mivraResolvePluginAsset = resolvePluginAsset;
 
     configurePdfWorker(
       pdfjs,
       './assets/pdf.worker-test.mjs',
-      'http://asset.localhost/index.js?mivra_plugin=markitdown-import%401.0.12',
+      'http://asset.localhost/index.js?mivra_plugin=markitdown-import%401.0.13',
     );
 
     expect(resolvePluginAsset).toHaveBeenCalledWith('markitdown-import', 'assets/pdf.worker-test.mjs');
     expect(pdfjs.GlobalWorkerOptions.workerSrc)
-      .toBe('https://asset.localhost/plugins/markitdown-import/assets/pdf.worker-test.mjs?mivra_plugin=markitdown-import%401.0.12');
+      .toBe('https://asset.localhost/plugins/markitdown-import/assets/pdf.worker-test.mjs?mivra_plugin=markitdown-import%401.0.13');
   });
 });

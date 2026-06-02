@@ -92,6 +92,18 @@
   font-weight: 600;
 }
 
+.markitdown-import__column-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.markitdown-import__column-actions button {
+  min-height: 30px;
+  padding: 0 10px;
+  font-size: 12px;
+}
+
 .markitdown-import__column-list {
   display: grid;
   max-height: 120px;

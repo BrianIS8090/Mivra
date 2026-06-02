@@ -136,6 +136,18 @@ function renderDialog(container: HTMLElement, state: ImportState): void {
   const xlsxColumns = state.xlsxColumns.length > 0 ? `
           <fieldset class="markitdown-import__columns">
             <legend>Столбцы Excel</legend>
+            <div class="markitdown-import__column-actions">
+              <button
+                type="button"
+                data-markitdown-import-xlsx-select-all
+                ${state.xlsxExcludedColumns.length === 0 ? 'disabled' : ''}
+              >Выбрать все</button>
+              <button
+                type="button"
+                data-markitdown-import-xlsx-clear-all
+                ${state.xlsxExcludedColumns.length === state.xlsxColumns.length ? 'disabled' : ''}
+              >Снять все</button>
+            </div>
             <div class="markitdown-import__column-list">
               ${state.xlsxColumns.map((column) => `
                 <label class="markitdown-import__column">
@@ -220,6 +232,8 @@ function renderImportDialog(container: HTMLElement, api: PluginApi): () => void 
     const apply = container.querySelector('[data-markitdown-import-apply]') as HTMLButtonElement | null;
     const close = container.querySelector('[data-markitdown-import-close]') as HTMLButtonElement | null;
     const overlay = container.querySelector('[data-markitdown-import-overlay]') as HTMLDivElement | null;
+    const xlsxSelectAll = container.querySelector('[data-markitdown-import-xlsx-select-all]') as HTMLButtonElement | null;
+    const xlsxClearAll = container.querySelector('[data-markitdown-import-xlsx-clear-all]') as HTMLButtonElement | null;
     const xlsxColumns = container.querySelectorAll('[data-markitdown-import-xlsx-column]');
 
     input?.addEventListener('change', onFileChange);
@@ -227,6 +241,8 @@ function renderImportDialog(container: HTMLElement, api: PluginApi): () => void 
     apply?.addEventListener('click', onApply);
     close?.addEventListener('click', onClose);
     overlay?.addEventListener('click', onOverlayClick);
+    xlsxSelectAll?.addEventListener('click', onXlsxSelectAll);
+    xlsxClearAll?.addEventListener('click', onXlsxClearAll);
     xlsxColumns.forEach((column) => column.addEventListener('change', onXlsxColumnChange));
   };
 
@@ -241,6 +257,17 @@ function renderImportDialog(container: HTMLElement, api: PluginApi): () => void 
     state.markdown = xlsxWorkbookToMarkdown(xlsxWorkbook, {
       excludedColumns: new Set(state.xlsxExcludedColumns),
     });
+  };
+
+  const setXlsxExcludedColumns = (excludedColumns: number[]) => {
+    state.xlsxExcludedColumns = [...new Set(excludedColumns)].sort((left, right) => left - right);
+    state.error = '';
+    try {
+      updateXlsxMarkdown();
+    } catch (error) {
+      state.error = errorMessageForImport(error);
+    }
+    rerender();
   };
 
   const onFileChange = async (event: Event) => {
@@ -297,14 +324,15 @@ function renderImportDialog(container: HTMLElement, api: PluginApi): () => void 
       excluded.add(columnIndex);
     }
 
-    state.xlsxExcludedColumns = [...excluded].sort((left, right) => left - right);
-    state.error = '';
-    try {
-      updateXlsxMarkdown();
-    } catch (error) {
-      state.error = errorMessageForImport(error);
-    }
-    rerender();
+    setXlsxExcludedColumns([...excluded]);
+  };
+
+  const onXlsxSelectAll = () => {
+    setXlsxExcludedColumns([]);
+  };
+
+  const onXlsxClearAll = () => {
+    setXlsxExcludedColumns(state.xlsxColumns.map((column) => column.index));
   };
 
   const onApply = async () => {
