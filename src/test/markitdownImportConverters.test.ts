@@ -399,18 +399,18 @@ describe('markitdown import converters', () => {
   it('configurePdfWorker использует Mivra asset resolver для worker из пакета плагина', () => {
     const pdfjs = { GlobalWorkerOptions: { workerSrc: '' } };
     const resolvePluginAsset = vi.fn((pluginId: string, relativePath: string) => (
-      `https://asset.localhost/plugins/${pluginId}/${relativePath}?mivra_plugin=${pluginId}%401.0.9`
+      `https://asset.localhost/plugins/${pluginId}/${relativePath}?mivra_plugin=${pluginId}%401.0.10`
     ));
     window.__mivraResolvePluginAsset = resolvePluginAsset;
 
     configurePdfWorker(
       pdfjs,
       './assets/pdf.worker-test.mjs',
-      'http://asset.localhost/index.js?mivra_plugin=markitdown-import%401.0.9',
+      'http://asset.localhost/index.js?mivra_plugin=markitdown-import%401.0.10',
     );
 
     expect(resolvePluginAsset).toHaveBeenCalledWith('markitdown-import', 'assets/pdf.worker-test.mjs');
     expect(pdfjs.GlobalWorkerOptions.workerSrc)
-      .toBe('https://asset.localhost/plugins/markitdown-import/assets/pdf.worker-test.mjs?mivra_plugin=markitdown-import%401.0.9');
+      .toBe('https://asset.localhost/plugins/markitdown-import/assets/pdf.worker-test.mjs?mivra_plugin=markitdown-import%401.0.10');
   });
 });

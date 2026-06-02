@@ -35,6 +35,7 @@ type PluginApi = {
   };
   document: {
     getContent(): string;
+    getFilePath(): string | null;
     setContent(content: string): void;
   };
   assets: AssetApi;
@@ -96,6 +97,14 @@ async function convertFileToMarkdown(file: File, assets: AssetApi): Promise<stri
   }
 
   throw new Error(`Формат не поддерживается: .${extension || file.name}`);
+}
+
+function errorMessageForImport(error: unknown): string {
+  const message = error instanceof Error ? error.message : String(error);
+  if (message === 'asset_base_dir_missing') {
+    return 'Сохраните текущий документ или настройте S3, чтобы импортировать изображения из PDF/DOCX.';
+  }
+  return message;
 }
 
 export function buildAppliedMarkdown(
@@ -216,7 +225,7 @@ function renderImportDialog(container: HTMLElement, api: PluginApi): () => void 
       }
       state.markdown = markdown;
     } catch (error) {
-      state.error = error instanceof Error ? error.message : String(error);
+      state.error = errorMessageForImport(error);
     } finally {
       state.loading = false;
       rerender();

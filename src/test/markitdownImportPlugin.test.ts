@@ -14,6 +14,7 @@ type FakePluginApi = {
   };
   document: {
     getContent: ReturnType<typeof vi.fn>;
+    getFilePath: ReturnType<typeof vi.fn>;
     setContent: ReturnType<typeof vi.fn>;
   };
   assets: {
@@ -62,6 +63,7 @@ function createFakeApi(): FakePluginApi {
     },
     document: {
       getContent: vi.fn(() => '# Current'),
+      getFilePath: vi.fn(() => 'C:/docs/current.md'),
       setContent: vi.fn(),
     },
     assets: {
@@ -82,6 +84,7 @@ describe('markitdown import plugin', () => {
 
   afterEach(() => {
     vi.unstubAllGlobals();
+    vi.doUnmock('../../plugins/markitdown-import/src/converters/docx');
   });
 
   it('имеет валидный manifest для внешнего плагина Mivra API v1', () => {
@@ -90,7 +93,7 @@ describe('markitdown import plugin', () => {
     expect(manifest).toMatchObject({
       id: 'markitdown-import',
       name: 'Import to Markdown',
-      version: '1.0.9',
+      version: '1.0.10',
       entry: 'index.js',
       styles: 'style.css',
       permissions: ['document:read', 'document:write', 'dialog', 'assets:write'],
@@ -219,5 +222,38 @@ describe('markitdown import plugin', () => {
     apply.click();
 
     expect(api.document.setContent).toHaveBeenCalledWith('Imported\nText');
+  });
+
+  it('показывает понятную ошибку, если для изображений нет локальной папки assets', async () => {
+    vi.doMock('../../plugins/markitdown-import/src/converters/docx', () => ({
+      docxFileToMarkdown: async (_file: File, assets: FakePluginApi['assets']) => {
+        const saved = await assets.saveBytes({
+          bytes: new Uint8Array([1]),
+          filename: 'docx-image-1.png',
+          kind: 'image',
+        });
+        return saved.markdown;
+      },
+    }));
+    const plugin = await loadPlugin();
+    const api = createFakeApi();
+    api.assets.saveBytes.mockRejectedValue(new Error('asset_base_dir_missing'));
+    plugin.activate(api);
+    const renderer = api.dialogs.registerRenderer.mock.calls[0][1];
+    const container = document.createElement('div');
+    renderer.render({ container, api });
+
+    const input = container.querySelector('[data-markitdown-import-file]') as HTMLInputElement;
+    Object.defineProperty(input, 'files', {
+      configurable: true,
+      value: [new File([
+        'docx',
+      ], 'document.docx', { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })],
+    });
+    input.dispatchEvent(new Event('change'));
+    await flushPromises();
+
+    expect(container.querySelector('[data-markitdown-import-error]')?.textContent)
+      .toBe('Сохраните текущий документ или настройте S3, чтобы импортировать изображения из PDF/DOCX.');
   });
 });
