@@ -4,6 +4,7 @@ import { docxImageToMarkdown } from '../../plugins/markitdown-import/src/convert
 import {
   configurePdfWorker,
   pdfImageObjectToMarkdown,
+  pdfPageImagesToMarkdown,
   pdfImageRefsFromOperatorList,
   pdfPagesToMarkdown,
   pdfTextItemsToMarkdown,
@@ -150,6 +151,115 @@ describe('markitdown import converters', () => {
     expect(markdown).toBe('![resume.pdf, image 1](assets/resume-page-1-image-1.png)');
   });
 
+  it('pdfImageObjectToMarkdown сохраняет bitmap-картинку PDF без page snapshot', async () => {
+    const drawImage = vi.fn();
+    const canvas = {
+      width: 0,
+      height: 0,
+      getContext: vi.fn(() => ({
+        drawImage,
+      })),
+      toBlob: vi.fn((callback: BlobCallback) => {
+        callback(new Blob([new Uint8Array([4, 5, 6])], { type: 'image/png' }));
+      }),
+    } as unknown as HTMLCanvasElement;
+    const originalCreateElement = document.createElement.bind(document);
+    vi.spyOn(document, 'createElement').mockImplementation((tagName: string) => {
+      if (tagName === 'canvas') return canvas;
+      return originalCreateElement(tagName);
+    });
+    const bitmap = { width: 3, height: 2 } as ImageBitmap;
+    const assets = {
+      saveBytes: vi.fn().mockResolvedValue({
+        markdown: '![resume.pdf, image 2](assets/resume-page-1-image-2.png)',
+      }),
+    };
+
+    const markdown = await pdfImageObjectToMarkdown({
+      image: {
+        width: 3,
+        height: 2,
+        kind: 2,
+        bitmap,
+      },
+      pageNumber: 1,
+      imageIndex: 2,
+      fileName: 'resume.pdf',
+      assets,
+    });
+
+    expect(canvas.width).toBe(3);
+    expect(canvas.height).toBe(2);
+    expect(drawImage).toHaveBeenCalledWith(bitmap, 0, 0);
+    expect(assets.saveBytes).toHaveBeenCalledWith({
+      bytes: new Uint8Array([4, 5, 6]),
+      filename: 'resume-page-1-image-2.png',
+      alt: 'resume.pdf, page 1, image 2',
+      kind: 'image',
+    });
+    expect(markdown).toBe('![resume.pdf, image 2](assets/resume-page-1-image-2.png)');
+  });
+
+  it('pdfPageImagesToMarkdown достаёт image XObjects из page.objs и вставляет markdown', async () => {
+    const canvas = {
+      width: 0,
+      height: 0,
+      getContext: vi.fn(() => ({
+        createImageData: (width: number, height: number) => ({
+          width,
+          height,
+          data: new Uint8ClampedArray(width * height * 4),
+        }),
+        putImageData: vi.fn(),
+      })),
+      toBlob: vi.fn((callback: BlobCallback) => {
+        callback(new Blob([new Uint8Array([7, 8, 9])], { type: 'image/png' }));
+      }),
+    } as unknown as HTMLCanvasElement;
+    const originalCreateElement = document.createElement.bind(document);
+    vi.spyOn(document, 'createElement').mockImplementation((tagName: string) => {
+      if (tagName === 'canvas') return canvas;
+      return originalCreateElement(tagName);
+    });
+    const image = {
+      width: 1,
+      height: 1,
+      kind: 2,
+      data: new Uint8Array([0, 0, 0]),
+    };
+    const page = {
+      getOperatorList: vi.fn().mockResolvedValue({
+        fnArray: [85],
+        argsArray: [['img_p0_1', 72, 72]],
+      }),
+      objs: {
+        get: vi.fn((_id: string, callback: (value: unknown) => void) => {
+          callback(image);
+          return undefined;
+        }),
+      },
+    };
+    const assets = {
+      saveBytes: vi.fn().mockResolvedValue({
+        markdown: '![resume.pdf, page 1, image 1](assets/resume-page-1-image-1.png)',
+      }),
+    };
+
+    await expect(pdfPageImagesToMarkdown({
+      page,
+      pageNumber: 1,
+      fileName: 'resume.pdf',
+      assets,
+      xObjectImageOps: new Set([85]),
+      inlineImageOps: new Set([86]),
+    })).resolves.toEqual([
+      '![resume.pdf, page 1, image 1](assets/resume-page-1-image-1.png)',
+    ]);
+
+    expect(page.objs.get).toHaveBeenCalledWith('img_p0_1', expect.any(Function));
+    expect(assets.saveBytes).toHaveBeenCalledTimes(1);
+  });
+
   it('configurePdfWorker задаёт workerSrc абсолютным URL относительно entry-модуля', () => {
     const pdfjs = { GlobalWorkerOptions: { workerSrc: '' } };
 
@@ -166,18 +276,18 @@ describe('markitdown import converters', () => {
   it('configurePdfWorker использует Mivra asset resolver для worker из пакета плагина', () => {
     const pdfjs = { GlobalWorkerOptions: { workerSrc: '' } };
     const resolvePluginAsset = vi.fn((pluginId: string, relativePath: string) => (
-      `https://asset.localhost/plugins/${pluginId}/${relativePath}?mivra_plugin=${pluginId}%401.0.5`
+      `https://asset.localhost/plugins/${pluginId}/${relativePath}?mivra_plugin=${pluginId}%401.0.6`
     ));
     window.__mivraResolvePluginAsset = resolvePluginAsset;
 
     configurePdfWorker(
       pdfjs,
       './assets/pdf.worker-test.mjs',
-      'http://asset.localhost/index.js?mivra_plugin=markitdown-import%401.0.5',
+      'http://asset.localhost/index.js?mivra_plugin=markitdown-import%401.0.6',
     );
 
     expect(resolvePluginAsset).toHaveBeenCalledWith('markitdown-import', 'assets/pdf.worker-test.mjs');
     expect(pdfjs.GlobalWorkerOptions.workerSrc)
-      .toBe('https://asset.localhost/plugins/markitdown-import/assets/pdf.worker-test.mjs?mivra_plugin=markitdown-import%401.0.5');
+      .toBe('https://asset.localhost/plugins/markitdown-import/assets/pdf.worker-test.mjs?mivra_plugin=markitdown-import%401.0.6');
   });
 });

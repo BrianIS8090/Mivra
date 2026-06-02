@@ -26,7 +26,8 @@ type PdfImageObject = {
   width: number;
   height: number;
   kind: number;
-  data: Uint8Array | Uint8ClampedArray;
+  data?: Uint8Array | Uint8ClampedArray;
+  bitmap?: ImageBitmap;
 };
 
 type PdfImageRef =
@@ -195,7 +196,7 @@ function isPdfImageObject(value: unknown): value is PdfImageObject {
     typeof image.width === 'number'
     && typeof image.height === 'number'
     && typeof image.kind === 'number'
-    && ArrayBuffer.isView(image.data)
+    && (ArrayBuffer.isView(image.data) || Boolean(image.bitmap))
   );
 }
 
@@ -295,6 +296,10 @@ function blobToArrayBuffer(blob: Blob): Promise<ArrayBuffer> {
 }
 
 function imageToRgba(image: PdfImageObject, context: CanvasRenderingContext2D): ImageData {
+  if (!image.data) {
+    throw new Error('pdf_image_data_missing');
+  }
+
   const pixelCount = image.width * image.height;
   const imageData = context.createImageData(image.width, image.height);
   const rgba = imageData.data;
@@ -342,7 +347,11 @@ export async function pdfImageObjectToMarkdown(input: {
     throw new Error('pdf_image_canvas_context_missing');
   }
 
-  context.putImageData(imageToRgba(input.image, context), 0, 0);
+  if (input.image.bitmap) {
+    context.drawImage(input.image.bitmap, 0, 0);
+  } else {
+    context.putImageData(imageToRgba(input.image, context), 0, 0);
+  }
   const blob = await canvasToBlob(canvas);
   const bytes = new Uint8Array(await blobToArrayBuffer(blob));
   const filename = `${safePdfBaseName(input.fileName)}-page-${input.pageNumber}-image-${input.imageIndex}.png`;
