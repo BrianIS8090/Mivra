@@ -46,6 +46,11 @@ type PdfObjectStore = {
 type PdfImagePage = {
   objs: PdfObjectStore;
   getOperatorList(): Promise<PdfOperatorList>;
+  getViewport?(input: { scale: number }): { width: number; height: number };
+  render?(input: {
+    canvasContext: CanvasRenderingContext2D;
+    viewport: { width: number; height: number };
+  }): { promise: Promise<unknown> };
 };
 
 type AssetApi = {
@@ -226,11 +231,19 @@ export function pdfImageRefsFromOperatorList(
   return refs;
 }
 
-function waitForPdfObject(store: PdfObjectStore, id: string): Promise<PdfImageObject | null> {
+function waitForPdfObject(store: PdfObjectStore, id: string, timeoutMs = 250): Promise<PdfImageObject | null> {
   return new Promise((resolve) => {
-    const finish = (value: unknown) => {
-      resolve(isPdfImageObject(value) ? value : null);
+    let done = false;
+    const resolveOnce = (value: PdfImageObject | null) => {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      resolve(value);
     };
+    const finish = (value: unknown) => {
+      resolveOnce(isPdfImageObject(value) ? value : null);
+    };
+    const timer = window.setTimeout(() => resolveOnce(null), timeoutMs);
 
     try {
       const value = store.get(id, finish);
@@ -238,9 +251,33 @@ function waitForPdfObject(store: PdfObjectStore, id: string): Promise<PdfImageOb
         finish(value);
       }
     } catch {
-      resolve(null);
+      resolveOnce(null);
     }
   });
+}
+
+async function warmPdfImageObjects(page: PdfImagePage): Promise<boolean> {
+  if (
+    typeof document === 'undefined'
+    || typeof page.getViewport !== 'function'
+    || typeof page.render !== 'function'
+  ) {
+    return false;
+  }
+
+  const viewport = page.getViewport({ scale: 1 });
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.max(1, Math.ceil(viewport.width));
+  canvas.height = Math.max(1, Math.ceil(viewport.height));
+
+  const context = canvas.getContext('2d');
+  if (!context) return false;
+
+  // PDF.js иногда наполняет page.objs только во время render; результат canvas не используется.
+  await page.render({ canvasContext: context, viewport }).promise;
+  canvas.width = 0;
+  canvas.height = 0;
+  return true;
 }
 
 export function configurePdfWorker(
@@ -375,9 +412,14 @@ export async function pdfPageImagesToMarkdown(input: {
   const operatorList = await input.page.getOperatorList();
   const refs = pdfImageRefsFromOperatorList(operatorList, input.xObjectImageOps, input.inlineImageOps);
   const markdown: string[] = [];
+  let warmed = false;
 
   for (const ref of refs) {
-    const image = 'id' in ref ? await waitForPdfObject(input.page.objs, ref.id) : ref.image;
+    let image = 'id' in ref ? await waitForPdfObject(input.page.objs, ref.id) : ref.image;
+    if (!image && 'id' in ref && !warmed) {
+      warmed = await warmPdfImageObjects(input.page);
+      image = warmed ? await waitForPdfObject(input.page.objs, ref.id, 1000) : null;
+    }
     if (!image) continue;
     markdown.push(await pdfImageObjectToMarkdown({
       image,
