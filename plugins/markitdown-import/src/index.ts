@@ -2,7 +2,13 @@ import { csvFileToMarkdown } from './converters/csv';
 import { docxFileToMarkdown } from './converters/docx';
 import { pdfFileToMarkdown } from './converters/pdf';
 import { textFileToMarkdown } from './converters/text';
-import { xlsxFileToMarkdown } from './converters/xlsx';
+import {
+  xlsxFileToMarkdown,
+  xlsxFileToWorkbook,
+  xlsxWorkbookToMarkdown,
+  type XlsxColumnOption,
+  type XlsxWorkbookData,
+} from './converters/xlsx';
 import './style.css';
 
 export type ApplyMode = 'append' | 'replace' | 'section' | 'copy';
@@ -47,6 +53,8 @@ type ImportState = {
   loading: boolean;
   error: string;
   mode: ApplyMode;
+  xlsxColumns: XlsxColumnOption[];
+  xlsxExcludedColumns: number[];
 };
 
 declare global {
@@ -125,6 +133,25 @@ export function buildAppliedMarkdown(
 }
 
 function renderDialog(container: HTMLElement, state: ImportState): void {
+  const xlsxColumns = state.xlsxColumns.length > 0 ? `
+          <fieldset class="markitdown-import__columns">
+            <legend>Столбцы Excel</legend>
+            <div class="markitdown-import__column-list">
+              ${state.xlsxColumns.map((column) => `
+                <label class="markitdown-import__column">
+                  <input
+                    type="checkbox"
+                    value="${column.index}"
+                    data-markitdown-import-xlsx-column
+                    ${state.xlsxExcludedColumns.includes(column.index) ? '' : 'checked'}
+                  >
+                  <span>${escapeHtml(column.label)}</span>
+                </label>
+              `).join('')}
+            </div>
+          </fieldset>
+  ` : '';
+
   container.innerHTML = `
     <div
       class="markitdown-import__overlay"
@@ -159,6 +186,7 @@ function renderDialog(container: HTMLElement, state: ImportState): void {
               <option value="copy"${state.mode === 'copy' ? ' selected' : ''}>Скопировать</option>
             </select>
           </label>
+          ${xlsxColumns}
           ${state.error ? `<p class="markitdown-import__error" data-markitdown-import-error>${escapeHtml(state.error)}</p>` : ''}
           <pre class="markitdown-import__preview" data-markitdown-import-preview>${escapeHtml(
             state.loading ? 'Конвертация...' : state.markdown,
@@ -179,9 +207,12 @@ function renderImportDialog(container: HTMLElement, api: PluginApi): () => void 
     loading: false,
     error: '',
     mode: 'append',
+    xlsxColumns: [],
+    xlsxExcludedColumns: [],
   };
 
   let disposed = false;
+  let xlsxWorkbook: XlsxWorkbookData | null = null;
 
   const wire = () => {
     const input = container.querySelector('[data-markitdown-import-file]') as HTMLInputElement | null;
@@ -189,18 +220,27 @@ function renderImportDialog(container: HTMLElement, api: PluginApi): () => void 
     const apply = container.querySelector('[data-markitdown-import-apply]') as HTMLButtonElement | null;
     const close = container.querySelector('[data-markitdown-import-close]') as HTMLButtonElement | null;
     const overlay = container.querySelector('[data-markitdown-import-overlay]') as HTMLDivElement | null;
+    const xlsxColumns = container.querySelectorAll('[data-markitdown-import-xlsx-column]');
 
     input?.addEventListener('change', onFileChange);
     mode?.addEventListener('change', onModeChange);
     apply?.addEventListener('click', onApply);
     close?.addEventListener('click', onClose);
     overlay?.addEventListener('click', onOverlayClick);
+    xlsxColumns.forEach((column) => column.addEventListener('change', onXlsxColumnChange));
   };
 
   const rerender = () => {
     if (disposed) return;
     renderDialog(container, state);
     wire();
+  };
+
+  const updateXlsxMarkdown = () => {
+    if (!xlsxWorkbook) return;
+    state.markdown = xlsxWorkbookToMarkdown(xlsxWorkbook, {
+      excludedColumns: new Set(state.xlsxExcludedColumns),
+    });
   };
 
   const onFileChange = async (event: Event) => {
@@ -216,14 +256,24 @@ function renderImportDialog(container: HTMLElement, api: PluginApi): () => void 
     state.loading = true;
     state.error = '';
     state.markdown = '';
+    state.xlsxColumns = [];
+    state.xlsxExcludedColumns = [];
+    xlsxWorkbook = null;
     rerender();
 
     try {
-      const markdown = await convertFileToMarkdown(file, api.assets);
+      const isXlsx = extensionOf(file.name) === 'xlsx';
+      if (isXlsx) {
+        xlsxWorkbook = await xlsxFileToWorkbook(file);
+        state.xlsxColumns = xlsxWorkbook.columns;
+        updateXlsxMarkdown();
+      } else {
+        state.markdown = await convertFileToMarkdown(file, api.assets);
+      }
+      const markdown = state.markdown;
       if (!markdown.trim()) {
         throw new Error('Конвертер вернул пустой Markdown');
       }
-      state.markdown = markdown;
     } catch (error) {
       state.error = errorMessageForImport(error);
     } finally {
@@ -234,6 +284,27 @@ function renderImportDialog(container: HTMLElement, api: PluginApi): () => void 
 
   const onModeChange = (event: Event) => {
     state.mode = (event.currentTarget as HTMLSelectElement).value as ApplyMode;
+  };
+
+  const onXlsxColumnChange = (event: Event) => {
+    const input = event.currentTarget as HTMLInputElement;
+    const columnIndex = Number(input.value);
+    const excluded = new Set(state.xlsxExcludedColumns);
+
+    if (input.checked) {
+      excluded.delete(columnIndex);
+    } else {
+      excluded.add(columnIndex);
+    }
+
+    state.xlsxExcludedColumns = [...excluded].sort((left, right) => left - right);
+    state.error = '';
+    try {
+      updateXlsxMarkdown();
+    } catch (error) {
+      state.error = errorMessageForImport(error);
+    }
+    rerender();
   };
 
   const onApply = async () => {

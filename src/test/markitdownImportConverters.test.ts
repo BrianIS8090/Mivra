@@ -12,7 +12,11 @@ import {
   removeRepeatedPdfChrome,
 } from '../../plugins/markitdown-import/src/converters/pdf';
 import { normalizeTextMarkdown } from '../../plugins/markitdown-import/src/converters/text';
-import { sheetRowsToMarkdown } from '../../plugins/markitdown-import/src/converters/xlsx';
+import {
+  sheetRowsToMarkdown,
+  xlsxColumnOptionsFromRows,
+  xlsxWorkbookToMarkdown,
+} from '../../plugins/markitdown-import/src/converters/xlsx';
 
 describe('markitdown import converters', () => {
   afterEach(() => {
@@ -58,6 +62,66 @@ describe('markitdown import converters', () => {
   it('sheetRowsToMarkdown формирует раздел листа с таблицей', () => {
     expect(sheetRowsToMarkdown('Лист1', [['A', 'B'], ['1', '2']]))
       .toBe('## Лист1\n\n| A | B |\n| --- | --- |\n| 1 | 2 |');
+  });
+
+  it('sheetRowsToMarkdown исключает выбранные столбцы Excel', () => {
+    expect(sheetRowsToMarkdown('Лист1', [
+      ['Name', 'Internal ID', 'Score'],
+      ['Alice', 'A-001', 10],
+      ['Bob', 'B-002', 20],
+    ], { excludedColumns: new Set([1]) })).toBe([
+      '## Лист1',
+      '',
+      '| Name | Score |',
+      '| --- | --- |',
+      '| Alice | 10 |',
+      '| Bob | 20 |',
+    ].join('\n'));
+  });
+
+  it('xlsxColumnOptionsFromRows строит подписи столбцов по первой строке', () => {
+    expect(xlsxColumnOptionsFromRows([
+      ['Name', '', 'Score'],
+      ['Alice', 'A-001', 10],
+    ])).toEqual([
+      { index: 0, label: 'A — Name' },
+      { index: 1, label: 'B — Столбец B' },
+      { index: 2, label: 'C — Score' },
+    ]);
+  });
+
+  it('xlsxWorkbookToMarkdown применяет исключённые столбцы ко всем листам', () => {
+    expect(xlsxWorkbookToMarkdown({
+      sheets: [
+        {
+          name: 'Лист1',
+          rows: [
+            ['Name', 'Internal ID', 'Score'],
+            ['Alice', 'A-001', 10],
+          ],
+        },
+        {
+          name: 'Лист2',
+          rows: [
+            ['Name', 'Internal ID', 'Score'],
+            ['Bob', 'B-002', 20],
+          ],
+        },
+      ],
+      columns: [],
+    }, { excludedColumns: new Set([1]) })).toBe([
+      '## Лист1',
+      '',
+      '| Name | Score |',
+      '| --- | --- |',
+      '| Alice | 10 |',
+      '',
+      '## Лист2',
+      '',
+      '| Name | Score |',
+      '| --- | --- |',
+      '| Bob | 20 |',
+    ].join('\n'));
   });
 
   it('pdfPagesToMarkdown склеивает страницы без служебных page markers', () => {
@@ -426,18 +490,18 @@ describe('markitdown import converters', () => {
   it('configurePdfWorker использует Mivra asset resolver для worker из пакета плагина', () => {
     const pdfjs = { GlobalWorkerOptions: { workerSrc: '' } };
     const resolvePluginAsset = vi.fn((pluginId: string, relativePath: string) => (
-      `https://asset.localhost/plugins/${pluginId}/${relativePath}?mivra_plugin=${pluginId}%401.0.11`
+      `https://asset.localhost/plugins/${pluginId}/${relativePath}?mivra_plugin=${pluginId}%401.0.12`
     ));
     window.__mivraResolvePluginAsset = resolvePluginAsset;
 
     configurePdfWorker(
       pdfjs,
       './assets/pdf.worker-test.mjs',
-      'http://asset.localhost/index.js?mivra_plugin=markitdown-import%401.0.11',
+      'http://asset.localhost/index.js?mivra_plugin=markitdown-import%401.0.12',
     );
 
     expect(resolvePluginAsset).toHaveBeenCalledWith('markitdown-import', 'assets/pdf.worker-test.mjs');
     expect(pdfjs.GlobalWorkerOptions.workerSrc)
-      .toBe('https://asset.localhost/plugins/markitdown-import/assets/pdf.worker-test.mjs?mivra_plugin=markitdown-import%401.0.11');
+      .toBe('https://asset.localhost/plugins/markitdown-import/assets/pdf.worker-test.mjs?mivra_plugin=markitdown-import%401.0.12');
   });
 });

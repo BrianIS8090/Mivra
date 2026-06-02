@@ -85,6 +85,7 @@ describe('markitdown import plugin', () => {
   afterEach(() => {
     vi.unstubAllGlobals();
     vi.doUnmock('../../plugins/markitdown-import/src/converters/docx');
+    vi.doUnmock('../../plugins/markitdown-import/src/converters/xlsx');
   });
 
   it('имеет валидный manifest для внешнего плагина Mivra API v1', () => {
@@ -93,7 +94,7 @@ describe('markitdown import plugin', () => {
     expect(manifest).toMatchObject({
       id: 'markitdown-import',
       name: 'Import to Markdown',
-      version: '1.0.11',
+      version: '1.0.12',
       entry: 'index.js',
       styles: 'style.css',
       permissions: ['document:read', 'document:write', 'dialog', 'assets:write'],
@@ -222,6 +223,75 @@ describe('markitdown import plugin', () => {
     apply.click();
 
     expect(api.document.setContent).toHaveBeenCalledWith('Imported\nText');
+  });
+
+  it('позволяет исключать столбцы Excel из предпросмотра', async () => {
+    vi.doMock('../../plugins/markitdown-import/src/converters/xlsx', () => ({
+      xlsxFileToMarkdown: vi.fn(async () => 'unused'),
+      xlsxFileToWorkbook: vi.fn(async () => ({
+        sheets: [{
+          name: 'Лист1',
+          rows: [
+            ['Name', 'Internal ID', 'Score'],
+            ['Alice', 'A-001', 10],
+          ],
+        }],
+        columns: [
+          { index: 0, label: 'A — Name' },
+          { index: 1, label: 'B — Internal ID' },
+          { index: 2, label: 'C — Score' },
+        ],
+      })),
+      xlsxWorkbookToMarkdown: vi.fn((_workbook, options?: { excludedColumns?: Set<number> }) => {
+        if (options?.excludedColumns?.has(1)) {
+          return [
+            '## Лист1',
+            '',
+            '| Name | Score |',
+            '| --- | --- |',
+            '| Alice | 10 |',
+          ].join('\n');
+        }
+        return [
+          '## Лист1',
+          '',
+          '| Name | Internal ID | Score |',
+          '| --- | --- | --- |',
+          '| Alice | A-001 | 10 |',
+        ].join('\n');
+      }),
+    }));
+
+    const plugin = await loadPlugin();
+    const api = createFakeApi();
+    plugin.activate(api);
+    const renderer = api.dialogs.registerRenderer.mock.calls[0][1];
+    const container = document.createElement('div');
+    renderer.render({ container, api });
+
+    const input = container.querySelector('[data-markitdown-import-file]') as HTMLInputElement;
+    Object.defineProperty(input, 'files', {
+      configurable: true,
+      value: [new File(['xlsx'], 'report.xlsx', { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })],
+    });
+    input.dispatchEvent(new Event('change'));
+    await flushPromises();
+
+    expect(container.querySelector('[data-markitdown-import-preview]')?.textContent)
+      .toContain('| Name | Internal ID | Score |');
+
+    const internalId = container.querySelector('[data-markitdown-import-xlsx-column][value="1"]') as HTMLInputElement;
+    expect(internalId).not.toBeNull();
+    expect(internalId.checked).toBe(true);
+
+    internalId.checked = false;
+    internalId.dispatchEvent(new Event('change'));
+    await flushPromises();
+
+    expect(container.querySelector('[data-markitdown-import-preview]')?.textContent)
+      .toContain('| Name | Score |');
+    expect(container.querySelector('[data-markitdown-import-preview]')?.textContent)
+      .not.toContain('Internal ID');
   });
 
   it('показывает понятную ошибку, если для изображений нет локальной папки assets', async () => {

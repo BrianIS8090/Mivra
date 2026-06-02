@@ -77,6 +77,43 @@
   font: inherit;
 }
 
+.markitdown-import__columns {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.markitdown-import__columns legend {
+  padding: 0 4px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.markitdown-import__column-list {
+  display: grid;
+  max-height: 120px;
+  overflow: auto;
+  gap: 6px 12px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.markitdown-import__column {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.markitdown-import__column span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .markitdown-import__preview {
   flex: 1;
   min-height: 240px;
