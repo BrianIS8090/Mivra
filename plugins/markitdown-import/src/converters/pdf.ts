@@ -1,3 +1,11 @@
+import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.mjs?url';
+
+type PdfJsWithWorkerOptions = {
+  GlobalWorkerOptions: {
+    workerSrc: string;
+  };
+};
+
 export function pdfPagesToMarkdown(pages: string[]): string {
   return pages
     .map((page, index) => `<!-- page ${index + 1} -->\n\n${page.trim()}`)
@@ -5,8 +13,17 @@ export function pdfPagesToMarkdown(pages: string[]): string {
     .join('\n\n');
 }
 
+export function configurePdfWorker(
+  pdfjs: PdfJsWithWorkerOptions,
+  workerUrl: string = pdfWorkerUrl,
+  moduleUrl: string = import.meta.url,
+): void {
+  pdfjs.GlobalWorkerOptions.workerSrc = new URL(workerUrl, moduleUrl).toString();
+}
+
 export async function pdfFileToMarkdown(file: File): Promise<string> {
   const pdfjs = await import('pdfjs-dist');
+  configurePdfWorker(pdfjs);
   const task = pdfjs.getDocument({ data: await file.arrayBuffer(), useWorkerFetch: false });
   const pdf = await task.promise;
   const pages: string[] = [];

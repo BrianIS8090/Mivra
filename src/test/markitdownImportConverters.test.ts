@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { csvTextToMarkdown } from '../../plugins/markitdown-import/src/converters/csv';
 import { docxImageToMarkdown } from '../../plugins/markitdown-import/src/converters/docx';
-import { pdfPagesToMarkdown } from '../../plugins/markitdown-import/src/converters/pdf';
+import { configurePdfWorker, pdfPagesToMarkdown } from '../../plugins/markitdown-import/src/converters/pdf';
 import { normalizeTextMarkdown } from '../../plugins/markitdown-import/src/converters/text';
 import { sheetRowsToMarkdown } from '../../plugins/markitdown-import/src/converters/xlsx';
 
@@ -50,5 +50,18 @@ describe('markitdown import converters', () => {
   it('pdfPagesToMarkdown добавляет page markers', () => {
     expect(pdfPagesToMarkdown(['First page', 'Second page']))
       .toBe('<!-- page 1 -->\n\nFirst page\n\n<!-- page 2 -->\n\nSecond page');
+  });
+
+  it('configurePdfWorker задаёт workerSrc абсолютным URL относительно entry-модуля', () => {
+    const pdfjs = { GlobalWorkerOptions: { workerSrc: '' } };
+
+    configurePdfWorker(
+      pdfjs,
+      './assets/pdf.worker-test.mjs',
+      'https://asset.localhost/plugins/markitdown-import/index.js?mivra_plugin=markitdown-import%401.0.1',
+    );
+
+    expect(pdfjs.GlobalWorkerOptions.workerSrc)
+      .toBe('https://asset.localhost/plugins/markitdown-import/assets/pdf.worker-test.mjs');
   });
 });
