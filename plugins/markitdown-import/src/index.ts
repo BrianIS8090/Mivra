@@ -92,7 +92,7 @@ async function convertFileToMarkdown(file: File, assets: AssetApi): Promise<stri
     return xlsxFileToMarkdown(file);
   }
   if (extension === 'pdf') {
-    return pdfFileToMarkdown(file);
+    return pdfFileToMarkdown(file, assets);
   }
 
   throw new Error(`Формат не поддерживается: .${extension || file.name}`);

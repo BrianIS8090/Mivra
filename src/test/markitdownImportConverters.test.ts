@@ -1,7 +1,12 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { csvTextToMarkdown } from '../../plugins/markitdown-import/src/converters/csv';
 import { docxImageToMarkdown } from '../../plugins/markitdown-import/src/converters/docx';
-import { configurePdfWorker, pdfPagesToMarkdown } from '../../plugins/markitdown-import/src/converters/pdf';
+import {
+  configurePdfWorker,
+  pdfPageSnapshotToMarkdown,
+  pdfPagesToMarkdown,
+  pdfTextItemsToMarkdown,
+} from '../../plugins/markitdown-import/src/converters/pdf';
 import { normalizeTextMarkdown } from '../../plugins/markitdown-import/src/converters/text';
 import { sheetRowsToMarkdown } from '../../plugins/markitdown-import/src/converters/xlsx';
 
@@ -54,6 +59,75 @@ describe('markitdown import converters', () => {
   it('pdfPagesToMarkdown добавляет page markers', () => {
     expect(pdfPagesToMarkdown(['First page', 'Second page']))
       .toBe('<!-- page 1 -->\n\nFirst page\n\n<!-- page 2 -->\n\nSecond page');
+  });
+
+  it('pdfTextItemsToMarkdown сохраняет строки, заголовки и списки PDF', () => {
+    const markdown = pdfTextItemsToMarkdown([
+      { str: 'Симбулатов', transform: [1, 0, 0, 25, 128, 763], width: 90, height: 25 },
+      { str: ' ', transform: [1, 0, 0, 0, 218, 763], width: 0, height: 0 },
+      { str: 'Артур', transform: [1, 0, 0, 25, 224, 763], width: 60, height: 25 },
+      { str: 'Сопроводительное', transform: [1, 0, 0, 11, 42, 579], width: 104, height: 11 },
+      { str: 'письмо', transform: [1, 0, 0, 11, 150, 579], width: 40, height: 11 },
+      { str: '-', transform: [1, 0, 0, 9, 42, 520], width: 3, height: 9 },
+      { str: 'Проектирование', transform: [1, 0, 0, 9, 52, 520], width: 90, height: 9 },
+      { str: ',', transform: [1, 0, 0, 9, 142, 520], width: 2, height: 9 },
+      { str: 'разработка', transform: [1, 0, 0, 9, 148, 520], width: 70, height: 9 },
+    ]);
+
+    expect(markdown).toBe([
+      '# Симбулатов Артур',
+      '',
+      '## Сопроводительное письмо',
+      '',
+      '- Проектирование, разработка',
+    ].join('\n'));
+  });
+
+  it('pdfPageSnapshotToMarkdown сохраняет страницу PDF как PNG через assets api', async () => {
+    const canvas = {
+      width: 0,
+      height: 0,
+      getContext: vi.fn(() => ({ drawImage: vi.fn() })),
+      toBlob: vi.fn((callback: BlobCallback) => {
+        callback(new Blob([new Uint8Array([1, 2, 3])], { type: 'image/png' }));
+      }),
+    } as unknown as HTMLCanvasElement;
+    const originalCreateElement = document.createElement.bind(document);
+    vi.spyOn(document, 'createElement').mockImplementation((tagName: string) => {
+      if (tagName === 'canvas') return canvas;
+      return originalCreateElement(tagName);
+    });
+    const page = {
+      getViewport: vi.fn(() => ({ width: 200.8, height: 399.6 })),
+      render: vi.fn(() => ({ promise: Promise.resolve() })),
+    };
+    const assets = {
+      saveBytes: vi.fn().mockResolvedValue({
+        markdown: '![PDF page](assets/resume-page-1.png)',
+      }),
+    };
+
+    const markdown = await pdfPageSnapshotToMarkdown({
+      page,
+      pageNumber: 1,
+      fileName: 'resume.pdf',
+      assets,
+    });
+
+    expect(page.getViewport).toHaveBeenCalledWith({ scale: 2 });
+    expect(canvas.width).toBe(201);
+    expect(canvas.height).toBe(400);
+    expect(page.render).toHaveBeenCalledWith({
+      canvasContext: expect.any(Object),
+      viewport: { width: 200.8, height: 399.6 },
+    });
+    expect(assets.saveBytes).toHaveBeenCalledWith({
+      bytes: new Uint8Array([1, 2, 3]),
+      filename: 'resume-page-1.png',
+      alt: 'resume.pdf, page 1',
+      kind: 'image',
+    });
+    expect(markdown).toBe('![PDF page](assets/resume-page-1.png)');
   });
 
   it('configurePdfWorker задаёт workerSrc абсолютным URL относительно entry-модуля', () => {
