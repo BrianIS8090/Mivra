@@ -8,6 +8,8 @@ import {
   pdfImageRefsFromOperatorList,
   pdfPagesToMarkdown,
   pdfTextItemsToMarkdown,
+  pdfTextLinesToMarkdown,
+  removeRepeatedPdfChrome,
 } from '../../plugins/markitdown-import/src/converters/pdf';
 import { normalizeTextMarkdown } from '../../plugins/markitdown-import/src/converters/text';
 import { sheetRowsToMarkdown } from '../../plugins/markitdown-import/src/converters/xlsx';
@@ -58,9 +60,9 @@ describe('markitdown import converters', () => {
       .toBe('## Лист1\n\n| A | B |\n| --- | --- |\n| 1 | 2 |');
   });
 
-  it('pdfPagesToMarkdown добавляет page markers', () => {
+  it('pdfPagesToMarkdown склеивает страницы без служебных page markers', () => {
     expect(pdfPagesToMarkdown(['First page', 'Second page']))
-      .toBe('<!-- page 1 -->\n\nFirst page\n\n<!-- page 2 -->\n\nSecond page');
+      .toBe('First page\n\nSecond page');
   });
 
   it('pdfTextItemsToMarkdown сохраняет строки, заголовки и списки PDF', () => {
@@ -83,6 +85,31 @@ describe('markitdown import converters', () => {
       '',
       '- Проектирование, разработка',
     ].join('\n'));
+  });
+
+  it('removeRepeatedPdfChrome убирает повторяющиеся колонтитулы и page counters', () => {
+    const pages = removeRepeatedPdfChrome([
+      {
+        height: 800,
+        lines: [
+          { text: 'Page 1 of 3', x: 300, y: 24, height: 9 },
+          { text: 'Основной текст первой страницы', x: 42, y: 520, height: 9 },
+          { text: 'Симбулатов Артур • Резюме обновлено 13 марта 2026 в 10:57', x: 42, y: 42, height: 8 },
+        ],
+      },
+      {
+        height: 800,
+        lines: [
+          { text: 'Основной текст второй страницы', x: 42, y: 520, height: 9 },
+          { text: 'Симбулатов Артур • Резюме обновлено 13 марта 2026 в 10:57', x: 42, y: 42, height: 8 },
+        ],
+      },
+    ]);
+
+    expect(pages.map((lines) => pdfTextLinesToMarkdown(lines))).toEqual([
+      'Основной текст первой страницы',
+      'Основной текст второй страницы',
+    ]);
   });
 
   it('pdfImageRefsFromOperatorList находит image XObject id без рендера всей страницы', () => {
@@ -119,7 +146,7 @@ describe('markitdown import converters', () => {
     });
     const assets = {
       saveBytes: vi.fn().mockResolvedValue({
-        markdown: '![resume.pdf, image 1](assets/resume-page-1-image-1.png)',
+        markdown: '![resume.pdf, изображение 1](assets/resume-page-1-image-1.png)',
       }),
     };
 
@@ -145,10 +172,10 @@ describe('markitdown import converters', () => {
     expect(assets.saveBytes).toHaveBeenCalledWith({
       bytes: new Uint8Array([1, 2, 3]),
       filename: 'resume-page-1-image-1.png',
-      alt: 'resume.pdf, page 1, image 1',
+      alt: 'resume.pdf, изображение 1',
       kind: 'image',
     });
-    expect(markdown).toBe('![resume.pdf, image 1](assets/resume-page-1-image-1.png)');
+    expect(markdown).toBe('![resume.pdf, изображение 1](assets/resume-page-1-image-1.png)');
   });
 
   it('pdfImageObjectToMarkdown сохраняет bitmap-картинку PDF без page snapshot', async () => {
@@ -171,7 +198,7 @@ describe('markitdown import converters', () => {
     const bitmap = { width: 3, height: 2 } as ImageBitmap;
     const assets = {
       saveBytes: vi.fn().mockResolvedValue({
-        markdown: '![resume.pdf, image 2](assets/resume-page-1-image-2.png)',
+        markdown: '![resume.pdf, изображение 2](assets/resume-page-1-image-2.png)',
       }),
     };
 
@@ -194,10 +221,10 @@ describe('markitdown import converters', () => {
     expect(assets.saveBytes).toHaveBeenCalledWith({
       bytes: new Uint8Array([4, 5, 6]),
       filename: 'resume-page-1-image-2.png',
-      alt: 'resume.pdf, page 1, image 2',
+      alt: 'resume.pdf, изображение 2',
       kind: 'image',
     });
-    expect(markdown).toBe('![resume.pdf, image 2](assets/resume-page-1-image-2.png)');
+    expect(markdown).toBe('![resume.pdf, изображение 2](assets/resume-page-1-image-2.png)');
   });
 
   it('pdfPageImagesToMarkdown достаёт image XObjects из page.objs и вставляет markdown', async () => {
@@ -241,7 +268,7 @@ describe('markitdown import converters', () => {
     };
     const assets = {
       saveBytes: vi.fn().mockResolvedValue({
-        markdown: '![resume.pdf, page 1, image 1](assets/resume-page-1-image-1.png)',
+        markdown: '![resume.pdf, изображение 1](assets/resume-page-1-image-1.png)',
       }),
     };
 
@@ -253,7 +280,7 @@ describe('markitdown import converters', () => {
       xObjectImageOps: new Set([85]),
       inlineImageOps: new Set([86]),
     })).resolves.toEqual([
-      '![resume.pdf, page 1, image 1](assets/resume-page-1-image-1.png)',
+      '![resume.pdf, изображение 1](assets/resume-page-1-image-1.png)',
     ]);
 
     expect(page.objs.get).toHaveBeenCalledWith('img_p0_1', expect.any(Function));
@@ -297,7 +324,7 @@ describe('markitdown import converters', () => {
     };
     const assets = {
       saveBytes: vi.fn().mockResolvedValue({
-        markdown: '![resume.pdf, page 1, image 1](assets/resume-page-1-image-1.png)',
+        markdown: '![resume.pdf, изображение 1](assets/resume-page-1-image-1.png)',
       }),
     };
 
@@ -309,7 +336,7 @@ describe('markitdown import converters', () => {
       xObjectImageOps: new Set([85]),
       inlineImageOps: new Set([86]),
     })).resolves.toEqual([
-      '![resume.pdf, page 1, image 1](assets/resume-page-1-image-1.png)',
+      '![resume.pdf, изображение 1](assets/resume-page-1-image-1.png)',
     ]);
 
     expect(drawImage).toHaveBeenCalledWith(bitmap, 0, 0);
@@ -364,7 +391,7 @@ describe('markitdown import converters', () => {
     };
     const assets = {
       saveBytes: vi.fn().mockResolvedValue({
-        markdown: '![resume.pdf, page 1, image 1](assets/resume-page-1-image-1.png)',
+        markdown: '![resume.pdf, изображение 1](assets/resume-page-1-image-1.png)',
       }),
     };
 
@@ -376,7 +403,7 @@ describe('markitdown import converters', () => {
       xObjectImageOps: new Set([85]),
       inlineImageOps: new Set([86]),
     })).resolves.toEqual([
-      '![resume.pdf, page 1, image 1](assets/resume-page-1-image-1.png)',
+      '![resume.pdf, изображение 1](assets/resume-page-1-image-1.png)',
     ]);
 
     expect(render).toHaveBeenCalledTimes(1);
@@ -399,18 +426,18 @@ describe('markitdown import converters', () => {
   it('configurePdfWorker использует Mivra asset resolver для worker из пакета плагина', () => {
     const pdfjs = { GlobalWorkerOptions: { workerSrc: '' } };
     const resolvePluginAsset = vi.fn((pluginId: string, relativePath: string) => (
-      `https://asset.localhost/plugins/${pluginId}/${relativePath}?mivra_plugin=${pluginId}%401.0.10`
+      `https://asset.localhost/plugins/${pluginId}/${relativePath}?mivra_plugin=${pluginId}%401.0.11`
     ));
     window.__mivraResolvePluginAsset = resolvePluginAsset;
 
     configurePdfWorker(
       pdfjs,
       './assets/pdf.worker-test.mjs',
-      'http://asset.localhost/index.js?mivra_plugin=markitdown-import%401.0.10',
+      'http://asset.localhost/index.js?mivra_plugin=markitdown-import%401.0.11',
     );
 
     expect(resolvePluginAsset).toHaveBeenCalledWith('markitdown-import', 'assets/pdf.worker-test.mjs');
     expect(pdfjs.GlobalWorkerOptions.workerSrc)
-      .toBe('https://asset.localhost/plugins/markitdown-import/assets/pdf.worker-test.mjs?mivra_plugin=markitdown-import%401.0.10');
+      .toBe('https://asset.localhost/plugins/markitdown-import/assets/pdf.worker-test.mjs?mivra_plugin=markitdown-import%401.0.11');
   });
 });

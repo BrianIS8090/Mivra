@@ -1,16 +1,16 @@
 # Graph Report - Mivra  (2026-06-02)
 
 ## Corpus Check
-- 199 files · ~585,890 words
+- 199 files · ~586,172 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 8408 nodes · 15946 edges · 640 communities (308 shown, 332 thin omitted)
+- 8414 nodes · 15964 edges · 695 communities (317 shown, 378 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 140 edges (avg confidence: 0.81)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `4349bdd1`
+- Built from commit: `6278324e`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -234,7 +234,6 @@
 - [[_COMMUNITY_Community 218|Community 218]]
 - [[_COMMUNITY_Community 219|Community 219]]
 - [[_COMMUNITY_Community 220|Community 220]]
-- [[_COMMUNITY_Community 221|Community 221]]
 - [[_COMMUNITY_Community 222|Community 222]]
 - [[_COMMUNITY_Community 223|Community 223]]
 - [[_COMMUNITY_Community 224|Community 224]]
@@ -539,18 +538,25 @@
 - [[_COMMUNITY_Community 523|Community 523]]
 - [[_COMMUNITY_Community 524|Community 524]]
 - [[_COMMUNITY_Community 525|Community 525]]
+- [[_COMMUNITY_Community 526|Community 526]]
+- [[_COMMUNITY_Community 527|Community 527]]
 - [[_COMMUNITY_Community 528|Community 528]]
 - [[_COMMUNITY_Community 529|Community 529]]
 - [[_COMMUNITY_Community 530|Community 530]]
 - [[_COMMUNITY_Community 531|Community 531]]
+- [[_COMMUNITY_Community 532|Community 532]]
 - [[_COMMUNITY_Community 533|Community 533]]
 - [[_COMMUNITY_Community 534|Community 534]]
 - [[_COMMUNITY_Community 535|Community 535]]
 - [[_COMMUNITY_Community 536|Community 536]]
 - [[_COMMUNITY_Community 537|Community 537]]
+- [[_COMMUNITY_Community 538|Community 538]]
 - [[_COMMUNITY_Community 539|Community 539]]
+- [[_COMMUNITY_Community 540|Community 540]]
+- [[_COMMUNITY_Community 542|Community 542]]
 - [[_COMMUNITY_Community 543|Community 543]]
 - [[_COMMUNITY_Community 544|Community 544]]
+- [[_COMMUNITY_Community 545|Community 545]]
 - [[_COMMUNITY_Community 546|Community 546]]
 - [[_COMMUNITY_Community 547|Community 547]]
 - [[_COMMUNITY_Community 548|Community 548]]
@@ -561,49 +567,76 @@
 - [[_COMMUNITY_Community 553|Community 553]]
 - [[_COMMUNITY_Community 554|Community 554]]
 - [[_COMMUNITY_Community 555|Community 555]]
+- [[_COMMUNITY_Community 556|Community 556]]
 - [[_COMMUNITY_Community 557|Community 557]]
+- [[_COMMUNITY_Community 558|Community 558]]
 - [[_COMMUNITY_Community 559|Community 559]]
 - [[_COMMUNITY_Community 560|Community 560]]
 - [[_COMMUNITY_Community 561|Community 561]]
 - [[_COMMUNITY_Community 562|Community 562]]
 - [[_COMMUNITY_Community 563|Community 563]]
+- [[_COMMUNITY_Community 564|Community 564]]
 - [[_COMMUNITY_Community 565|Community 565]]
 - [[_COMMUNITY_Community 566|Community 566]]
 - [[_COMMUNITY_Community 567|Community 567]]
+- [[_COMMUNITY_Community 568|Community 568]]
 - [[_COMMUNITY_Community 569|Community 569]]
 - [[_COMMUNITY_Community 570|Community 570]]
 - [[_COMMUNITY_Community 571|Community 571]]
+- [[_COMMUNITY_Community 572|Community 572]]
+- [[_COMMUNITY_Community 573|Community 573]]
+- [[_COMMUNITY_Community 574|Community 574]]
 - [[_COMMUNITY_Community 575|Community 575]]
 - [[_COMMUNITY_Community 576|Community 576]]
 - [[_COMMUNITY_Community 577|Community 577]]
 - [[_COMMUNITY_Community 578|Community 578]]
+- [[_COMMUNITY_Community 579|Community 579]]
 - [[_COMMUNITY_Community 580|Community 580]]
+- [[_COMMUNITY_Community 581|Community 581]]
 - [[_COMMUNITY_Community 582|Community 582]]
 - [[_COMMUNITY_Community 583|Community 583]]
 - [[_COMMUNITY_Community 584|Community 584]]
 - [[_COMMUNITY_Community 585|Community 585]]
+- [[_COMMUNITY_Community 586|Community 586]]
+- [[_COMMUNITY_Community 587|Community 587]]
 - [[_COMMUNITY_Community 588|Community 588]]
+- [[_COMMUNITY_Community 589|Community 589]]
+- [[_COMMUNITY_Community 590|Community 590]]
 - [[_COMMUNITY_Community 591|Community 591]]
 - [[_COMMUNITY_Community 592|Community 592]]
+- [[_COMMUNITY_Community 593|Community 593]]
 - [[_COMMUNITY_Community 594|Community 594]]
+- [[_COMMUNITY_Community 595|Community 595]]
+- [[_COMMUNITY_Community 596|Community 596]]
 - [[_COMMUNITY_Community 597|Community 597]]
 - [[_COMMUNITY_Community 598|Community 598]]
 - [[_COMMUNITY_Community 599|Community 599]]
 - [[_COMMUNITY_Community 600|Community 600]]
+- [[_COMMUNITY_Community 601|Community 601]]
 - [[_COMMUNITY_Community 602|Community 602]]
+- [[_COMMUNITY_Community 603|Community 603]]
 - [[_COMMUNITY_Community 604|Community 604]]
+- [[_COMMUNITY_Community 605|Community 605]]
 - [[_COMMUNITY_Community 606|Community 606]]
 - [[_COMMUNITY_Community 607|Community 607]]
 - [[_COMMUNITY_Community 608|Community 608]]
+- [[_COMMUNITY_Community 609|Community 609]]
+- [[_COMMUNITY_Community 610|Community 610]]
 - [[_COMMUNITY_Community 611|Community 611]]
 - [[_COMMUNITY_Community 612|Community 612]]
+- [[_COMMUNITY_Community 613|Community 613]]
 - [[_COMMUNITY_Community 614|Community 614]]
 - [[_COMMUNITY_Community 615|Community 615]]
 - [[_COMMUNITY_Community 616|Community 616]]
 - [[_COMMUNITY_Community 617|Community 617]]
+- [[_COMMUNITY_Community 618|Community 618]]
 - [[_COMMUNITY_Community 619|Community 619]]
 - [[_COMMUNITY_Community 620|Community 620]]
+- [[_COMMUNITY_Community 621|Community 621]]
+- [[_COMMUNITY_Community 622|Community 622]]
+- [[_COMMUNITY_Community 623|Community 623]]
 - [[_COMMUNITY_Community 624|Community 624]]
+- [[_COMMUNITY_Community 625|Community 625]]
 - [[_COMMUNITY_Community 626|Community 626]]
 - [[_COMMUNITY_Community 627|Community 627]]
 - [[_COMMUNITY_Community 628|Community 628]]
@@ -618,37 +651,57 @@
 - [[_COMMUNITY_Community 637|Community 637]]
 - [[_COMMUNITY_Community 638|Community 638]]
 - [[_COMMUNITY_Community 639|Community 639]]
+- [[_COMMUNITY_Community 640|Community 640]]
 - [[_COMMUNITY_Community 641|Community 641]]
 - [[_COMMUNITY_Community 642|Community 642]]
+- [[_COMMUNITY_Community 643|Community 643]]
 - [[_COMMUNITY_Community 644|Community 644]]
 - [[_COMMUNITY_Community 645|Community 645]]
 - [[_COMMUNITY_Community 646|Community 646]]
+- [[_COMMUNITY_Community 647|Community 647]]
+- [[_COMMUNITY_Community 648|Community 648]]
+- [[_COMMUNITY_Community 649|Community 649]]
 - [[_COMMUNITY_Community 650|Community 650]]
+- [[_COMMUNITY_Community 651|Community 651]]
 - [[_COMMUNITY_Community 653|Community 653]]
 - [[_COMMUNITY_Community 654|Community 654]]
 - [[_COMMUNITY_Community 657|Community 657]]
 - [[_COMMUNITY_Community 658|Community 658]]
 - [[_COMMUNITY_Community 659|Community 659]]
+- [[_COMMUNITY_Community 661|Community 661]]
 - [[_COMMUNITY_Community 662|Community 662]]
 - [[_COMMUNITY_Community 663|Community 663]]
+- [[_COMMUNITY_Community 664|Community 664]]
 - [[_COMMUNITY_Community 665|Community 665]]
 - [[_COMMUNITY_Community 666|Community 666]]
 - [[_COMMUNITY_Community 667|Community 667]]
+- [[_COMMUNITY_Community 668|Community 668]]
 - [[_COMMUNITY_Community 669|Community 669]]
 - [[_COMMUNITY_Community 670|Community 670]]
+- [[_COMMUNITY_Community 671|Community 671]]
 - [[_COMMUNITY_Community 672|Community 672]]
+- [[_COMMUNITY_Community 673|Community 673]]
 - [[_COMMUNITY_Community 674|Community 674]]
 - [[_COMMUNITY_Community 675|Community 675]]
 - [[_COMMUNITY_Community 676|Community 676]]
+- [[_COMMUNITY_Community 677|Community 677]]
 - [[_COMMUNITY_Community 678|Community 678]]
 - [[_COMMUNITY_Community 679|Community 679]]
 - [[_COMMUNITY_Community 680|Community 680]]
 - [[_COMMUNITY_Community 681|Community 681]]
+- [[_COMMUNITY_Community 682|Community 682]]
 - [[_COMMUNITY_Community 683|Community 683]]
+- [[_COMMUNITY_Community 684|Community 684]]
 - [[_COMMUNITY_Community 685|Community 685]]
 - [[_COMMUNITY_Community 686|Community 686]]
 - [[_COMMUNITY_Community 687|Community 687]]
 - [[_COMMUNITY_Community 688|Community 688]]
+- [[_COMMUNITY_Community 689|Community 689]]
+- [[_COMMUNITY_Community 690|Community 690]]
+- [[_COMMUNITY_Community 691|Community 691]]
+- [[_COMMUNITY_Community 692|Community 692]]
+- [[_COMMUNITY_Community 693|Community 693]]
+- [[_COMMUNITY_Community 694|Community 694]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `Ne` - 167 edges
@@ -674,7 +727,7 @@
 - `OpenRouter Summary Plugin` --references--> `MivraExternalPlugin Global`  [INFERRED]
   plugins/openrouter-summary/plugin.json → src/plugins/externalPluginTypes.ts
 
-## Communities (640 total, 332 thin omitted)
+## Communities (695 total, 378 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.08
@@ -701,8 +754,8 @@ Cohesion: 0.12
 Nodes (17): Vercel React Best Practices, Vercel React Agents, Advanced Event Handler Refs, Advanced Init Once, Advanced Use Latest, Async API Routes, Async Defer Await, Async Dependencies (+9 more)
 
 ### Community 6 - "Community 6"
-Cohesion: 0.00
-Nodes (372): AbortException, $acceptWhitespace, Acrobat, ADBE_JSDebugger, AddSilentPrint, AddViewerPreferences, AdjustData, Amd (+364 more)
+Cohesion: 0.01
+Nodes (342): $acceptWhitespace, Acrobat, AnnotationActionEventType, AnnotationBorderStyleType, AnnotationEditorParamsType, AnnotationEditorType, AnnotationFieldFlag, AnnotationFlag (+334 more)
 
 ### Community 7 - "Community 7"
 Cohesion: 0.16
@@ -740,10 +793,6 @@ Nodes (4): createHeadingBackspaceTransaction, sourceMarkdown Utilities, headingB
 Cohesion: 0.67
 Nodes (4): Tauri Skill, Tauri Advanced Patterns, Tauri Security Examples, Tauri Threat Model
 
-### Community 16 - "Community 16"
-Cohesion: 0.02
-Nodes (3): iC(), Ne, VE
-
 ### Community 17 - "Community 17"
 Cohesion: 1.00
 Nodes (3): mermaid (npm package), renderMermaidPreview, Mermaid Test Suite
@@ -761,84 +810,84 @@ Cohesion: 0.67
 Nodes (3): renderPreviewHtml, modernPreset (PDF Export Preset), exportPdfRender Test Suite
 
 ### Community 93 - "Community 93"
-Cohesion: 0.05
-Nodes (17): $addHTML, getPdfColorArray(), getQuadPoints(), getRgbColor(), getTilingPatternIR(), getTransformMatrix(), isNumberArray(), lookupMatrix() (+9 more)
+Cohesion: 0.04
+Nodes (14): $addHTML, Annotation, AnnotationBorderStyle, getPdfColorArray(), getQuadPoints(), getRgbColor(), HighlightAnnotation, MarkupAnnotation (+6 more)
 
 ### Community 94 - "Community 94"
 Cohesion: 0.02
-Nodes (88): AC(), Bd(), bE(), bo(), cd(), constructor(), create(), _d() (+80 more)
+Nodes (86): AC(), Bd(), bE(), bo(), cd(), constructor(), create(), _d() (+78 more)
 
 ### Community 97 - "Community 97"
-Cohesion: 0.05
-Nodes (12): Dict, FreeTextAnnotation, getModificationDate(), getTrailerDict(), HighlightAnnotation, PopupAnnotation, stringToAsciiOrUTF16BE(), stringToUTF16String() (+4 more)
+Cohesion: 0.06
+Nodes (5): deepCompare(), Dict, getModificationDate(), PDFEditor, stringToAsciiOrUTF16BE()
 
 ### Community 99 - "Community 99"
 Cohesion: 0.04
-Nodes (30): applyAssist(), Area, Caption, checkDimensions(), computeBbox(), ContentArea, Corner, createWrapper() (+22 more)
+Nodes (44): applyAssist(), Arc, ariaLabel(), Caption, CheckButton, checkDimensions(), ChoiceList, computeBbox() (+36 more)
 
 ### Community 100 - "Community 100"
 Cohesion: 0.05
-Nodes (19): AppearanceStreamEvaluator, Catalog, collectActions(), _collectJS(), deepCompare(), FeatureTest, fetchDest(), fetchRemoteDest() (+11 more)
+Nodes (15): AppearanceStreamEvaluator, Catalog, ColorSpaceUtils, createValidAbsoluteUrl(), FeatureTest, fetchDest(), fetchRemoteDest(), FileSpec (+7 more)
 
 ### Community 101 - "Community 101"
-Cohesion: 0.05
-Nodes (7): _0(), BM, Kw, q0(), ri(), sM, Xe
+Cohesion: 0.03
+Nodes (10): _0(), AD, cC, cl, hu, kE(), Kw, sM (+2 more)
 
 ### Community 102 - "Community 102"
-Cohesion: 0.06
-Nodes (3): Gi, ig, Rd
+Cohesion: 0.04
+Nodes (6): ca, HE, ig, q0(), Rd, Th()
 
 ### Community 103 - "Community 103"
-Cohesion: 0.05
-Nodes (9): addChildren(), adjustMapping(), assert(), ChunkedStream, ChunkedStreamManager, getParentToUpdate(), GlobalImageCache, RefSet (+1 more)
+Cohesion: 0.09
+Nodes (3): ChunkedStream, ChunkedStreamManager, NetworkPdfManager
+
+### Community 104 - "Community 104"
+Cohesion: 0.06
+Nodes (10): ButtonWidgetAnnotation, collectActions(), _collectJS(), getInheritableProperty(), getParentToUpdate(), isName(), StructTreePage, StructTreeRoot (+2 more)
 
 ### Community 105 - "Community 105"
-Cohesion: 0.03
-Nodes (13): Ed(), eg, H0(), hn(), Id(), jC, kB, l() (+5 more)
+Cohesion: 0.04
+Nodes (7): Id(), l(), oM(), tf, Vs, WE(), wl
 
 ### Community 106 - "Community 106"
 Cohesion: 0.05
 Nodes (66): add_to_recent(), atomic_write(), atomic_write_replaces_existing_file(), bundled_plugin_source(), canonical_upload_file_path(), copy_plugin_dir_copies_plain_files(), copy_plugin_dir_safely(), default_enabled_plugins() (+58 more)
 
-### Community 107 - "Community 107"
-Cohesion: 0.04
-Nodes (5): GB, rM, TE(), tM(), Ws()
-
 ### Community 108 - "Community 108"
-Cohesion: 0.06
-Nodes (15): ButtonWidgetAnnotation, ChoiceWidgetAnnotation, createDefaultAppearance(), ErrorFont, escapeString(), FakeUnicodeFont, getInheritableProperty(), getPdfColor() (+7 more)
+Cohesion: 0.05
+Nodes (33): ChoiceWidgetAnnotation, compilePatternInfo(), computeIDs(), createDefaultAppearance(), encodeToXmlString(), ErrorFont, escapePDFName(), escapeString() (+25 more)
 
 ### Community 109 - "Community 109"
-Cohesion: 0.22
-Nodes (3): $C(), destroy(), QC()
+Cohesion: 0.10
+Nodes (15): generateFont(), getEncoding(), getFontSubstitution(), getSerifFonts, getStandardFontName(), getStdFontMap, getSymbolsFonts, getXfaFontDict() (+7 more)
 
 ### Community 110 - "Community 110"
 Cohesion: 0.04
-Nodes (14): AnnotationFactory, clearGlobalCaches(), clearPatternCaches(), clearPrimitiveCaches(), clearUnicodeCaches(), getNewAnnotationsMap(), isArrayEqual(), NetworkPdfManager (+6 more)
-
-### Community 111 - "Community 111"
-Cohesion: 0.04
-Nodes (4): hu, LM, Qn, tf
+Nodes (13): AnnotationFactory, clearGlobalCaches(), clearPatternCaches(), clearPrimitiveCaches(), clearUnicodeCaches(), getNewAnnotationsMap(), isDict(), ObjectLoader (+5 more)
 
 ### Community 112 - "Community 112"
-Cohesion: 0.03
-Nodes (46): adjustTrueTypeToUnicode(), adjustType1ToUnicode(), adjustWidths(), amendFallbackToUnicode(), applyStandardFontGlyphMap(), buildToFontChar(), compileCharString(), compileCssFontInfo() (+38 more)
+Cohesion: 0.10
+Nodes (16): adjustWidths(), CompilerOutput, createCmapTable(), createNameTable(), createOS2Table(), createPostscriptName(), createPostTable(), getRanges() (+8 more)
 
 ### Community 113 - "Community 113"
-Cohesion: 0.04
-Nodes (4): So(), vM, Vs, Wh
+Cohesion: 0.05
+Nodes (3): tg, vM, Wh
+
+### Community 114 - "Community 114"
+Cohesion: 0.07
+Nodes (10): Ag(), Bu(), fM, nM(), OE(), p0, ru, UE() (+2 more)
 
 ### Community 115 - "Community 115"
 Cohesion: 0.04
-Nodes (24): addCachedImageOps(), compilePatternInfo(), generateFont(), getEncoding(), getFontSubstitution(), getSerifFonts, getStandardFontName(), getStdFontMap (+16 more)
+Nodes (14): addCachedImageOps(), getTilingPatternIR(), getTransformMatrix(), isNumberArray(), isPDFFunction(), lookupMatrix(), lookupNormalRect(), lookupRect() (+6 more)
 
 ### Community 116 - "Community 116"
-Cohesion: 0.02
-Nodes (10): al, BQ, ca, ef, es, GE, Ni, sf (+2 more)
+Cohesion: 0.03
+Nodes (7): BQ, es, nf, Ni, sf, uu, vn
 
 ### Community 118 - "Community 118"
-Cohesion: 0.11
-Nodes (15): buildAppliedMarkdown(), api, apply, cleanup, closeButton, container, dialog, FakePluginApi (+7 more)
+Cohesion: 0.12
+Nodes (14): buildAppliedMarkdown(), api, apply, cleanup, closeButton, container, dialog, FakePluginApi (+6 more)
 
 ### Community 119 - "Community 119"
 Cohesion: 0.10
@@ -853,8 +902,8 @@ Cohesion: 0.08
 Nodes (46): build_bucket(), build_key(), build_key_normalizes_trailing_slash_in_prefix(), build_key_with_path_prefix(), build_key_without_path_prefix(), classify_error_status(), delete_secret(), delete_secret_raw() (+38 more)
 
 ### Community 124 - "Community 124"
-Cohesion: 0.09
-Nodes (12): _binaryValueType(), CFFFont, encodeASCIIString(), _evalBinaryConst(), _nodesEqual(), PsJsCompiler, PSStackToTree, PsWasmCompiler (+4 more)
+Cohesion: 0.08
+Nodes (14): _binaryValueType(), CFFFont, encodeASCIIString(), _evalBinaryConst(), _evalUnaryConst(), _nodesEqual(), PsJsCompiler, PSStackBasedInterpreter (+6 more)
 
 ### Community 125 - "Community 125"
 Cohesion: 0.09
@@ -866,23 +915,19 @@ Nodes (8): gc(), nC, ol(), sl(), tC(), wn(), xw(), yC
 
 ### Community 127 - "Community 127"
 Cohesion: 0.05
-Nodes (7): Au(), cQ, gM, ki(), Me, ou, zB
+Nodes (7): Au(), BM, gM, ki(), Me, ou, zB
 
 ### Community 128 - "Community 128"
 Cohesion: 0.04
 Nodes (45): dependencies, dejavu-fonts-ttf, mammoth, mermaid, @milkdown/core, @milkdown/crepe, @milkdown/ctx, @milkdown/react (+37 more)
 
-### Community 129 - "Community 129"
-Cohesion: 0.11
-Nodes (5): CFFFDSelect, Commands, compileGlyf(), EvaluatorPreprocessor, StateManager
-
 ### Community 131 - "Community 131"
 Cohesion: 0.05
 Nodes (4): BC(), fC(), i, T0
 
-### Community 132 - "Community 132"
-Cohesion: 0.08
-Nodes (3): $B, IE(), x0()
+### Community 133 - "Community 133"
+Cohesion: 0.07
+Nodes (3): al, cQ, GE
 
 ### Community 134 - "Community 134"
 Cohesion: 0.09
@@ -890,15 +935,15 @@ Nodes (43): blockToPdfContent(), blockWeight(), buildExportPdfFileName(), buildH
 
 ### Community 135 - "Community 135"
 Cohesion: 0.03
-Nodes (8): AD, Ba, cC, cl, kE(), nu(), rr, wC
+Nodes (3): Ba, rr, ts
 
 ### Community 136 - "Community 136"
-Cohesion: 0.28
-Nodes (3): getInlineImageCacheKey(), isWhiteSpace(), Parser
+Cohesion: 0.09
+Nodes (4): eg, hn(), kB, XB
 
 ### Community 137 - "Community 137"
-Cohesion: 0.06
-Nodes (10): Ascii85Stream, AsciiHexStream, BrotliDecode, BrotliStream, DecodeStream, DecryptStream, JpxStream, PredictorStream (+2 more)
+Cohesion: 0.05
+Nodes (9): AsciiHexStream, BrotliDecode, BrotliStream, CCITTFaxStream, DecodeStream, DecryptStream, JpxStream, PredictorStream (+1 more)
 
 ### Community 138 - "Community 138"
 Cohesion: 0.05
@@ -909,8 +954,8 @@ Cohesion: 0.05
 Nodes (40): commands, description, identifier, commands, description, identifier, commands, description (+32 more)
 
 ### Community 141 - "Community 141"
-Cohesion: 0.17
-Nodes (6): an(), cM(), _h(), Nh(), OB, Ph()
+Cohesion: 0.14
+Nodes (5): an(), iM, Nh(), OB, Ph()
 
 ### Community 142 - "Community 142"
 Cohesion: 0.05
@@ -925,8 +970,8 @@ Cohesion: 0.05
 Nodes (38): 5.10 Use Lazy State Initialization, 5.11 Use Transitions for Non-Urgent Updates, 5.12 Use useRef for Transient Values, 5.1 Calculate Derived State During Rendering, 5.2 Defer State Reads to Usage Point, 5.3 Do not wrap a simple expression with a primitive result type in useMemo, 5.4 Extract Default Non-primitive Parameter Value from Memoized Component to Constant, 5.5 Extract to Memoized Components (+30 more)
 
 ### Community 145 - "Community 145"
-Cohesion: 0.07
-Nodes (28): 7.11 Use Set/Map for O(1) Lookups, 7.12 Use toSorted() Instead of sort() for Immutability, 7.2 Build Index Maps for Repeated Lookups, 7.3 Cache Property Access in Loops, 7.5 Cache Storage API Calls, 7.6 Combine Multiple Array Iterations, 7.7 Early Length Check for Array Comparisons, 7.8 Early Return from Functions (+20 more)
+Cohesion: 0.05
+Nodes (38): 7.11 Use Set/Map for O(1) Lookups, 7.12 Use toSorted() Instead of sort() for Immutability, 7.1 Avoid Layout Thrashing, 7.2 Build Index Maps for Repeated Lookups, 7.3 Cache Property Access in Loops, 7.4 Cache Repeated Function Calls, 7.5 Cache Storage API Calls, 7.6 Combine Multiple Array Iterations (+30 more)
 
 ### Community 146 - "Community 146"
 Cohesion: 0.05
@@ -945,8 +990,8 @@ Cohesion: 0.11
 Nodes (32): commands, FileData, PluginInfo, S3Config, Settings, AppState, EditorMode, ensureBundledPlugins() (+24 more)
 
 ### Community 150 - "Community 150"
-Cohesion: 0.11
-Nodes (17): CMapFactory, createBuiltInCMap(), expectInt(), expectString(), extendCMap(), isCmd(), Linearization, parseBfChar() (+9 more)
+Cohesion: 0.10
+Nodes (4): isCmd(), Lexer, toHexDigit(), XRef
 
 ### Community 151 - "Community 151"
 Cohesion: 0.06
@@ -954,27 +999,23 @@ Nodes (33): A01: Broken Access Control, A02: Cryptographic Failures, A03: Inject
 
 ### Community 152 - "Community 152"
 Cohesion: 0.07
-Nodes (5): bn, dC(), _setupFakeWorkerGlobal(), uC(), Ze()
+Nodes (7): bn, dC(), s, _setupFakeWorkerGlobal(), uC(), VE, Ze()
 
 ### Community 153 - "Community 153"
 Cohesion: 0.06
 Nodes (31): Assets to Protect, Attack Scenario 1: IPC Command Injection via XSS, Attack Scenario 2: Filesystem Scope Escape via Path Traversal, Attack Scenario 3: Update Mechanism Compromise, Attack Scenario 4: iFrame Origin Bypass (CVE-2024-35222), Attack Scenario 5: Shell Command Injection, Attack Surface, Automated Testing (+23 more)
 
 ### Community 154 - "Community 154"
-Cohesion: 0.14
-Nodes (5): b0, c0(), oa(), RB(), Uh()
+Cohesion: 0.11
+Nodes (5): AM(), b0, c0(), oa(), Uh()
 
 ### Community 155 - "Community 155"
 Cohesion: 0.06
 Nodes (31): app, security, windows, enable, scope, build, beforeBuildCommand, beforeDevCommand (+23 more)
 
 ### Community 156 - "Community 156"
-Cohesion: 0.04
-Nodes (20): B, checkStyle(), find(), fixTextIndent(), FontFinder, FontInfo, fonts_getMetrics(), FontSelector (+12 more)
-
-### Community 157 - "Community 157"
-Cohesion: 0.08
-Nodes (8): ARCFourCipher, calculateMD5(), CFFCompiler, CFFOffsetTracker, CFFStrings, CipherTransformFactory, StringStream, stringToBytes()
+Cohesion: 0.05
+Nodes (18): B, Br, checkStyle(), find(), FontInfo, fonts_getMetrics(), FontSelector, getCurrentPara() (+10 more)
 
 ### Community 158 - "Community 158"
 Cohesion: 0.07
@@ -989,20 +1030,20 @@ Cohesion: 0.07
 Nodes (28): 6.1 Animate SVG Wrapper Instead of SVG Element, 6.2 CSS content-visibility for Long Lists, 6.3 Hoist Static JSX Elements, 6.4 Optimize SVG Precision, 6.5 Prevent Hydration Mismatch Without Flickering, 6.6 Suppress Expected Hydration Mismatches, 6.7 Use Activity Component for Show/Hide, 6.8 Use Explicit Conditional Rendering (+20 more)
 
 ### Community 162 - "Community 162"
-Cohesion: 0.14
-Nodes (3): FlateStream, LZWStream, MeshStreamReader
+Cohesion: 0.15
+Nodes (5): Ascii85Stream, FlateStream, getInlineImageCacheKey(), isWhiteSpace(), Parser
 
 ### Community 163 - "Community 163"
-Cohesion: 0.12
-Nodes (5): BooleanElement, DateElement, Decimal, Integer, valueToHtml()
+Cohesion: 0.06
+Nodes (9): BooleanElement, DateElement, DateTime, Decimal, Float, Integer, $text, Time (+1 more)
 
 ### Community 164 - "Community 164"
 Cohesion: 0.07
 Nodes (27): Backend (Rust), code:block1 (src/), code:bash (# Frontend зависимости), code:bash (npm run dev          # Запуск в режиме разработки (Vite + Ta), code:bash (npm run tauri dev    # Запуск Tauri в режиме разработки), code:bash (cd src-tauri), code:bash (npx tsc --noEmit     # Проверка TypeScript), code:bash (# Все тесты) (+19 more)
 
 ### Community 165 - "Community 165"
-Cohesion: 0.10
-Nodes (30): AssetApi, blobToArrayBuffer(), canvasToBlob(), configurePdfWorker(), imageToRgba(), lineText(), markdownForLine(), normalizePdfText() (+22 more)
+Cohesion: 0.11
+Nodes (29): AssetApi, configurePdfWorker(), isLikelyPageChrome(), isPageCounterLine(), lineText(), markdownForLine(), normalizeChromeText(), normalizePdfText() (+21 more)
 
 ### Community 167 - "Community 167"
 Cohesion: 0.08
@@ -1025,20 +1066,16 @@ Cohesion: 0.08
 Nodes (4): CalGrayCS, CalRGBCS, DeviceCmykCS, LabCS
 
 ### Community 173 - "Community 173"
-Cohesion: 0.10
-Nodes (5): CFFDict, CFFParser, CFFPrivateDict, ColorSpaceUtils, parseIndex()
-
-### Community 174 - "Community 174"
-Cohesion: 0.08
-Nodes (3): Annotation, AnnotationBorderStyle, MarkupAnnotation
+Cohesion: 0.11
+Nodes (5): CFFDict, CFFParser, CFFPrivateDict, CFFTopDict, parseIndex()
 
 ### Community 175 - "Community 175"
 Cohesion: 0.12
 Nodes (17): commands, description, identifier, commands, description, identifier, allow, commands (+9 more)
 
 ### Community 176 - "Community 176"
-Cohesion: 0.05
-Nodes (23): CFF, compileType3Glyph(), computeIDs(), computeMD5(), encodeToXmlString(), EquateRange, escapePDFName(), getIndexes() (+15 more)
+Cohesion: 0.07
+Nodes (9): addChildren(), computeMD5(), GlobalColorSpaceCache, MurmurHash3_64, objectSize(), Ref, RefSet, RefSetCache (+1 more)
 
 ### Community 177 - "Community 177"
 Cohesion: 0.08
@@ -1060,21 +1097,17 @@ Nodes (20): compilerOptions, allowImportingTsExtensions, isolatedModules, jsx, l
 Cohesion: 0.10
 Nodes (19): code:text (my-plugin/), code:js (window.MivraExternalPlugin.register({), code:tsx (import React from 'react';), code:css (.my-plugin {), code:ts (import react from '@vitejs/plugin-react';), code:js (import { copyFile, mkdir } from 'node:fs/promises';), code:json ({), code:ts (type PluginPermission =) (+11 more)
 
-### Community 184 - "Community 184"
-Cohesion: 0.07
-Nodes (3): _E, nM(), ru
-
 ### Community 185 - "Community 185"
 Cohesion: 0.15
 Nodes (15): applyDialogPosition(), applyDialogSize(), centerDialog(), clampPosition(), clampSize(), escapeHtml(), fileNameFromPath(), findVisualHeading() (+7 more)
 
 ### Community 186 - "Community 186"
-Cohesion: 0.16
-Nodes (7): decrypt(), decryptAscii(), isHexDigit(), isSpecial(), Lexer, toHexDigit(), Type1Parser
+Cohesion: 0.29
+Nodes (5): decrypt(), decryptAscii(), isHexDigit(), isSpecial(), Type1Parser
 
 ### Community 188 - "Community 188"
-Cohesion: 0.11
-Nodes (7): addHex(), BinaryCMapReader, BinaryCMapStream, hexToInt(), hexToStr(), IdentityCMap, incHex()
+Cohesion: 0.08
+Nodes (21): addHex(), BinaryCMapReader, BinaryCMapStream, CMapFactory, createBuiltInCMap(), expectInt(), expectString(), extendCMap() (+13 more)
 
 ### Community 189 - "Community 189"
 Cohesion: 0.11
@@ -1085,8 +1118,8 @@ Cohesion: 0.11
 Nodes (19): 1.1 Defer Await Until Needed, 1.2 Dependency-Based Parallelization, 1.3 Prevent Waterfall Chains in API Routes, 1.4 Promise.all() for Independent Operations, 1.5 Strategic Suspense Boundaries, 1. Eliminating Waterfalls, code:typescript (async function handleRequest(userId: string, skipProcessing:), code:typescript (const [user, posts, comments] = await Promise.all([) (+11 more)
 
 ### Community 191 - "Community 191"
-Cohesion: 0.05
-Nodes (23): Binder, CmykICCBasedCS, createDataNode(), createText(), decodeString(), fetchBinaryData(), fetchSync(), initSync() (+15 more)
+Cohesion: 0.03
+Nodes (27): adjustMapping(), CFF, CmykICCBasedCS, Commands, compileGlyf(), compileType3Glyph(), createDataNode(), decodeString() (+19 more)
 
 ### Community 192 - "Community 192"
 Cohesion: 0.11
@@ -1101,8 +1134,8 @@ Cohesion: 0.16
 Nodes (14): PDF_EMBEDDED_FONTS, PDF_FONT_OPTIONS, PdfFontAssets, PdfMakeFontFiles, blobToBytes(), bytesToBase64(), createPdfBytes(), fontAssetToBase64() (+6 more)
 
 ### Community 196 - "Community 196"
-Cohesion: 0.14
-Nodes (13): Arc, calculateSHA512(), ch(), Edge, hasMargin(), Line, littleSigma(), littleSigmaPrime() (+5 more)
+Cohesion: 0.23
+Nodes (9): calculateSHA512(), ch(), Edge, littleSigma(), littleSigmaPrime(), maj(), sigma(), sigmaPrime() (+1 more)
 
 ### Community 197 - "Community 197"
 Cohesion: 0.12
@@ -1113,16 +1146,20 @@ Cohesion: 0.19
 Nodes (16): core, core:app, default_permission, global_scope_schema, permission_sets, default_permission, default_permission, global_scope_schema (+8 more)
 
 ### Community 199 - "Community 199"
-Cohesion: 0.04
-Nodes (31): cu(), dM, eM(), gu(), iu(), k0, lu(), pM (+23 more)
+Cohesion: 0.05
+Nodes (15): cu(), dM, eM(), gu(), iu(), k0, lu(), pM (+7 more)
 
 ### Community 200 - "Community 200"
 Cohesion: 0.12
 Nodes (15): 1. Eliminating Waterfalls (CRITICAL), 2. Bundle Size Optimization (CRITICAL), 3. Server-Side Performance (HIGH), 4. Client-Side Data Fetching (MEDIUM-HIGH), 5. Re-render Optimization (MEDIUM), 6. Rendering Performance (MEDIUM), 7. JavaScript Performance (LOW-MEDIUM), 8. Advanced Patterns (LOW) (+7 more)
 
 ### Community 201 - "Community 201"
-Cohesion: 0.15
+Cohesion: 0.16
 Nodes (12): bytesToString(), findBlock(), getEexecBlock(), getFontFileType(), getHeaderBlock(), getUuid(), isCFFFile(), isOpenTypeFile() (+4 more)
+
+### Community 202 - "Community 202"
+Cohesion: 0.12
+Nodes (3): DatasetXMLParser, XFAParser, XMLParserBase
 
 ### Community 203 - "Community 203"
 Cohesion: 0.14
@@ -1153,48 +1190,48 @@ Cohesion: 0.50
 Nodes (4): commands, description, identifier, allow-fetch-data-store-identifiers
 
 ### Community 210 - "Community 210"
-Cohesion: 0.12
-Nodes (13): buildComponentData(), buildHuffmanTable(), decodeScan(), findNextFileMarker(), FontRendererFactory, getBlockBufferOffset(), parseCff(), parseGlyfTable() (+5 more)
+Cohesion: 0.15
+Nodes (10): buildHuffmanTable(), decodeScan(), findNextFileMarker(), FontRendererFactory, parseCff(), parseGlyfTable(), prepareComponents(), readDataBlock() (+2 more)
 
 ### Community 211 - "Community 211"
 Cohesion: 0.16
 Nodes (3): ColorConverters, makeColorComp(), scaleAndClamp()
 
-### Community 213 - "Community 213"
-Cohesion: 0.05
-Nodes (13): ariaLabel(), Br, CheckButton, ChoiceList, DateTimeEdit, Html, ImageEdit, isRequired() (+5 more)
-
 ### Community 214 - "Community 214"
-Cohesion: 0.06
-Nodes (20): Ag(), AQ(), bh(), Bu(), fM, kC(), LB(), LC() (+12 more)
+Cohesion: 0.10
+Nodes (12): AQ(), bh(), kC(), LB(), LC(), MM(), N0(), O0 (+4 more)
 
 ### Community 215 - "Community 215"
 Cohesion: 0.13
 Nodes (14): code:bash (npm run version:bump -- 0.7.0), code:bash (cargo check --manifest-path src-tauri/Cargo.toml), code:bash (git add package.json src-tauri/tauri.conf.json src-tauri/Car), code:bash (git tag v0.7.0), code:block5 (https://github.com/BrianIS8090/Mivra/releases), code:block6 (https://github.com/BrianIS8090/Mivra/actions), code:bash (npm run tauri build), Где скачать (+6 more)
 
 ### Community 216 - "Community 216"
-Cohesion: 0.13
-Nodes (15): definitions, Identifier, Number, PermissionEntry, Target, Value, oneOf, anyOf (+7 more)
+Cohesion: 0.15
+Nodes (13): definitions, Number, PermissionEntry, Target, Value, anyOf, description, anyOf (+5 more)
 
 ### Community 217 - "Community 217"
 Cohesion: 0.13
 Nodes (13): api, dialog, firstPreview, fontSelect, mockedCreatePdfBytes, options, pdfPreviewMocks, renderCanvases (+5 more)
 
+### Community 218 - "Community 218"
+Cohesion: 0.18
+Nodes (5): LZWStream, meshPackData(), MeshShading, MeshStreamReader, meshUpdateBounds()
+
 ### Community 219 - "Community 219"
-Cohesion: 0.12
-Nodes (5): AlternateCS, grayToRGBA(), IndexedCS, JpegImage, resizeRgbImage()
+Cohesion: 0.11
+Nodes (6): AlternateCS, grayToRGBA(), IccColorSpace, IndexedCS, JpegImage, resizeRgbImage()
 
 ### Community 220 - "Community 220"
-Cohesion: 0.08
-Nodes (15): AESBaseCipher, calculate_sha256_ch(), calculate_sha256_littleSigma(), calculate_sha256_littleSigmaPrime(), calculate_sha256_maj(), calculate_sha256_sigma(), calculate_sha256_sigmaPrime(), calculateSHA256() (+7 more)
-
-### Community 221 - "Community 221"
-Cohesion: 0.33
-Nodes (6): 7.1 Avoid Layout Thrashing, code:typescript (function updateElementStyles(element: HTMLElement) {), code:tsx (// Incorrect: interleaving style changes with layout queries), code:typescript (function updateElementStyles(element: HTMLElement) {), code:typescript (function layoutThrashing(element: HTMLElement) {), code:typescript (function updateElementStyles(element: HTMLElement) {)
+Cohesion: 0.31
+Nodes (4): calculateSHA384(), isArrayEqual(), PDF20, PDFBase
 
 ### Community 223 - "Community 223"
 Cohesion: 0.12
-Nodes (15): sheetRowsToMarkdown(), trimRows(), assets, bitmap, canvas, drawImage, image, markdown (+7 more)
+Nodes (16): sheetRowsToMarkdown(), trimRows(), assets, bitmap, canvas, drawImage, image, markdown (+8 more)
+
+### Community 224 - "Community 224"
+Cohesion: 0.11
+Nodes (17): adjustTrueTypeToUnicode(), adjustType1ToUnicode(), amendFallbackToUnicode(), applyStandardFontGlyphMap(), buildToFontChar(), compileCharString(), getDingbatsGlyphsUnicode, getFontBasicMetrics (+9 more)
 
 ### Community 225 - "Community 225"
 Cohesion: 0.27
@@ -1209,8 +1246,8 @@ Cohesion: 0.11
 Nodes (6): BasePDFStream, MessageHandler, PDFWorkerStreamRangeReader, PDFWorkerStreamReader, WorkerMessageHandler, wrapReason()
 
 ### Community 228 - "Community 228"
-Cohesion: 0.36
-Nodes (7): AssetApi, docxImageToMarkdown(), extFromContentType(), htmlToMarkdown(), markdownFromNode(), normalizeMarkdown(), tableToMarkdown()
+Cohesion: 0.33
+Nodes (8): AssetApi, docxFileToMarkdown(), docxImageToMarkdown(), extFromContentType(), htmlToMarkdown(), markdownFromNode(), normalizeMarkdown(), tableToMarkdown()
 
 ### Community 231 - "Community 231"
 Cohesion: 0.15
@@ -1221,8 +1258,8 @@ Cohesion: 0.13
 Nodes (15): definitions, Identifier, Number, PermissionEntry, Target, Value, oneOf, anyOf (+7 more)
 
 ### Community 233 - "Community 233"
-Cohesion: 0.15
-Nodes (13): properties, Identifier, default, description, type, description, oneOf, type (+5 more)
+Cohesion: 0.20
+Nodes (10): description, properties, required, type, Capability, type, identifier, remote (+2 more)
 
 ### Community 234 - "Community 234"
 Cohesion: 0.15
@@ -1237,20 +1274,20 @@ Cohesion: 0.17
 Nodes (11): A Modern Markdown Editor for Windows, Features, For Developers, Installation, Keyboard Shortcuts, License, Mivra — WYSIWYG Markdown Editor for Windows 11, Supported Markdown features (+3 more)
 
 ### Community 239 - "Community 239"
-Cohesion: 0.18
-Nodes (10): copy_result(), copy_rgb(), decodeText(), getStringFromWasm0(), getUint8ArrayMemory0(), make_cssRGB(), passArray8ToWasm0(), qcms_convert_array() (+2 more)
+Cohesion: 0.15
+Nodes (12): copy_result(), copy_rgb(), decodeText(), getStringFromWasm0(), getUint8ArrayMemory0(), initSync(), make_cssRGB(), passArray8ToWasm0() (+4 more)
 
 ### Community 240 - "Community 240"
 Cohesion: 0.18
 Nodes (3): DatasetReader, isWhitespaceString(), SimpleXMLParser
 
 ### Community 241 - "Community 241"
-Cohesion: 0.17
-Nodes (12): docxFileToMarkdown(), xlsxFileToMarkdown(), ApplyMode, AssetApi, convertFileToMarkdown(), escapeHtml(), extensionOf(), ImportState (+4 more)
+Cohesion: 0.14
+Nodes (17): csvFileToMarkdown(), csvTextToMarkdown(), normalizeTextMarkdown(), readFileText(), textFileToMarkdown(), xlsxFileToMarkdown(), ApplyMode, AssetApi (+9 more)
 
 ### Community 244 - "Community 244"
-Cohesion: 0.18
-Nodes (11): description, properties, required, type, Capability, description, type, identifier (+3 more)
+Cohesion: 0.22
+Nodes (9): properties, Identifier, description, oneOf, type, identifier, remote, anyOf (+1 more)
 
 ### Community 245 - "Community 245"
 Cohesion: 0.18
@@ -1275,6 +1312,10 @@ Nodes (3): Color, getColor(), Stipple
 ### Community 251 - "Community 251"
 Cohesion: 0.50
 Nodes (4): commands, description, identifier, allow-is-checked
+
+### Community 252 - "Community 252"
+Cohesion: 0.11
+Nodes (3): IdentityToUnicodeMap, ToUnicodeMap, callback
 
 ### Community 253 - "Community 253"
 Cohesion: 0.20
@@ -1337,8 +1378,8 @@ Cohesion: 0.20
 Nodes (9): apiVersion, author, description, entry, id, name, permissions, styles (+1 more)
 
 ### Community 268 - "Community 268"
-Cohesion: 0.42
-Nodes (5): csvFileToMarkdown(), csvTextToMarkdown(), normalizeTextMarkdown(), readFileText(), textFileToMarkdown()
+Cohesion: 0.11
+Nodes (16): api, body, cleanup, config, container, dispose, documentName, FakePluginApi (+8 more)
 
 ### Community 269 - "Community 269"
 Cohesion: 0.20
@@ -1351,6 +1392,14 @@ Nodes (8): Best Practices, code:typescript (// Type assertion tests), Common Pit
 ### Community 271 - "Community 271"
 Cohesion: 0.22
 Nodes (8): Avoid Layout Thrashing, code:typescript (function updateElementStyles(element: HTMLElement) {), code:typescript (function layoutThrashing(element: HTMLElement) {), code:typescript (function updateElementStyles(element: HTMLElement) {), code:typescript (function avoidThrashing(element: HTMLElement) {), code:css (.highlighted-box {), code:typescript (function updateElementStyles(element: HTMLElement) {), code:tsx (// Incorrect: interleaving style changes with layout queries)
+
+### Community 272 - "Community 272"
+Cohesion: 0.12
+Nodes (6): $C(), destroy(), jC, jE(), QC(), WB
+
+### Community 273 - "Community 273"
+Cohesion: 0.12
+Nodes (3): iC(), nu(), wC
 
 ### Community 274 - "Community 274"
 Cohesion: 0.50
@@ -1380,6 +1429,10 @@ Nodes (9): 4. Implementation Workflow (TDD), code:rust (#[cfg(test)]), code:type
 Cohesion: 0.50
 Nodes (4): commands, description, identifier, allow-popup
 
+### Community 281 - "Community 281"
+Cohesion: 0.19
+Nodes (8): assert(), compileCssFontInfo(), compileFontInfo(), compileSystemFontInfo(), convertCidString(), Font, getVerticalPresentationForm, toRomanNumerals()
+
 ### Community 285 - "Community 285"
 Cohesion: 0.25
 Nodes (7): Mivra: система плагинов и релиз 0.6.7, PR и релизы, Важные замечания, Контекст, Проверенные релизные ассеты, Проверки, Что сделано
@@ -1401,12 +1454,12 @@ Cohesion: 0.25
 Nodes (8): description, properties, required, type, CapabilityRemote, urls, description, type
 
 ### Community 290 - "Community 290"
-Cohesion: 0.12
-Nodes (9): A, Button, createValidAbsoluteUrl(), fixURL(), _isValidProtocol(), parseDocBaseUrl(), PDFFunctionFactory, recoverJsURL() (+1 more)
+Cohesion: 0.29
+Nodes (4): A, Button, fixURL(), recoverJsURL()
 
 ### Community 293 - "Community 293"
-Cohesion: 0.08
-Nodes (6): convertBlackAndWhiteToRGBA(), convertRGBToRGBA(), convertToRGBA(), ImageResizer, JpegStream, PDFImage
+Cohesion: 0.11
+Nodes (6): convertBlackAndWhiteToRGBA(), convertRGBToRGBA(), convertToRGBA(), ImageResizer, PDFImage, RunLengthStream
 
 ### Community 294 - "Community 294"
 Cohesion: 0.50
@@ -1464,6 +1517,10 @@ Nodes (4): commands, description, identifier, deny-fetch-data-store-identifiers
 Cohesion: 0.33
 Nodes (3): copyRgbaImage(), DeviceRgbaCS, resizeRgbaImage()
 
+### Community 315 - "Community 315"
+Cohesion: 0.16
+Nodes (3): CompositeGlyph, GlyfTable, Glyph
+
 ### Community 318 - "Community 318"
 Cohesion: 0.50
 Nodes (4): commands, description, identifier, deny-set-app-theme
@@ -1477,8 +1534,8 @@ Cohesion: 0.33
 Nodes (5): name, private, scripts, build, type
 
 ### Community 322 - "Community 322"
-Cohesion: 0.50
-Nodes (4): description, required, type, Capability
+Cohesion: 0.20
+Nodes (4): CipherTransform, NullCipher, StringStream, stringToBytes()
 
 ### Community 323 - "Community 323"
 Cohesion: 0.40
@@ -1536,10 +1593,6 @@ Nodes (4): Authenticate Server Actions Like API Routes, code:typescript ('use se
 Cohesion: 0.40
 Nodes (4): code:tsx (export default async function Page() {), code:tsx (async function Header() {), code:tsx (async function Header() {), Parallel Data Fetching with Component Composition
 
-### Community 338 - "Community 338"
-Cohesion: 0.50
-Nodes (4): 7.4 Cache Repeated Function Calls, code:typescript (function ProjectList({ projects }: { projects: Project[] }) ), code:typescript (// Module-level cache), code:typescript (let isLoggedInCache: boolean | null = null)
-
 ### Community 340 - "Community 340"
 Cohesion: 0.40
 Nodes (5): code:text (plugins/export-pdf/), code:text (src-tauri/bundled-plugins/export-pdf/), code:text (%APPDATA%/com.brian.mivra/plugins/<plugin-id>/), code:text (C:/Users/<User>/AppData/Roaming/com.brian.mivra/plugins/expo), Где живут плагины
@@ -1587,6 +1640,10 @@ Nodes (5): 2. Conditional Types, code:typescript (type IsString<T> = T extends s
 ### Community 351 - "Community 351"
 Cohesion: 0.40
 Nodes (5): 3. Mapped Types, code:typescript (type Getters<T> = {), code:typescript (type PickByType<T, U> = {), code:typescript (type Readonly<T> = {), code:typescript (type Partial<T> = {)
+
+### Community 352 - "Community 352"
+Cohesion: 0.27
+Nodes (9): calculate_sha256_ch(), calculate_sha256_littleSigma(), calculate_sha256_littleSigmaPrime(), calculate_sha256_maj(), calculate_sha256_sigma(), calculate_sha256_sigmaPrime(), calculateSHA256(), PDF17 (+1 more)
 
 ### Community 353 - "Community 353"
 Cohesion: 0.50
@@ -1720,6 +1777,10 @@ Nodes (3): code:tsx (import { logUserAction } from '@/app/utils'), code:tsx (imp
 Cohesion: 0.50
 Nodes (3): code:tsx (async function Page() {), code:tsx (async function Page() {), Minimize Serialization at RSC Boundaries
 
+### Community 387 - "Community 387"
+Cohesion: 0.36
+Nodes (3): calculateMD5(), CipherTransformFactory, utf8StringToString()
+
 ### Community 393 - "Community 393"
 Cohesion: 0.50
 Nodes (4): commands, description, identifier, deny-app-hide
@@ -1748,10 +1809,6 @@ Nodes (4): commands, description, identifier, allow-identifier
 Cohesion: 0.50
 Nodes (4): commands, description, identifier, allow-bundle-type
 
-### Community 406 - "Community 406"
-Cohesion: 0.50
-Nodes (4): commands, description, identifier, allow-is-enabled
-
 ### Community 408 - "Community 408"
 Cohesion: 0.50
 Nodes (4): commands, description, identifier, allow-set-dock-visibility
@@ -1775,6 +1832,10 @@ Nodes (4): commands, description, identifier, allow-items
 ### Community 418 - "Community 418"
 Cohesion: 0.50
 Nodes (4): commands, description, identifier, deny-bundle-type
+
+### Community 420 - "Community 420"
+Cohesion: 0.29
+Nodes (3): _h(), ri(), x0()
 
 ### Community 421 - "Community 421"
 Cohesion: 0.50
@@ -1880,26 +1941,46 @@ Nodes (4): commands, description, identifier, deny-version
 Cohesion: 0.50
 Nodes (4): 7.9 Hoist RegExp Creation, code:tsx (function Highlighter({ text, query }: Props) {), code:tsx (const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/), code:typescript (const regex = /foo/g)
 
+### Community 506 - "Community 506"
+Cohesion: 0.47
+Nodes (6): blobToArrayBuffer(), canvasToBlob(), imageToRgba(), pdfImageObjectToMarkdown(), pdfPageSnapshotToMarkdown(), safePdfBaseName()
+
+### Community 535 - "Community 535"
+Cohesion: 0.50
+Nodes (4): commands, description, identifier, allow-insert
+
+### Community 538 - "Community 538"
+Cohesion: 0.50
+Nodes (4): description, required, type, Capability
+
+### Community 540 - "Community 540"
+Cohesion: 0.50
+Nodes (4): default, description, type, description
+
+### Community 542 - "Community 542"
+Cohesion: 0.67
+Nodes (3): Identifier, description, oneOf
+
 ### Community 688 - "Community 688"
 Cohesion: 0.50
 Nodes (4): description, required, type, Capability
 
 ## Knowledge Gaps
-- **1782 isolated node(s):** `name`, `private`, `version`, `type`, `dev` (+1777 more)
+- **1783 isolated node(s):** `name`, `private`, `version`, `type`, `dev` (+1778 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **332 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **378 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Ed()` connect `Community 105` to `Community 225`, `Community 193`, `Community 101`, `Community 199`, `Community 135`, `Community 109`, `Community 16`, `Community 116`, `Community 94`?**
-  _High betweenness centrality (0.106) - this node is a cross-community bridge._
-- **Why does `callback` connect `Community 252` to `Community 296`, `Community 120`, `Community 103`?**
-  _High betweenness centrality (0.052) - this node is a cross-community bridge._
-- **Why does `warn()` connect `Community 191` to `Community 129`, `Community 6`, `Community 136`, `Community 150`, `Community 157`, `Community 290`, `Community 291`, `Community 293`, `Community 173`, `Community 174`, `Community 176`, `Community 186`, `Community 187`, `Community 315`, `Community 201`, `Community 465`, `Community 210`, `Community 213`, `Community 93`, `Community 97`, `Community 99`, `Community 100`, `Community 103`, `Community 108`, `Community 110`, `Community 112`, `Community 115`, `Community 124`?**
-  _High betweenness centrality (0.048) - this node is a cross-community bridge._
+- **Why does `Ed()` connect `Community 94` to `Community 96`, `Community 225`, `Community 193`, `Community 101`, `Community 102`, `Community 199`, `Community 136`, `Community 105`, `Community 135`, `Community 272`, `Community 16`, `Community 273`, `Community 152`?**
+  _High betweenness centrality (0.101) - this node is a cross-community bridge._
+- **Why does `warn()` connect `Community 191` to `Community 387`, `Community 6`, `Community 526`, `Community 150`, `Community 281`, `Community 157`, `Community 162`, `Community 291`, `Community 163`, `Community 296`, `Community 173`, `Community 187`, `Community 188`, `Community 201`, `Community 465`, `Community 210`, `Community 338`, `Community 93`, `Community 99`, `Community 100`, `Community 104`, `Community 108`, `Community 109`, `Community 110`, `Community 239`, `Community 112`, `Community 115`, `Community 124`?**
+  _High betweenness centrality (0.059) - this node is a cross-community bridge._
+- **Why does `callback` connect `Community 252` to `Community 120`, `Community 97`?**
+  _High betweenness centrality (0.049) - this node is a cross-community bridge._
 - **What connects `name`, `private`, `version` to the rest of the system?**
-  _1782 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _1783 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 0` be split into smaller, more focused modules?**
   _Cohesion score 0.08377896613190731 - nodes in this community are weakly interconnected._
 - **Should `Community 1` be split into smaller, more focused modules?**

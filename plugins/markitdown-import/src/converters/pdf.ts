@@ -85,7 +85,7 @@ function workerAssetPath(workerUrl: string): string | null {
 
 export function pdfPagesToMarkdown(pages: string[]): string {
   return pages
-    .map((page, index) => `<!-- page ${index + 1} -->\n\n${page.trim()}`)
+    .map((page) => page.trim())
     .filter((page) => page.trim().length > 0)
     .join('\n\n');
 }
@@ -155,6 +155,45 @@ function pdfTextItemsToLines(items: PdfTextItem[]): PdfTextLine[] {
   })).filter((line) => line.text.length > 0);
 }
 
+function normalizeChromeText(text: string): string {
+  return normalizePdfText(text)
+    .replace(/\d+/g, '#')
+    .toLowerCase();
+}
+
+function isPageCounterLine(text: string): boolean {
+  return /^(page|страница)\s*\d*(\s*(of|из|\/)\s*\d+)?$/i.test(normalizePdfText(text));
+}
+
+function isLikelyPageChrome(line: PdfTextLine, pageHeight: number): boolean {
+  const boundary = Math.max(72, pageHeight * 0.12);
+  return isPageCounterLine(line.text) || line.y <= boundary || line.y >= pageHeight - boundary;
+}
+
+export function removeRepeatedPdfChrome(pages: { lines: PdfTextLine[]; height: number }[]): PdfTextLine[][] {
+  const pageCounts = new Map<string, number>();
+
+  for (const page of pages) {
+    const seenOnPage = new Set<string>();
+    for (const line of page.lines) {
+      if (!isLikelyPageChrome(line, page.height)) continue;
+      const normalized = normalizeChromeText(line.text);
+      if (normalized.length < 8 && !isPageCounterLine(line.text)) continue;
+      seenOnPage.add(normalized);
+    }
+    for (const normalized of seenOnPage) {
+      pageCounts.set(normalized, (pageCounts.get(normalized) ?? 0) + 1);
+    }
+  }
+
+  return pages.map((page) => page.lines.filter((line) => {
+    if (isPageCounterLine(line.text)) return false;
+    if (!isLikelyPageChrome(line, page.height)) return true;
+    const normalized = normalizeChromeText(line.text);
+    return (pageCounts.get(normalized) ?? 0) < 2;
+  }));
+}
+
 function markdownForLine(line: PdfTextLine): string {
   const bullet = line.text.match(/^[-–—]\s*(.+)$/);
   if (bullet) {
@@ -170,7 +209,10 @@ function markdownForLine(line: PdfTextLine): string {
 }
 
 export function pdfTextItemsToMarkdown(items: PdfTextItem[]): string {
-  const lines = pdfTextItemsToLines(items);
+  return pdfTextLinesToMarkdown(pdfTextItemsToLines(items));
+}
+
+export function pdfTextLinesToMarkdown(lines: PdfTextLine[]): string {
   const output: string[] = [];
   let previous: PdfTextLine | null = null;
 
@@ -398,7 +440,7 @@ export async function pdfImageObjectToMarkdown(input: {
   return (await input.assets.saveBytes({
     bytes,
     filename,
-    alt: `${input.fileName}, page ${input.pageNumber}, image ${input.imageIndex}`,
+    alt: `${input.fileName}, изображение ${input.imageIndex}`,
     kind: 'image',
   })).markdown;
 }
@@ -440,7 +482,7 @@ export async function pdfFileToMarkdown(file: File, assets?: AssetApi): Promise<
   configurePdfWorker(pdfjs);
   const task = pdfjs.getDocument({ data: await file.arrayBuffer(), useWorkerFetch: false });
   const pdf = await task.promise;
-  const pages: string[] = [];
+  const pages: { images: string[]; lines: PdfTextLine[]; height: number }[] = [];
   const xObjectImageOps = new Set([
     pdfjs.OPS.paintImageXObject,
     pdfjs.OPS.paintJpegXObject,
@@ -454,10 +496,10 @@ export async function pdfFileToMarkdown(file: File, assets?: AssetApi): Promise<
   for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
     const page = await pdf.getPage(pageNumber);
     const textContent = await page.getTextContent();
-    const pageParts: string[] = [];
+    const images: string[] = [];
 
     if (assets && typeof document !== 'undefined') {
-      pageParts.push(...await pdfPageImagesToMarkdown({
+      images.push(...await pdfPageImagesToMarkdown({
         page,
         pageNumber,
         fileName: file.name,
@@ -467,11 +509,19 @@ export async function pdfFileToMarkdown(file: File, assets?: AssetApi): Promise<
       }));
     }
 
-    pageParts.push(pdfTextItemsToMarkdown(textContent.items.filter((item) => 'str' in item) as PdfTextItem[]));
-    pages.push(pageParts.filter((part) => part.trim().length > 0).join('\n\n'));
+    const viewport = typeof page.getViewport === 'function' ? page.getViewport({ scale: 1 }) : null;
+    pages.push({
+      images,
+      lines: pdfTextItemsToLines(textContent.items.filter((item) => 'str' in item) as PdfTextItem[]),
+      height: typeof viewport?.height === 'number' ? viewport.height : 792,
+    });
   }
 
-  const markdown = pdfPagesToMarkdown(pages);
+  const cleanedLines = removeRepeatedPdfChrome(pages);
+  const markdown = pdfPagesToMarkdown(pages.map((page, index) => [
+    ...page.images,
+    pdfTextLinesToMarkdown(cleanedLines[index] ?? []),
+  ].filter((part) => part.trim().length > 0).join('\n\n')));
   if (!markdown) {
     throw new Error('pdf_text_layer_missing');
   }
