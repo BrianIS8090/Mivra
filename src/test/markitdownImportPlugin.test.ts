@@ -90,7 +90,7 @@ describe('markitdown import plugin', () => {
     expect(manifest).toMatchObject({
       id: 'markitdown-import',
       name: 'Import to Markdown',
-      version: '1.0.8',
+      version: '1.0.9',
       entry: 'index.js',
       styles: 'style.css',
       permissions: ['document:read', 'document:write', 'dialog', 'assets:write'],

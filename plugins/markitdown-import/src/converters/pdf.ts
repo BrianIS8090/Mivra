@@ -25,7 +25,7 @@ type PdfTextLine = {
 type PdfImageObject = {
   width: number;
   height: number;
-  kind: number;
+  kind?: number;
   data?: Uint8Array | Uint8ClampedArray;
   bitmap?: ImageBitmap;
 };
@@ -200,8 +200,10 @@ function isPdfImageObject(value: unknown): value is PdfImageObject {
   return (
     typeof image.width === 'number'
     && typeof image.height === 'number'
-    && typeof image.kind === 'number'
-    && (ArrayBuffer.isView(image.data) || Boolean(image.bitmap))
+    && (
+      Boolean(image.bitmap)
+      || (typeof image.kind === 'number' && ArrayBuffer.isView(image.data))
+    )
   );
 }
 
