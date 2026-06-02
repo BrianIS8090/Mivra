@@ -127,4 +127,23 @@ describe('plugin registry', () => {
 
     expect(manifest.permissions).toEqual(['document:read', 'document:write', 'dialog']);
   });
+
+  it('принимает assets:write permission из backend manifest', async () => {
+    const { pluginInfoToManifest } = await import('../plugins/pluginManifest');
+
+    const manifest = pluginInfoToManifest({
+      id: 'asset-plugin',
+      name: 'Asset Plugin',
+      version: '1.0.0',
+      description: 'Stores assets',
+      author: 'Mivra',
+      entry: 'index.js',
+      styles: null,
+      permissions: ['document:read', 'assets:write'],
+      apiVersion: 1,
+      enabled: false,
+    });
+
+    expect(manifest.permissions).toEqual(['document:read', 'assets:write']);
+  });
 });

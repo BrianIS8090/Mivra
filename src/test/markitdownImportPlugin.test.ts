@@ -1,0 +1,387 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { buildAppliedMarkdown } from '../../plugins/markitdown-import/src/index';
+
+type FakePluginApi = {
+  toolbar: {
+    registerButton: ReturnType<typeof vi.fn>;
+  };
+  dialogs: {
+    registerRenderer: ReturnType<typeof vi.fn>;
+    open: ReturnType<typeof vi.fn>;
+    close: ReturnType<typeof vi.fn>;
+  };
+  document: {
+    getContent: ReturnType<typeof vi.fn>;
+    getFilePath: ReturnType<typeof vi.fn>;
+    setContent: ReturnType<typeof vi.fn>;
+  };
+  assets: {
+    saveBytes: ReturnType<typeof vi.fn>;
+  };
+};
+
+type RegisteredPlugin = {
+  id: string;
+  activate: (api: FakePluginApi) => void | (() => void);
+};
+
+const pluginDir = resolve(process.cwd(), 'plugins/markitdown-import');
+
+async function loadPlugin(): Promise<RegisteredPlugin> {
+  let registered: RegisteredPlugin | null = null;
+
+  Object.defineProperty(window, 'MivraExternalPlugin', {
+    configurable: true,
+    value: {
+      register: (plugin: RegisteredPlugin) => {
+        registered = plugin;
+      },
+    },
+  });
+
+  vi.resetModules();
+  await import('../../plugins/markitdown-import/src/index');
+
+  if (!registered) {
+    throw new Error('Плагин не зарегистрирован');
+  }
+
+  return registered;
+}
+
+function createFakeApi(): FakePluginApi {
+  return {
+    toolbar: {
+      registerButton: vi.fn(() => vi.fn()),
+    },
+    dialogs: {
+      registerRenderer: vi.fn(() => vi.fn()),
+      open: vi.fn(),
+      close: vi.fn(),
+    },
+    document: {
+      getContent: vi.fn(() => '# Current'),
+      getFilePath: vi.fn(() => 'C:/docs/current.md'),
+      setContent: vi.fn(),
+    },
+    assets: {
+      saveBytes: vi.fn(),
+    },
+  };
+}
+
+async function flushPromises() {
+  await new Promise((resolveFlush) => setTimeout(resolveFlush, 0));
+  await new Promise((resolveFlush) => setTimeout(resolveFlush, 0));
+}
+
+describe('markitdown import plugin', () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.doUnmock('../../plugins/markitdown-import/src/converters/docx');
+    vi.doUnmock('../../plugins/markitdown-import/src/converters/xlsx');
+  });
+
+  it('имеет валидный manifest для внешнего плагина Mivra API v1', () => {
+    const manifest = JSON.parse(readFileSync(resolve(pluginDir, 'plugin.json'), 'utf8'));
+
+    expect(manifest).toMatchObject({
+      id: 'markitdown-import',
+      name: 'Import to Markdown',
+      version: '1.0.13',
+      entry: 'index.js',
+      styles: 'style.css',
+      permissions: ['document:read', 'document:write', 'dialog', 'assets:write'],
+      apiVersion: 1,
+    });
+  });
+
+  it('регистрирует пункт меню и renderer-диалог', async () => {
+    const plugin = await loadPlugin();
+    const api = createFakeApi();
+
+    const cleanup = plugin.activate(api);
+
+    expect(api.dialogs.registerRenderer).toHaveBeenCalledWith(
+      'markitdown-import-dialog',
+      expect.objectContaining({ render: expect.any(Function) }),
+    );
+    expect(api.toolbar.registerButton).toHaveBeenCalledWith(expect.objectContaining({
+      id: 'markitdown-import-open',
+      label: 'Import to Markdown',
+      onClick: expect.any(Function),
+    }));
+
+    const renderer = api.dialogs.registerRenderer.mock.calls[0][1];
+    const container = document.createElement('div');
+    renderer.render({ container });
+
+    expect(container.querySelector('.markitdown-import')).not.toBeNull();
+    expect(container.querySelector('[data-markitdown-import-file]')).not.toBeNull();
+
+    cleanup?.();
+  });
+
+  it('рендерит импорт как отдельное модальное окно и закрывает его через dialog API', async () => {
+    const plugin = await loadPlugin();
+    const api = createFakeApi();
+    plugin.activate(api);
+    const renderer = api.dialogs.registerRenderer.mock.calls[0][1];
+    const container = document.createElement('div');
+    renderer.render({ container, api });
+
+    const dialog = container.querySelector('[role="dialog"]');
+    const overlay = container.querySelector('[data-markitdown-import-overlay]');
+    const closeButton = container.querySelector('[data-markitdown-import-close]') as HTMLButtonElement;
+
+    expect(overlay).not.toBeNull();
+    expect(dialog).not.toBeNull();
+    expect(dialog).toHaveAttribute('aria-modal', 'true');
+    expect(dialog).toHaveAttribute('aria-labelledby', 'markitdown-import-title');
+
+    closeButton.click();
+    expect(api.dialogs.close).toHaveBeenCalledWith('markitdown-import-dialog');
+  });
+
+  it('задаёт критические modal-стили inline, если внешний CSS ещё не применился', async () => {
+    const plugin = await loadPlugin();
+    const api = createFakeApi();
+    plugin.activate(api);
+    const renderer = api.dialogs.registerRenderer.mock.calls[0][1];
+    const container = document.createElement('div');
+    renderer.render({ container, api });
+
+    const overlay = container.querySelector('[data-markitdown-import-overlay]') as HTMLElement;
+    const dialog = container.querySelector('[role="dialog"]') as HTMLElement;
+
+    expect(overlay.style.position).toBe('fixed');
+    expect(overlay.style.inset).toBe('0');
+    expect(overlay.style.display).toBe('flex');
+    expect(dialog.getAttribute('style')).toContain('width: min(920px');
+    expect(dialog.getAttribute('style')).toContain('max-height: min(760px');
+  });
+
+  it('buildAppliedMarkdown применяет режимы вставки', () => {
+    expect(buildAppliedMarkdown('# Current', 'Imported', 'source.docx', 'append'))
+      .toBe('# Current\n\nImported');
+    expect(buildAppliedMarkdown('# Current', 'Imported', 'source.docx', 'replace'))
+      .toBe('Imported');
+    expect(buildAppliedMarkdown('# Current', 'Imported', 'source.docx', 'section'))
+      .toBe('# Current\n\n---\n\n## Импортировано из source.docx\n\nImported');
+  });
+
+  it('показывает ошибку для неподдержанного формата', async () => {
+    const plugin = await loadPlugin();
+    const api = createFakeApi();
+    plugin.activate(api);
+    const renderer = api.dialogs.registerRenderer.mock.calls[0][1];
+    const container = document.createElement('div');
+    renderer.render({ container, api });
+
+    const input = container.querySelector('[data-markitdown-import-file]') as HTMLInputElement;
+    Object.defineProperty(input, 'files', {
+      configurable: true,
+      value: [new File(['x'], 'archive.zip', { type: 'application/zip' })],
+    });
+    input.dispatchEvent(new Event('change'));
+    await flushPromises();
+
+    expect(container.querySelector('[data-markitdown-import-error]')?.textContent)
+      .toContain('Формат не поддерживается');
+  });
+
+  it('конвертирует текстовый файл, показывает предпросмотр и заменяет документ', async () => {
+    const plugin = await loadPlugin();
+    const api = createFakeApi();
+    plugin.activate(api);
+    const renderer = api.dialogs.registerRenderer.mock.calls[0][1];
+    const container = document.createElement('div');
+    renderer.render({ container, api });
+
+    const input = container.querySelector('[data-markitdown-import-file]') as HTMLInputElement;
+    Object.defineProperty(input, 'files', {
+      configurable: true,
+      value: [new File(['Imported\r\nText'], 'note.txt', { type: 'text/plain' })],
+    });
+    input.dispatchEvent(new Event('change'));
+    await flushPromises();
+
+    expect(container.querySelector('[data-markitdown-import-preview]')?.textContent)
+      .toBe('Imported\nText');
+
+    const mode = container.querySelector('[data-markitdown-import-mode]') as HTMLSelectElement;
+    mode.value = 'replace';
+    mode.dispatchEvent(new Event('change'));
+
+    const apply = container.querySelector('[data-markitdown-import-apply]') as HTMLButtonElement;
+    apply.click();
+
+    expect(api.document.setContent).toHaveBeenCalledWith('Imported\nText');
+  });
+
+  it('позволяет исключать столбцы Excel из предпросмотра', async () => {
+    vi.doMock('../../plugins/markitdown-import/src/converters/xlsx', () => ({
+      xlsxFileToMarkdown: vi.fn(async () => 'unused'),
+      xlsxFileToWorkbook: vi.fn(async () => ({
+        sheets: [{
+          name: 'Лист1',
+          rows: [
+            ['Name', 'Internal ID', 'Score'],
+            ['Alice', 'A-001', 10],
+          ],
+        }],
+        columns: [
+          { index: 0, label: 'A — Name' },
+          { index: 1, label: 'B — Internal ID' },
+          { index: 2, label: 'C — Score' },
+        ],
+      })),
+      xlsxWorkbookToMarkdown: vi.fn((_workbook, options?: { excludedColumns?: Set<number> }) => {
+        if (options?.excludedColumns?.has(1)) {
+          return [
+            '## Лист1',
+            '',
+            '| Name | Score |',
+            '| --- | --- |',
+            '| Alice | 10 |',
+          ].join('\n');
+        }
+        return [
+          '## Лист1',
+          '',
+          '| Name | Internal ID | Score |',
+          '| --- | --- | --- |',
+          '| Alice | A-001 | 10 |',
+        ].join('\n');
+      }),
+    }));
+
+    const plugin = await loadPlugin();
+    const api = createFakeApi();
+    plugin.activate(api);
+    const renderer = api.dialogs.registerRenderer.mock.calls[0][1];
+    const container = document.createElement('div');
+    renderer.render({ container, api });
+
+    const input = container.querySelector('[data-markitdown-import-file]') as HTMLInputElement;
+    Object.defineProperty(input, 'files', {
+      configurable: true,
+      value: [new File(['xlsx'], 'report.xlsx', { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })],
+    });
+    input.dispatchEvent(new Event('change'));
+    await flushPromises();
+
+    expect(container.querySelector('[data-markitdown-import-preview]')?.textContent)
+      .toContain('| Name | Internal ID | Score |');
+
+    const internalId = container.querySelector('[data-markitdown-import-xlsx-column][value="1"]') as HTMLInputElement;
+    expect(internalId).not.toBeNull();
+    expect(internalId.checked).toBe(true);
+
+    internalId.checked = false;
+    internalId.dispatchEvent(new Event('change'));
+    await flushPromises();
+
+    expect(container.querySelector('[data-markitdown-import-preview]')?.textContent)
+      .toContain('| Name | Score |');
+    expect(container.querySelector('[data-markitdown-import-preview]')?.textContent)
+      .not.toContain('Internal ID');
+  });
+
+  it('снимает выделение со всех столбцов Excel одной кнопкой', async () => {
+    vi.doMock('../../plugins/markitdown-import/src/converters/xlsx', () => ({
+      xlsxFileToMarkdown: vi.fn(async () => 'unused'),
+      xlsxFileToWorkbook: vi.fn(async () => ({
+        sheets: [{
+          name: 'Лист1',
+          rows: [
+            ['Name', 'Internal ID', 'Score'],
+            ['Alice', 'A-001', 10],
+          ],
+        }],
+        columns: [
+          { index: 0, label: 'A — Name' },
+          { index: 1, label: 'B — Internal ID' },
+          { index: 2, label: 'C — Score' },
+        ],
+      })),
+      xlsxWorkbookToMarkdown: vi.fn((_workbook, options?: { excludedColumns?: Set<number> }) => {
+        if (options?.excludedColumns?.size === 3) {
+          return '## Лист1';
+        }
+        return [
+          '## Лист1',
+          '',
+          '| Name | Internal ID | Score |',
+          '| --- | --- | --- |',
+          '| Alice | A-001 | 10 |',
+        ].join('\n');
+      }),
+    }));
+
+    const plugin = await loadPlugin();
+    const api = createFakeApi();
+    plugin.activate(api);
+    const renderer = api.dialogs.registerRenderer.mock.calls[0][1];
+    const container = document.createElement('div');
+    renderer.render({ container, api });
+
+    const input = container.querySelector('[data-markitdown-import-file]') as HTMLInputElement;
+    Object.defineProperty(input, 'files', {
+      configurable: true,
+      value: [new File(['xlsx'], 'report.xlsx', { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })],
+    });
+    input.dispatchEvent(new Event('change'));
+    await flushPromises();
+
+    const clearAll = container.querySelector('[data-markitdown-import-xlsx-clear-all]') as HTMLButtonElement;
+    expect(clearAll).not.toBeNull();
+
+    clearAll.click();
+    await flushPromises();
+
+    const checkedColumns = container.querySelectorAll('[data-markitdown-import-xlsx-column]:checked');
+    expect(checkedColumns).toHaveLength(0);
+    expect(container.querySelector('[data-markitdown-import-preview]')?.textContent)
+      .toBe('## Лист1');
+  });
+
+  it('показывает понятную ошибку, если для изображений нет локальной папки assets', async () => {
+    vi.doMock('../../plugins/markitdown-import/src/converters/docx', () => ({
+      docxFileToMarkdown: async (_file: File, assets: FakePluginApi['assets']) => {
+        const saved = await assets.saveBytes({
+          bytes: new Uint8Array([1]),
+          filename: 'docx-image-1.png',
+          kind: 'image',
+        });
+        return saved.markdown;
+      },
+    }));
+    const plugin = await loadPlugin();
+    const api = createFakeApi();
+    api.assets.saveBytes.mockRejectedValue(new Error('asset_base_dir_missing'));
+    plugin.activate(api);
+    const renderer = api.dialogs.registerRenderer.mock.calls[0][1];
+    const container = document.createElement('div');
+    renderer.render({ container, api });
+
+    const input = container.querySelector('[data-markitdown-import-file]') as HTMLInputElement;
+    Object.defineProperty(input, 'files', {
+      configurable: true,
+      value: [new File([
+        'docx',
+      ], 'document.docx', { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })],
+    });
+    input.dispatchEvent(new Event('change'));
+    await flushPromises();
+
+    expect(container.querySelector('[data-markitdown-import-error]')?.textContent)
+      .toBe('Сохраните текущий документ или настройте S3, чтобы импортировать изображения из PDF/DOCX.');
+  });
+});

@@ -2,7 +2,13 @@ import type { ComponentType } from 'react';
 
 export type PluginKind = 'builtin' | 'external';
 
-export type PluginPermission = 'document:read' | 'document:write' | 'dialog' | 'export:html' | 'export:pdf';
+export type PluginPermission =
+  | 'document:read'
+  | 'document:write'
+  | 'dialog'
+  | 'export:html'
+  | 'export:pdf'
+  | 'assets:write';
 
 export type PluginManifest = {
   id: string;
@@ -33,6 +39,19 @@ export type PluginDialogRenderContext = {
 
 export type PluginDialogRenderer = {
   render: (context: PluginDialogRenderContext) => void | (() => void);
+};
+
+export type PluginAssetSaveInput = {
+  bytes: Uint8Array;
+  filename: string;
+  alt?: string;
+  kind?: 'image' | 'file';
+};
+
+export type PluginAssetSaveResult = {
+  url: string;
+  markdown: string;
+  storage: 's3' | 'local';
 };
 
 export type RegisteredDialog =
@@ -74,5 +93,8 @@ export type MivraPluginApi = {
   exports: {
     saveHtml: (html: string, defaultName?: string) => Promise<string | null>;
     savePdfBytes: (bytes: Uint8Array, defaultName?: string) => Promise<string | null>;
+  };
+  assets: {
+    saveBytes: (input: PluginAssetSaveInput) => Promise<PluginAssetSaveResult>;
   };
 };

@@ -1,0 +1,11 @@
+{
+  "id": "markitdown-import",
+  "name": "Import to Markdown",
+  "version": "1.0.13",
+  "description": "Конвертирует DOCX, XLSX, PDF, TXT, Markdown и CSV в Markdown и вставляет результат в документ.",
+  "author": "Mivra Team",
+  "entry": "index.js",
+  "styles": "style.css",
+  "permissions": ["document:read", "document:write", "dialog", "assets:write"],
+  "apiVersion": 1
+}

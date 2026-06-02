@@ -54,4 +54,24 @@ describe('plugin permissions', () => {
     expect(useAppStore.getState().content).toBe('New content');
     expect(useAppStore.getState().isDirty).toBe(true);
   });
+
+  it('запрещает сохранение asset без assets:write', async () => {
+    const api = createMivraPluginApi('test-plugin', baseManifest);
+
+    await expect(api.assets.saveBytes({
+      bytes: new Uint8Array([1, 2, 3]),
+      filename: 'image.png',
+      kind: 'image',
+    })).rejects.toThrow('permission_denied');
+  });
+
+  it('разрешает доступ к assets API с assets:write', () => {
+    const api = createMivraPluginApi('test-plugin', {
+      ...baseManifest,
+      permissions: ['assets:write'],
+    });
+
+    expect(api.assets).toBeDefined();
+    expect(typeof api.assets.saveBytes).toBe('function');
+  });
 });

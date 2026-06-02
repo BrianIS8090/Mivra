@@ -4,6 +4,20 @@ import { requirePluginPermission } from './pluginPermissions';
 import { usePluginStore } from './pluginStore';
 import type { MivraPluginApi, PluginManifest } from './types';
 
+function nameWithoutExt(name: string): string {
+  const index = name.lastIndexOf('.');
+  return index >= 0 ? name.slice(0, index) : name;
+}
+
+function escapeMarkdownLabel(label: string): string {
+  return label.replace(/[[\]\\]/g, '\\$&');
+}
+
+function assetMarkdown(filename: string, url: string, kind: 'image' | 'file' | undefined, alt?: string): string {
+  const label = escapeMarkdownLabel(alt?.trim() || nameWithoutExt(filename));
+  return kind === 'file' ? `[${label}](${url})` : `![${label}](${url})`;
+}
+
 export function createMivraPluginApi(pluginId: string, manifest?: PluginManifest): MivraPluginApi {
   return {
     apiVersion: 1,
@@ -71,6 +85,32 @@ export function createMivraPluginApi(pluginId: string, manifest?: PluginManifest
       savePdfBytes: (bytes, defaultName) => {
         requirePluginPermission(manifest, 'export:pdf');
         return tauri.exportToPdf(bytes, defaultName);
+      },
+    },
+    assets: {
+      saveBytes: async (input) => {
+        requirePluginPermission(manifest, 'assets:write');
+        const state = useAppStore.getState();
+
+        if (state.s3 && state.s3Verified && await tauri.s3SecretExists()) {
+          const url = await tauri.s3UploadBytes(input.bytes, input.filename, state.s3);
+          return {
+            url,
+            markdown: assetMarkdown(input.filename, url, input.kind, input.alt),
+            storage: 's3',
+          };
+        }
+
+        if (!state.baseDir) {
+          throw new Error('asset_base_dir_missing');
+        }
+
+        const url = await tauri.saveLocalAssetBytes(input.bytes, state.baseDir, input.filename);
+        return {
+          url,
+          markdown: assetMarkdown(input.filename, url, input.kind, input.alt),
+          storage: 'local',
+        };
       },
     },
   };
