@@ -87,6 +87,18 @@
   font-size: 0.875em !important;
 }
 
+.editor-root .milkdown .ProseMirror .mivra-html-table-view {
+  display: block;
+  max-width: 100%;
+  margin: 1em 0;
+  overflow-x: auto;
+}
+
+.editor-root .milkdown .ProseMirror .mivra-html-table-view table {
+  width: auto;
+  max-width: 100%;
+}
+
 /* Mermaid-превью в кодовых блоках */
 .mermaid-preview {
   display: flex;

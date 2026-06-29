@@ -30,13 +30,46 @@ export async function findBaseDir(filePath: string): Promise<string> {
   return fileDir;
 }
 
-// Преобразовать относительный путь изображения в URL для отображения в webview.
-// Абсолютные URL (http/https/data/blob) возвращаются без изменений.
-export async function resolveImageSrc(src: string, baseDir: string | null): Promise<string> {
-  if (!src || /^(https?:|data:|blob:)/.test(src)) return src;
+export function dirnameFromFilePath(filePath: string | null): string | null {
+  if (!filePath) return null;
+
+  const slashIndex = filePath.lastIndexOf('/');
+  const backslashIndex = filePath.lastIndexOf('\\');
+  const index = Math.max(slashIndex, backslashIndex);
+
+  if (index < 0) return null;
+  if (index === 0) return filePath.slice(0, 1);
+  if (index === 2 && /^[a-z]:/i.test(filePath)) return filePath.slice(0, index + 1);
+  return filePath.slice(0, index);
+}
+
+// Для уже существующих markdown-ссылок база — директория самого .md-файла.
+// baseDir остаётся fallback для новых/несохранённых документов и assets/.
+export function resolveMarkdownImageBaseDir(
+  filePath: string | null,
+  baseDir: string | null,
+): string | null {
+  return dirnameFromFilePath(filePath) ?? baseDir;
+}
+
+const DISPLAYABLE_URL_RE = /^(https?:|data:|blob:|asset:)/i;
+
+// Преобразовать относительный путь изображения в абсолютный локальный путь.
+// Абсолютные URL (http/https/data/blob/asset) возвращаются без изменений.
+export async function resolveLocalImagePath(src: string, baseDir: string | null): Promise<string> {
+  if (!src || DISPLAYABLE_URL_RE.test(src)) return src;
   if (!baseDir) return src;
 
-  const absolutePath = await join(baseDir, src);
+  return join(baseDir, src);
+}
+
+// Преобразовать относительный путь изображения в URL для отображения в webview.
+// Абсолютные URL (http/https/data/blob/asset) возвращаются без изменений.
+export async function resolveImageSrc(src: string, baseDir: string | null): Promise<string> {
+  if (!src || DISPLAYABLE_URL_RE.test(src)) return src;
+  if (!baseDir) return src;
+
+  const absolutePath = await resolveLocalImagePath(src, baseDir);
   return convertFileSrc(absolutePath);
 }
 

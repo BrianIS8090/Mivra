@@ -48,6 +48,10 @@ export async function readFile(path: string): Promise<string> {
   return unwrap(commands.readFile(path));
 }
 
+export async function readLocalFileBytes(path: string): Promise<Uint8Array> {
+  return new Uint8Array(await unwrap(commands.readLocalFileBytes(path)));
+}
+
 export async function getInstalledPlugins(): Promise<PluginInfo[]> {
   return unwrap(commands.getInstalledPlugins());
 }

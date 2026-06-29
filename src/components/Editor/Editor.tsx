@@ -8,8 +8,10 @@ import { stat } from '@tauri-apps/plugin-fs';
 import { useAppStore } from '../../stores/appStore';
 import { useEditorHandle } from './EditorContext';
 import { renderMermaidPreview } from '../../utils/mermaid';
-import { resolveImageSrc } from '../../utils/paths';
+import { resolveImageSrc, resolveMarkdownImageBaseDir } from '../../utils/paths';
 import { createHeadingBackspaceTransaction } from './headingBackspace';
+import { htmlTableView } from './htmlTableView';
+import { installLocalImageResolver } from './localImageResolver';
 import { denormalizeMarkdownForEditor, normalizeMarkdownForSource } from './sourceMarkdown';
 import { useS3Upload } from '../../hooks/useS3Upload';
 import { useToast } from '../../hooks/useToast';
@@ -100,7 +102,9 @@ export function Editor() {
   const handleRef = useEditorHandle();
 
   const content = useAppStore((s) => s.content);
+  const filePath = useAppStore((s) => s.filePath);
   const baseDir = useAppStore((s) => s.baseDir);
+  const imageBaseDir = resolveMarkdownImageBaseDir(filePath, baseDir);
   const setContent = useAppStore((s) => s.setContent);
   const fontFamily = useAppStore((s) => s.fontFamily);
   const fontSize = useAppStore((s) => s.fontSize);
@@ -112,6 +116,7 @@ export function Editor() {
   const setContentRef = useRef(setContent);
   setContentRef.current = setContent;
   const contentRef = useRef(content);
+  const imageBaseDirRef = useRef(imageBaseDir);
 
   // Текущий режим редактора (для доступа из listener без пересоздания)
   const editorModeRef = useRef(editorMode);
@@ -121,6 +126,7 @@ export function Editor() {
   // Пока false — markdownUpdated игнорируется (защита от нормализации при парсинге).
   const userInteractedRef = useRef(false);
   const interactionCleanupRef = useRef<(() => void) | null>(null);
+  const imageResolverCleanupRef = useRef<(() => void) | null>(null);
 
   // Хранение YAML frontmatter отдельно от тела — Milkdown его не трогает
   const frontmatterRef = useRef('');
@@ -164,9 +170,12 @@ export function Editor() {
   const s3 = useS3Upload(insertAtCursor);
 
   // Создание экземпляра Crepe
-  const buildCrepe = useCallback((root: HTMLElement, value: string, currentBaseDir: string | null) => {
+  const buildCrepe = useCallback((root: HTMLElement, value: string, currentImageBaseDir: string | null) => {
     // Очистить предыдущие обработчики взаимодействия
     interactionCleanupRef.current?.();
+    imageResolverCleanupRef.current?.();
+    imageResolverCleanupRef.current = installLocalImageResolver(root, currentImageBaseDir);
+    imageBaseDirRef.current = currentImageBaseDir;
 
     // Сбросить флаг — пока пользователь не начнёт редактировать,
     // markdownUpdated не будет обновлять store
@@ -208,8 +217,9 @@ export function Editor() {
 
     const crepe = new Crepe({
       root,
-      ...createCrepeConfig(visualBody, currentBaseDir),
+      ...createCrepeConfig(visualBody, currentImageBaseDir),
     });
+    crepe.editor.use(htmlTableView);
 
     crepe.on((listener) => {
       listener.markdownUpdated((_ctx, markdown) => {
@@ -236,7 +246,7 @@ export function Editor() {
     // destroy на одном инстансе.
     let cancelled = false;
     const gen = ++genRef.current;
-    const crepe = buildCrepe(editorRef.current, content, baseDir);
+    const crepe = buildCrepe(editorRef.current, content, imageBaseDir);
     crepe.create().then(() => {
       if (cancelled || gen !== genRef.current) {
         crepe.destroy();
@@ -251,6 +261,8 @@ export function Editor() {
       genRef.current++;
       handleRef.current.editor = null;
       interactionCleanupRef.current?.();
+      imageResolverCleanupRef.current?.();
+      imageResolverCleanupRef.current = null;
       // Уничтожаем АКТУАЛЬНЫЙ crepe (мог быть подменён content-change-эффектом),
       // а не closure-захваченный — иначе после нескольких смен файла оригинал
       // уже уничтожен, а текущий инстанс утекает.
@@ -266,8 +278,12 @@ export function Editor() {
 
   // Обновление содержимого при загрузке нового файла
   useEffect(() => {
-    if (crepeRef.current && content !== contentRef.current) {
+    if (
+      crepeRef.current
+      && (content !== contentRef.current || imageBaseDir !== imageBaseDirRef.current)
+    ) {
       contentRef.current = content;
+      imageBaseDirRef.current = imageBaseDir;
       const root = editorRef.current;
       if (!root) return;
 
@@ -279,7 +295,7 @@ export function Editor() {
       crepeRef.current = null;
       oldCrepe.destroy().then(() => {
         if (gen !== genRef.current) return;
-        const newCrepe = buildCrepe(root, content, baseDir);
+        const newCrepe = buildCrepe(root, content, imageBaseDir);
         newCrepe.create().then(() => {
           if (gen !== genRef.current) {
             newCrepe.destroy();
@@ -290,7 +306,7 @@ export function Editor() {
         });
       });
     }
-  }, [content, baseDir, buildCrepe, handleRef]);
+  }, [content, imageBaseDir, buildCrepe, handleRef]);
 
   // Синхронизация source → store при переключении обратно в visual
   const prevMode = useRef(editorMode);
@@ -308,7 +324,7 @@ export function Editor() {
       crepeRef.current = null;
       oldCrepe.destroy().then(() => {
         if (gen !== genRef.current) return;
-        const newCrepe = buildCrepe(root, currentContent, baseDir);
+        const newCrepe = buildCrepe(root, currentContent, imageBaseDir);
         newCrepe.create().then(() => {
           if (gen !== genRef.current) {
             newCrepe.destroy();
@@ -320,7 +336,7 @@ export function Editor() {
       });
     }
     prevMode.current = editorMode;
-  }, [editorMode, baseDir, buildCrepe, handleRef]);
+  }, [editorMode, imageBaseDir, buildCrepe, handleRef]);
 
   useEffect(() => {
     if (editorMode !== 'source') return;

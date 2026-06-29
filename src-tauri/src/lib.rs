@@ -4,9 +4,9 @@ pub mod s3;
 use commands::{
   ensure_bundled_plugins, export_to_html, export_to_pdf, get_installed_plugins,
   get_plugin_asset_path, get_recent_files, install_plugin, install_plugin_package, open_file,
-  read_file, read_plugin_asset_bytes, read_settings, s3_clear_secret, s3_secret_exists,
-  s3_set_secret, s3_test_connection, s3_upload_bytes, s3_upload_file, save_file, save_file_as,
-  save_local_asset_bytes, save_local_asset_file, uninstall_plugin, write_settings,
+  read_file, read_local_file_bytes, read_plugin_asset_bytes, read_settings, s3_clear_secret,
+  s3_secret_exists, s3_set_secret, s3_test_connection, s3_upload_bytes, s3_upload_file, save_file,
+  save_file_as, save_local_asset_bytes, save_local_asset_file, uninstall_plugin, write_settings,
 };
 use std::env;
 use std::path::PathBuf;
@@ -41,6 +41,7 @@ pub fn build_specta_builder() -> tauri_specta::Builder<tauri::Wry> {
     write_settings,
     get_recent_files,
     read_file,
+    read_local_file_bytes,
     get_installed_plugins,
     install_plugin,
     install_plugin_package,

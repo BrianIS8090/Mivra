@@ -12,6 +12,8 @@ export const commands = {
 	getRecentFiles: () => typedError<string[], string>(__TAURI_INVOKE("get_recent_files")),
 	// Чтение файла по пути (для открытия через ассоциацию файлов)
 	readFile: (path: string) => typedError<string, string>(__TAURI_INVOKE("read_file", { path })),
+	// Чтение локального файла байтами для отображения вложенных картинок.
+	readLocalFileBytes: (path: string) => typedError<number[], string>(__TAURI_INVOKE("read_local_file_bytes", { path })),
 	getInstalledPlugins: () => typedError<PluginInfo[], string>(__TAURI_INVOKE("get_installed_plugins")),
 	installPlugin: (folderPath: string) => typedError<PluginInfo, string>(__TAURI_INVOKE("install_plugin", { folderPath })),
 	installPluginPackage: (packagePath: string) => typedError<PluginInfo, string>(__TAURI_INVOKE("install_plugin_package", { packagePath })),

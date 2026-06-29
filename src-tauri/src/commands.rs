@@ -574,6 +574,22 @@ pub async fn read_file(path: String) -> Result<String, String> {
   fs::read_to_string(&path).map_err(|e| format!("Ошибка чтения файла: {}", e))
 }
 
+/// Чтение локального файла байтами для отображения вложенных картинок.
+#[tauri::command]
+#[specta::specta]
+pub async fn read_local_file_bytes(
+  app: tauri::AppHandle,
+  path: String,
+) -> Result<Vec<u8>, String> {
+  let canonical_path = validate_local_upload_scope(&app, &path)?;
+  let size = fs::metadata(&canonical_path)
+    .map_err(|e| format!("Ошибка чтения метаданных файла: {}", e))?
+    .len();
+  s3::validate_upload_size(size)?;
+
+  fs::read(&canonical_path).map_err(|e| format!("Ошибка чтения файла: {}", e))
+}
+
 #[tauri::command]
 #[specta::specta]
 pub async fn get_installed_plugins(app: tauri::AppHandle) -> Result<Vec<PluginInfo>, String> {
