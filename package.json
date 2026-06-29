@@ -1,7 +1,7 @@
 {
   "name": "mivra",
   "private": true,
-  "version": "0.6.8",
+  "version": "0.6.9",
   "type": "module",
   "scripts": {
     "dev": "npm run build:plugins && vite",
