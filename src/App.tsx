@@ -5,7 +5,7 @@ import { Toolbar } from './components/Toolbar/Toolbar';
 import { Editor } from './components/Editor/Editor';
 import { StatusBar } from './components/StatusBar/StatusBar';
 import { useFile } from './hooks/useFile';
-import { useSettings } from './hooks/useSettings';
+import { useSettingsOwner } from './hooks/useSettings';
 import { useTheme } from './hooks/useTheme';
 import { useExit } from './hooks/useExit';
 import { useMarkdownActions } from './hooks/useMarkdownActions';
@@ -19,7 +19,7 @@ import './App.css';
 
 function App() {
   const { open, save, saveAs } = useFile();
-  const { changeFontSize, fontSize } = useSettings();
+  const { changeFontSize, fontSize } = useSettingsOwner();
   const { toggleTheme } = useTheme();
   useExit();
   const { applyMarkdownAction, insertAssetAction, placeholders } = useMarkdownActions();

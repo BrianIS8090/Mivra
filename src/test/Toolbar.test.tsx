@@ -49,8 +49,6 @@ describe('Toolbar', () => {
   it('показывает меню шрифтов поверх интерфейса и выбирает шрифт', async () => {
     render(<Toolbar />);
 
-    await waitFor(() => expect(mockedInvoke).toHaveBeenCalledWith('read_settings'));
-
     const trigger = screen.getByRole('button', { name: 'Segoe UI Variable' });
     fireEvent.click(trigger);
 
@@ -93,8 +91,6 @@ describe('Toolbar', () => {
     });
 
     render(<Toolbar />);
-
-    await waitFor(() => expect(mockedInvoke).toHaveBeenCalledWith('read_settings'));
 
     expect(screen.queryByRole('button', { name: 'Export PDF' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Test Plugin' })).not.toBeInTheDocument();

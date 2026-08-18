@@ -16,6 +16,17 @@ export function useFile() {
   const setFilePath = useAppStore((s) => s.setFilePath);
   const setBaseDir = useAppStore((s) => s.setBaseDir);
   const setDirty = useAppStore((s) => s.setDirty);
+  const setRecentFiles = useAppStore((s) => s.setRecentFiles);
+
+  // Rust обновляет recent_files в settings.json при open/saveAs — подтягиваем
+  // актуальный список в стор (сам стор его не изменяет).
+  const refreshRecentFiles = useCallback(async () => {
+    try {
+      setRecentFiles(await tauri.getRecentFiles());
+    } catch (e) {
+      console.warn('[useFile] не удалось обновить recentFiles:', e);
+    }
+  }, [setRecentFiles]);
 
   const saveAs = useCallback(async (): Promise<boolean> => {
     try {
@@ -28,6 +39,7 @@ export function useFile() {
         setFilePath(path);
         setBaseDir(base);
         setDirty(false);
+        await refreshRecentFiles();
         return true;
       }
       // Пользователь отменил диалог "Сохранить как"
@@ -36,7 +48,7 @@ export function useFile() {
       console.error('[useFile] saveAs error:', e);
       return false;
     }
-  }, [content, setDirty, setFilePath, setBaseDir]);
+  }, [content, setDirty, setFilePath, setBaseDir, refreshRecentFiles]);
 
   const save = useCallback(async (): Promise<boolean> => {
     if (!filePath) {
@@ -77,11 +89,12 @@ export function useFile() {
       setBaseDir(base);
       // loadContent ставит content и isDirty:false атомарно — без transient true
       loadContent(file.content);
+      await refreshRecentFiles();
     } catch (e) {
       // Пользователь отменил диалог открытия или произошла ошибка
       console.warn('[useFile] open cancelled or error:', e);
     }
-  }, [confirmDiscardIfDirty, loadContent, setFilePath, setBaseDir]);
+  }, [confirmDiscardIfDirty, loadContent, setFilePath, setBaseDir, refreshRecentFiles]);
 
   const reload = useCallback(async () => {
     if (!filePath) return;

@@ -9,10 +9,13 @@ const mockedInvoke = vi.mocked(invoke);
 describe('useFile', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Запасной ответ для вторичных вызовов (get_recent_files после open/saveAs)
+    mockedInvoke.mockResolvedValue([]);
     useAppStore.setState({
       filePath: null,
       content: '',
       isDirty: false,
+      recentFiles: [],
     });
   });
 
@@ -104,5 +107,51 @@ describe('useFile', () => {
     const state = useAppStore.getState();
     expect(state.filePath).toBe('C:\\test\\saved.md');
     expect(state.isDirty).toBe(false);
+  });
+
+  it('open — должен обновить recentFiles через getRecentFiles', async () => {
+    mockedInvoke.mockImplementation((cmd) => {
+      if (cmd === 'open_file') {
+        return Promise.resolve({ path: 'C:\\test\\file.md', content: '# Тест' });
+      }
+      if (cmd === 'get_recent_files') {
+        return Promise.resolve(['C:\\test\\file.md', 'C:\\test\\old.md']);
+      }
+      return Promise.resolve(null);
+    });
+
+    const { result } = renderHook(() => useFile());
+
+    await act(async () => {
+      await result.current.open();
+    });
+
+    expect(mockedInvoke).toHaveBeenCalledWith('get_recent_files');
+    expect(useAppStore.getState().recentFiles).toEqual(['C:\\test\\file.md', 'C:\\test\\old.md']);
+  });
+
+  it('saveAs — должен обновить recentFiles через getRecentFiles', async () => {
+    useAppStore.setState({
+      content: '# Сохранить как',
+      isDirty: true,
+    });
+    mockedInvoke.mockImplementation((cmd) => {
+      if (cmd === 'save_file_as') {
+        return Promise.resolve('C:\\test\\saved.md');
+      }
+      if (cmd === 'get_recent_files') {
+        return Promise.resolve(['C:\\test\\saved.md']);
+      }
+      return Promise.resolve(null);
+    });
+
+    const { result } = renderHook(() => useFile());
+
+    await act(async () => {
+      await result.current.saveAs();
+    });
+
+    expect(mockedInvoke).toHaveBeenCalledWith('get_recent_files');
+    expect(useAppStore.getState().recentFiles).toEqual(['C:\\test\\saved.md']);
   });
 });

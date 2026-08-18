@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { useSettings } from '../hooks/useSettings';
+import { useSettings, useSettingsOwner } from '../hooks/useSettings';
 import { useAppStore } from '../stores/appStore';
 import { invoke } from '@tauri-apps/api/core';
 
@@ -43,7 +43,7 @@ describe('useSettings', () => {
       removed_bundled_plugins: [],
     });
 
-    renderHook(() => useSettings());
+    renderHook(() => useSettingsOwner());
 
     // Дождаться выполнения промиса
     await vi.runAllTimersAsync();
@@ -102,7 +102,7 @@ describe('useSettings', () => {
       return Promise.resolve(true);
     });
 
-    renderHook(() => useSettings());
+    renderHook(() => useSettingsOwner());
     await vi.advanceTimersByTimeAsync(500);
 
     expect(mockedInvoke).toHaveBeenCalledWith('write_settings', {
@@ -111,5 +111,60 @@ describe('useSettings', () => {
         removed_bundled_plugins: ['export-pdf'],
       }),
     });
+  });
+
+  it('persist не стартует до завершения первичной загрузки', async () => {
+    // read_settings «завис»: резолвим его вручную в середине теста
+    let resolveRead: (value: unknown) => void = () => {};
+    mockedInvoke.mockImplementation((cmd) => {
+      if (cmd === 'read_settings') {
+        return new Promise((resolve) => {
+          resolveRead = resolve;
+        });
+      }
+      return Promise.resolve(true);
+    });
+
+    renderHook(() => useSettingsOwner());
+
+    // Несколько debounce-окон прошло, а persist ни разу не сработал:
+    // иначе дефолтный слепок стора перезаписал бы настройки на диске
+    await vi.advanceTimersByTimeAsync(2000);
+    expect(mockedInvoke).not.toHaveBeenCalledWith('write_settings', expect.anything());
+
+    // Загрузка завершилась — автосейв разблокирован
+    await act(async () => {
+      resolveRead({
+        font_family: 'Georgia',
+        font_size: 15,
+        theme: 'system',
+        recent_files: [],
+        enabled_plugins: ['export-pdf'],
+        removed_bundled_plugins: [],
+      });
+    });
+    await vi.advanceTimersByTimeAsync(500);
+    expect(mockedInvoke).toHaveBeenCalledWith('write_settings', expect.anything());
+  });
+
+  it('лёгкий useSettings не читает настройки и не запускает автосейв', async () => {
+    renderHook(() => useSettings());
+    renderHook(() => useSettings());
+
+    await vi.advanceTimersByTimeAsync(2000);
+
+    expect(mockedInvoke).not.toHaveBeenCalled();
+  });
+
+  it('владелец загружает настройки ровно один раз рядом с потребителем', async () => {
+    renderHook(() => {
+      useSettingsOwner();
+      useSettings();
+    });
+
+    await vi.advanceTimersByTimeAsync(1000);
+
+    const readCalls = mockedInvoke.mock.calls.filter(([cmd]) => cmd === 'read_settings');
+    expect(readCalls).toHaveLength(1);
   });
 });
