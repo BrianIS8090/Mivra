@@ -234,4 +234,238 @@ describe('openrouter-translate plugin', () => {
 
     expect(container.textContent).toContain('Не удалось выполнить сетевой запрос к OpenRouter');
   });
+
+  it('предупреждает об усечении и блокирует применение при finish_reason: length', async () => {
+    const plugin = loadPlugin();
+    const api = createFakeApi();
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        choices: [
+          {
+            message: { content: '# Заголовок\n\nПривет, **ми' },
+            finish_reason: 'length',
+          },
+        ],
+      }),
+    }));
+
+    plugin.activate(api);
+    const renderer = api.dialogs.registerRenderer.mock.calls[0][1];
+    const container = document.createElement('div');
+    renderer.render({ container, api });
+
+    const keyInput = container.querySelector('[data-openrouter-translate-key]');
+    const form = container.querySelector('[data-openrouter-translate-form]');
+    if (!(keyInput instanceof HTMLInputElement) || !(form instanceof HTMLFormElement)) {
+      throw new Error('Форма перевода не найдена');
+    }
+
+    keyInput.value = 'sk-or-test';
+    form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    await flushAsync();
+
+    // Усечённый перевод показывается с явным предупреждением
+    expect(container.textContent).toContain('обрезан');
+
+    const applyButton = container.querySelector('[data-openrouter-translate-apply]');
+    if (!(applyButton instanceof HTMLButtonElement)) {
+      throw new Error('Кнопка применения не найдена');
+    }
+
+    // Кнопка применения заблокирована, документ не затирается обрезанным текстом
+    expect(applyButton.disabled).toBe(true);
+    applyButton.click();
+    expect(api.document.setContent).not.toHaveBeenCalled();
+  });
+
+  it('блокирует применение при native_finish_reason: length', async () => {
+    const plugin = loadPlugin();
+    const api = createFakeApi();
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        choices: [
+          {
+            message: { content: '# Заголовок\n\nПривет, **ми' },
+            finish_reason: 'stop',
+            native_finish_reason: 'length',
+          },
+        ],
+      }),
+    }));
+
+    plugin.activate(api);
+    const renderer = api.dialogs.registerRenderer.mock.calls[0][1];
+    const container = document.createElement('div');
+    renderer.render({ container, api });
+
+    const keyInput = container.querySelector('[data-openrouter-translate-key]');
+    const form = container.querySelector('[data-openrouter-translate-form]');
+    if (!(keyInput instanceof HTMLInputElement) || !(form instanceof HTMLFormElement)) {
+      throw new Error('Форма перевода не найдена');
+    }
+
+    keyInput.value = 'sk-or-test';
+    form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    await flushAsync();
+
+    expect(container.textContent).toContain('обрезан');
+
+    const applyButton = container.querySelector('[data-openrouter-translate-apply]');
+    if (!(applyButton instanceof HTMLButtonElement)) {
+      throw new Error('Кнопка применения не найдена');
+    }
+
+    expect(applyButton.disabled).toBe(true);
+    applyButton.click();
+    expect(api.document.setContent).not.toHaveBeenCalled();
+  });
+
+  it('применяет полный перевод при finish_reason: stop без предупреждения', async () => {
+    const plugin = loadPlugin();
+    const api = createFakeApi();
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        choices: [
+          {
+            message: { content: '# Заголовок\n\nПривет, **мир**.' },
+            finish_reason: 'stop',
+          },
+        ],
+      }),
+    }));
+
+    plugin.activate(api);
+    const renderer = api.dialogs.registerRenderer.mock.calls[0][1];
+    const container = document.createElement('div');
+    renderer.render({ container, api });
+
+    const keyInput = container.querySelector('[data-openrouter-translate-key]');
+    const form = container.querySelector('[data-openrouter-translate-form]');
+    if (!(keyInput instanceof HTMLInputElement) || !(form instanceof HTMLFormElement)) {
+      throw new Error('Форма перевода не найдена');
+    }
+
+    keyInput.value = 'sk-or-test';
+    form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    await flushAsync();
+
+    expect(container.textContent).not.toContain('обрезан');
+
+    const applyButton = container.querySelector('[data-openrouter-translate-apply]');
+    if (!(applyButton instanceof HTMLButtonElement)) {
+      throw new Error('Кнопка применения не найдена');
+    }
+
+    expect(applyButton.disabled).toBe(false);
+    applyButton.click();
+    expect(api.document.setContent).toHaveBeenCalledWith('# Заголовок\n\nПривет, **мир**.');
+  });
+
+  it('не применяет усечённый перевод даже при программном снятии disabled с кнопки', async () => {
+    const plugin = loadPlugin();
+    const api = createFakeApi();
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        choices: [
+          {
+            message: { content: '# Заголовок\n\nПривет, **ми' },
+            finish_reason: 'length',
+          },
+        ],
+      }),
+    }));
+
+    plugin.activate(api);
+    const renderer = api.dialogs.registerRenderer.mock.calls[0][1];
+    const container = document.createElement('div');
+    renderer.render({ container, api });
+
+    const keyInput = container.querySelector('[data-openrouter-translate-key]');
+    const form = container.querySelector('[data-openrouter-translate-form]');
+    if (!(keyInput instanceof HTMLInputElement) || !(form instanceof HTMLFormElement)) {
+      throw new Error('Форма перевода не найдена');
+    }
+
+    keyInput.value = 'sk-or-test';
+    form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    await flushAsync();
+
+    const applyButton = container.querySelector('[data-openrouter-translate-apply]');
+    if (!(applyButton instanceof HTMLButtonElement)) {
+      throw new Error('Кнопка применения не найдена');
+    }
+
+    // jsdom не вызывает click() на disabled-кнопке, поэтому снимаем блокировку программно:
+    // guard в обработчике обязан удержать защиту сам
+    applyButton.disabled = false;
+    applyButton.click();
+    expect(api.document.setContent).not.toHaveBeenCalled();
+  });
+
+  it('сохраняет блокировку усечённого перевода после неудачного повторного запроса', async () => {
+    const plugin = loadPlugin();
+    const api = createFakeApi();
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          choices: [
+            {
+              message: { content: '# Заголовок\n\nПривет, **ми' },
+              finish_reason: 'length',
+            },
+          ],
+        }),
+      })
+      .mockRejectedValueOnce(new TypeError('Failed to fetch'));
+    vi.stubGlobal('fetch', fetchMock);
+
+    plugin.activate(api);
+    const renderer = api.dialogs.registerRenderer.mock.calls[0][1];
+    const container = document.createElement('div');
+    renderer.render({ container, api });
+
+    // Первый запрос: OpenRouter урезал перевод по лимиту токенов
+    let keyInput = container.querySelector('[data-openrouter-translate-key]');
+    let form = container.querySelector('[data-openrouter-translate-form]');
+    if (!(keyInput instanceof HTMLInputElement) || !(form instanceof HTMLFormElement)) {
+      throw new Error('Форма перевода не найдена');
+    }
+    keyInput.value = 'sk-or-test';
+    form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    await flushAsync();
+
+    let applyButton = container.querySelector('[data-openrouter-translate-apply]');
+    if (!(applyButton instanceof HTMLButtonElement)) {
+      throw new Error('Кнопка применения не найдена');
+    }
+    expect(applyButton.disabled).toBe(true);
+
+    // Повторный запрос падает по сети: усечённый результат и его блокировка должны сохраниться
+    keyInput = container.querySelector('[data-openrouter-translate-key]');
+    form = container.querySelector('[data-openrouter-translate-form]');
+    if (!(keyInput instanceof HTMLInputElement) || !(form instanceof HTMLFormElement)) {
+      throw new Error('Форма перевода не найдена после перерисовки');
+    }
+    keyInput.value = 'sk-or-test';
+    form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    await flushAsync();
+    await flushAsync();
+
+    expect(container.textContent).toContain('обрезан');
+
+    applyButton = container.querySelector('[data-openrouter-translate-apply]');
+    if (!(applyButton instanceof HTMLButtonElement)) {
+      throw new Error('Кнопка применения не найдена после перерисовки');
+    }
+    expect(applyButton.disabled).toBe(true);
+
+    applyButton.disabled = false;
+    applyButton.click();
+    expect(api.document.setContent).not.toHaveBeenCalled();
+  });
 });

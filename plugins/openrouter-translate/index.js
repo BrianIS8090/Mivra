@@ -65,6 +65,7 @@
       status: 'Готов к переводу',
       loading: false,
       applied: false,
+      truncated: false,
     };
   }
 
@@ -120,6 +121,17 @@
     return '';
   }
 
+  // Предупреждение об усечении выводится из state.truncated при рендере, а не хранится
+  // в state.error, чтобы любая последующая ошибка (сеть, буфер обмена) его не затирала
+  const truncationWarningText = 'OpenRouter обрезал перевод из-за лимита токенов (finish_reason: length). Результат неполный, применение заблокировано. Сократите документ или переведите его частями.';
+
+  // Усечённым считается ответ, где finish_reason или native_finish_reason равен 'length';
+  // отсутствие finish_reason считается успехом
+  function isTruncatedByTokenLimit(data) {
+    const choice = data?.choices?.[0];
+    return choice?.finish_reason === 'length' || choice?.native_finish_reason === 'length';
+  }
+
   async function readErrorMessage(response) {
     try {
       const data = await response.json();
@@ -161,7 +173,7 @@
     if (!content) {
       throw new Error('OpenRouter вернул пустой перевод');
     }
-    return content;
+    return { content, truncated: isTruncatedByTokenLimit(data) };
   }
 
   function markdownToHtml(markdown) {
@@ -319,12 +331,19 @@
     `).join('');
     const statusText = state.loading
       ? 'Запрос к OpenRouter...'
-      : state.result
-        ? `Готово · ${formatNumber(state.result.length)} символов · ${directionLabel(state.direction)}`
-        : state.status;
+      : state.truncated
+        ? 'Перевод обрезан из-за лимита токенов'
+        : state.result
+          ? `Готово · ${formatNumber(state.result.length)} символов · ${directionLabel(state.direction)}`
+          : state.status;
     const resultHtml = state.result
       ? markdownToHtml(state.result)
       : '<p class="openrouter-translate-empty">Перевод появится здесь после запроса к OpenRouter.</p>';
+    // Предупреждение об усечении стоит первым и не затирается последующими ошибками
+    const noteText = [state.truncated ? truncationWarningText : '', state.error]
+      .filter(Boolean)
+      .join(' ')
+      || 'Перевод не применяется автоматически. Проверьте результат и нажмите «Применить перевод».';
 
     container.innerHTML = `
       <div class="openrouter-translate-overlay">
@@ -384,7 +403,7 @@
                 <button class="openrouter-translate-primary" type="submit" ${state.loading ? 'disabled' : ''}>
                   ${state.loading ? 'Перевод...' : 'Перевести'}
                 </button>
-                <button type="button" data-openrouter-translate-apply ${state.result && !state.loading ? '' : 'disabled'}>
+                <button type="button" data-openrouter-translate-apply ${state.result && !state.loading && !state.truncated ? '' : 'disabled'}>
                   ${state.applied ? 'Применено' : 'Применить перевод'}
                 </button>
               </div>
@@ -392,7 +411,7 @@
 
             <section class="openrouter-translate-result">
               <div class="openrouter-translate-result-toolbar">
-                <div class="openrouter-translate-status ${state.error ? 'is-error' : ''}">
+                <div class="openrouter-translate-status ${state.error || state.truncated ? 'is-error' : ''}">
                   <span></span>
                   <strong>${escapeHtml(statusText)}</strong>
                 </div>
@@ -406,8 +425,8 @@
                 ${resultHtml}
               </div>
 
-              <div class="openrouter-translate-note ${state.error ? 'is-error' : ''}">
-                ${escapeHtml(state.error || 'Перевод не применяется автоматически. Проверьте результат и нажмите «Применить перевод».')}
+              <div class="openrouter-translate-note ${state.error || state.truncated ? 'is-error' : ''}">
+                ${escapeHtml(noteText)}
               </div>
             </section>
           </form>
@@ -519,9 +538,12 @@
             rerender();
 
             try {
-              const result = await translateWithOpenRouter(stats?.markdown ?? api.document.getContent(), state);
-              state.result = result;
-              state.status = 'Готово';
+              const { content, truncated } = await translateWithOpenRouter(stats?.markdown ?? api.document.getContent(), state);
+              // Пара (result, truncated) обновляется только по факту успешного ответа:
+              // при ошибке запроса старый результат остаётся вместе со своим статусом усечения
+              state.result = content;
+              state.truncated = truncated;
+              state.status = truncated ? 'Перевод обрезан' : 'Готово';
               state.error = '';
             } catch (error) {
               state.error = error instanceof Error ? error.message : String(error);
@@ -543,7 +565,7 @@
           };
 
           const onApply = () => {
-            if (!state.result || state.loading) return;
+            if (!state.result || state.loading || state.truncated) return;
             api.document.setContent(state.result);
             state.applied = true;
             state.status = 'Перевод применён к документу';
@@ -567,6 +589,7 @@
             state.result = '';
             state.error = '';
             state.applied = false;
+            state.truncated = false;
             state.status = 'Готов к переводу';
             rerender();
           };
