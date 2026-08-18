@@ -2,7 +2,6 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import pkg from './package.json';
 
-// @ts-expect-error process is a nodejs global
 const host = process.env.TAURI_DEV_HOST;
 
 export default defineConfig(async () => ({
@@ -27,7 +26,7 @@ export default defineConfig(async () => ({
       ignored: ['**/src-tauri/**'],
     },
   },
-  // @ts-expect-error vitest config
+  // vitest-конфиг: типы расширяются vitest через declaration merging
   test: {
     globals: true,
     environment: 'jsdom',

@@ -26,13 +26,16 @@
     "@tauri-apps/plugin-store": "^2.4.2",
     "dejavu-fonts-ttf": "^2.37.3",
     "mammoth": "^1.12.0",
-    "mermaid": "^11.13.0",
-    "pdfjs-dist": "^5.7.284",
+    "mermaid": "^11.16.1",
+    "pdfjs-dist": "^6.2.108",
     "pdfmake": "^0.3.8",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "xlsx": "^0.18.5",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
     "zustand": "^5.0.11"
+  },
+  "overrides": {
+    "lodash-es": "4.18.1"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2",
@@ -44,7 +47,7 @@
     "@vitejs/plugin-react": "^4.6.0",
     "jsdom": "^28.0.0",
     "typescript": "~5.8.3",
-    "vite": "^7.0.4",
-    "vitest": "^4.0.18"
+    "vite": "^7.3.6",
+    "vitest": "^4.1.11"
   }
 }

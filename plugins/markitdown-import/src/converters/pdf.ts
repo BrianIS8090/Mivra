@@ -48,7 +48,7 @@ type PdfImagePage = {
   getOperatorList(): Promise<PdfOperatorList>;
   getViewport?(input: { scale: number }): { width: number; height: number };
   render?(input: {
-    canvasContext: CanvasRenderingContext2D;
+    canvas: HTMLCanvasElement;
     viewport: { width: number; height: number };
   }): { promise: Promise<unknown> };
 };
@@ -318,7 +318,8 @@ async function warmPdfImageObjects(page: PdfImagePage): Promise<boolean> {
   if (!context) return false;
 
   // PDF.js иногда наполняет page.objs только во время render; результат canvas не используется.
-  await page.render({ canvasContext: context, viewport }).promise;
+  // В pdf.js v6 параметр canvasContext объявлен устаревшим — передаём сам canvas.
+  await page.render({ canvas, viewport }).promise;
   canvas.width = 0;
   canvas.height = 0;
   return true;
