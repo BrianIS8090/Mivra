@@ -18,6 +18,7 @@ vi.mock('@tauri-apps/api/path', () => ({
 
 vi.mock('@tauri-apps/plugin-fs', () => ({
   exists: vi.fn(async () => false),
+  stat: vi.fn(),
 }));
 
 vi.mock('@tauri-apps/plugin-dialog', () => ({
@@ -29,5 +30,7 @@ vi.mock('@tauri-apps/api/window', () => ({
     minimize: vi.fn(),
     toggleMaximize: vi.fn(),
     close: vi.fn(),
+    onCloseRequested: vi.fn(async () => vi.fn()),
+    destroy: vi.fn(),
   })),
 }));

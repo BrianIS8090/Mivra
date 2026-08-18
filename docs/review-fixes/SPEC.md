@@ -33,7 +33,7 @@
 Файлы: `.github/workflows/ci.yml`, `src/test/setup.ts`, новый `src/test/useExit.test.ts`.
 - CI: шаг `cargo test` (working-directory: src-tauri) после `Cargo check`, перед clippy.
 - setup.ts: в мок окна добавить `onCloseRequested: vi.fn(async () => vi.fn())` и `destroy: vi.fn()`; в мок `@tauri-apps/plugin-fs` добавить `stat: vi.fn()`.
-- Тесты useExit: закрытие без изменений → destroy; с изменениями → диалог; ветки save / saveAs / discard / cancel.
+- Тесты useExit: закрытие без изменений → return без preventDefault/destroy (окно закрывает система; destroy нужен только после отменённого закрытия); с изменениями → диалог; ветки save / saveAs / discard / cancel.
 Приёмка: `npx vitest run src/test/useExit.test.ts` зелёный, весь `npm test` зелёный.
 
 ## T4 (волна 2a). Надёжность settings.json + атомарное сохранение документов
