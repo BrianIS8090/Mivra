@@ -201,4 +201,28 @@ export const en: Translations = {
   s3FileTooLarge: 'file is larger than 100 MB',
   s3UnsupportedExt: 'unsupported extension',
   s3SizeWarnConfirm: 'Upload {name} ({size})?',
+
+  // Find & replace
+  searchTooltip: 'Find (Ctrl+F)',
+  findPlaceholder: 'Find…',
+  replacePlaceholder: 'Replace with…',
+  findPrevTooltip: 'Previous (Shift+Enter)',
+  findNextTooltip: 'Next (Enter)',
+  replaceTooltip: 'Replace current match',
+  replaceAllTooltip: 'Replace all matches',
+  matchCaseTooltip: 'Match case',
+  searchCloseTooltip: 'Close find (Esc)',
+  noMatches: 'No matches',
+  toggleReplaceTooltip: 'Replace (Ctrl+H)',
+
+  // Autosave
+  autosave: 'Autosave',
+  autosaveTooltip: 'Automatically save the document on changes',
+  autosaveError: 'Failed to autosave the file',
+
+  // Recent files
+  recentFiles: 'Recent',
+  recentFilesTooltip: 'Recent files',
+  recentFilesEmpty: 'No recent files',
+  openRecentError: 'Failed to open file',
 };

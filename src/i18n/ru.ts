@@ -204,6 +204,30 @@ export const ru = {
   s3FileTooLarge: 'файл больше 100 MB',
   s3UnsupportedExt: 'расширение не поддерживается',
   s3SizeWarnConfirm: 'Загрузить {name} ({size})?',
+
+  // Поиск и замена
+  searchTooltip: 'Поиск (Ctrl+F)',
+  findPlaceholder: 'Найти…',
+  replacePlaceholder: 'Заменить на…',
+  findPrevTooltip: 'Предыдущее (Shift+Enter)',
+  findNextTooltip: 'Следующее (Enter)',
+  replaceTooltip: 'Заменить текущее совпадение',
+  replaceAllTooltip: 'Заменить все совпадения',
+  matchCaseTooltip: 'Учитывать регистр',
+  searchCloseTooltip: 'Закрыть поиск (Esc)',
+  noMatches: 'Нет совпадений',
+  toggleReplaceTooltip: 'Замена (Ctrl+H)',
+
+  // Автосохранение
+  autosave: 'Автосохранение',
+  autosaveTooltip: 'Автоматически сохранять документ при изменениях',
+  autosaveError: 'Не удалось автосохранить файл',
+
+  // Недавние файлы
+  recentFiles: 'Недавние',
+  recentFilesTooltip: 'Недавние файлы',
+  recentFilesEmpty: 'Нет недавних файлов',
+  openRecentError: 'Не удалось открыть файл',
 };
 
 export type Translations = typeof ru;
