@@ -4,6 +4,7 @@ use specta::Type;
 use std::fs;
 use std::io::{Read, Write};
 use std::path::PathBuf;
+use std::sync::{Mutex, OnceLock};
 use tauri::Manager;
 use tauri_plugin_dialog::DialogExt;
 
@@ -417,16 +418,139 @@ fn atomic_write(path: &std::path::Path, content: &str) -> Result<(), String> {
   Ok(())
 }
 
+/// Разрешить цель записи документа: если путь — символическая ссылка,
+/// пишем в целевой файл. Иначе atomic_write молча подменил бы саму ссылку
+/// обычным файлом, а оригинал остался бы нетронутым при «успешном» сохранении.
+/// Цепочки ссылок разрешаем циклом до конца — как это делал старый fs::write.
+fn resolve_document_write_target(path: &std::path::Path) -> Result<PathBuf, String> {
+  // Лимит глубины — защита от петель (a -> b -> a): при превышении пишем
+  // в последний резолвнутый путь, т.е. разрываем петлю на этом звене, но
+  // данные не теряем молча. 10 hop'ов реальным конфигам хватает с запасом.
+  const MAX_SYMLINK_HOPS: u32 = 10;
+
+  let mut current = path.to_path_buf();
+  for _ in 0..MAX_SYMLINK_HOPS {
+    let is_symlink = fs::symlink_metadata(&current)
+      .map(|metadata| metadata.file_type().is_symlink())
+      .unwrap_or(false);
+    if !is_symlink {
+      return Ok(current);
+    }
+
+    let target = fs::read_link(&current)
+      .map_err(|e| format!("Ошибка чтения символической ссылки: {}", e))?;
+    // Относительная ссылка резолвится от каталога, где лежит сама ссылка
+    current = if target.is_absolute() {
+      target
+    } else {
+      match current.parent() {
+        Some(parent) => parent.join(target),
+        None => target,
+      }
+    };
+  }
+
+  eprintln!(
+    "[save] превышен лимит вложенности symlink ({}): {}",
+    MAX_SYMLINK_HOPS,
+    path.display()
+  );
+  Ok(current)
+}
+
+/// Процессный мьютекс для read-modify-write settings.json: async-команды
+/// Tauri исполняются на многопоточном tokio-runtime — без синхронизации окно
+/// между чтением и atomic_write позволяет параллельной операции затереть
+/// свежие данные. Внутри критической секции await нет (fs-операции
+/// синхронные), поэтому достаточно std::sync::Mutex.
+static SETTINGS_LOCK: OnceLock<Mutex<()>> = OnceLock::new();
+
+fn settings_lock() -> &'static Mutex<()> {
+  SETTINGS_LOCK.get_or_init(|| Mutex::new(()))
+}
+
+/// Первое свободное имя бэкапа повреждённых настроек:
+/// settings.corrupt.bak, settings.corrupt-2.bak, ... — чтобы следующая порча
+/// не затирала бэкап предыдущей. Если все слоты заняты, перезаписывается
+/// последний: лучше потерять десятый бэкап, чем остаться без бэкапа вовсе.
+fn corrupt_backup_path(path: &std::path::Path) -> PathBuf {
+  const MAX_BACKUPS: u32 = 10;
+  let first = path.with_file_name("settings.corrupt.bak");
+  if !first.exists() {
+    return first;
+  }
+  for index in 2..=MAX_BACKUPS {
+    let candidate = path.with_file_name(format!("settings.corrupt-{}.bak", index));
+    if !candidate.exists() {
+      return candidate;
+    }
+  }
+  path.with_file_name(format!("settings.corrupt-{}.bak", MAX_BACKUPS))
+}
+
 /// Добавить файл в список недавних (максимум 10).
 /// Возвращает Result, чтобы вызывающий мог решить, прерывать ли операцию.
 fn add_to_recent(app: &tauri::AppHandle, path: &str) -> Result<(), String> {
   let settings_file = settings_path(app)?;
-  let mut settings = if settings_file.exists() {
-    let data = fs::read_to_string(&settings_file).unwrap_or_default();
-    serde_json::from_str::<Settings>(&data).unwrap_or_default()
-  } else {
-    Settings::default()
-  };
+  add_to_recent_in_path(&settings_file, path)
+}
+
+/// Толерантное чтение настроек с диска. None — файла нет, он не читается
+/// или повреждён. Повреждённый файл перед этим копируется в свободный слот
+/// settings.corrupt*.bak рядом: иначе следующая запись молча затрёт данные.
+fn read_settings_from_path(path: &std::path::Path) -> Option<Settings> {
+  if !path.exists() {
+    return None;
+  }
+  let data = fs::read_to_string(path).ok()?;
+  match serde_json::from_str::<Settings>(&data) {
+    Ok(settings) => Some(settings),
+    Err(e) => {
+      eprintln!("[settings] settings.json повреждён ({}), сохраняем бэкап", e);
+      let backup = corrupt_backup_path(path);
+      if let Err(e) = atomic_write(&backup, &data) {
+        eprintln!("[settings] не удалось сохранить бэкап повреждённых настроек: {}", e);
+      }
+      None
+    }
+  }
+}
+
+/// Записать настройки в файл под процессным мьютексом (см. settings_lock).
+fn write_settings_to_path(path: &std::path::Path, settings: Settings) -> Result<(), String> {
+  // Poisoning игнорируем: консистентность файла обеспечивает atomic_write
+  let _guard = settings_lock().lock().unwrap_or_else(|e| e.into_inner());
+  write_settings_to_path_unlocked(path, settings)
+}
+
+/// Поле recent_files принадлежит Rust-стороне (его обновляет add_to_recent),
+/// поэтому значение берём с диска, а не из payload: снимок стора фронтенда
+/// мог устареть, а частичная запись (все поля Settings помечены
+/// #[serde(default)]) молча сбрасывала бы поле.
+fn write_settings_to_path_unlocked(
+  path: &std::path::Path,
+  mut settings: Settings,
+) -> Result<(), String> {
+  if let Some(on_disk) = read_settings_from_path(path) {
+    settings.recent_files = on_disk.recent_files;
+  }
+  let json =
+    serde_json::to_string_pretty(&settings).map_err(|e| format!("Ошибка сериализации: {}", e))?;
+  atomic_write(path, &json)
+}
+
+/// Добавление в recent под процессным мьютексом (см. settings_lock).
+fn add_to_recent_in_path(settings_file: &std::path::Path, path: &str) -> Result<(), String> {
+  let _guard = settings_lock().lock().unwrap_or_else(|e| e.into_inner());
+  add_to_recent_in_path_unlocked(settings_file, path)
+}
+
+fn add_to_recent_in_path_unlocked(
+  settings_file: &std::path::Path,
+  path: &str,
+) -> Result<(), String> {
+  // Повреждённый файл: read_settings_from_path сохранит бэкап, дальше дефолт
+  let mut settings = read_settings_from_path(settings_file).unwrap_or_default();
 
   // Убрать дубликат, добавить в начало
   settings.recent_files.retain(|p| p != path);
@@ -435,7 +559,7 @@ fn add_to_recent(app: &tauri::AppHandle, path: &str) -> Result<(), String> {
 
   let json = serde_json::to_string_pretty(&settings)
     .map_err(|e| format!("Ошибка сериализации настроек: {}", e))?;
-  atomic_write(&settings_file, &json)
+  atomic_write(settings_file, &json)
 }
 
 #[tauri::command]
@@ -467,7 +591,12 @@ pub async fn open_file(app: tauri::AppHandle) -> Result<FileData, String> {
 #[tauri::command]
 #[specta::specta]
 pub async fn save_file(path: String, content: String) -> Result<bool, String> {
-  fs::write(&path, &content).map_err(|e| format!("Ошибка сохранения: {}", e))?;
+  // Атомарная запись: документ не должен остаться обрезанным после сбоя.
+  // Symlink разрешаем в целевой файл — иначе подменилась бы сама ссылка.
+  // Известные ограничения подмены файла (как у VS Code/Vim): жёсткие ссылки
+  // рвутся (переименование подменяет dirent), ACL/атрибуты наследуются от каталога.
+  let target = resolve_document_write_target(std::path::Path::new(&path))?;
+  atomic_write(&target, &content)?;
   Ok(true)
 }
 
@@ -490,7 +619,9 @@ pub async fn save_file_as(
         .into_path()
         .map_err(|e| format!("Некорректный путь: {}", e))?;
       let path = path_buf.to_string_lossy().to_string();
-      fs::write(&path, &content).map_err(|e| format!("Ошибка сохранения: {}", e))?;
+      // Symlink из диалога маловероятен, но разрешаем его так же, как save_file
+      let target = resolve_document_write_target(std::path::Path::new(&path))?;
+      atomic_write(&target, &content)?;
       if let Err(e) = add_to_recent(&app, &path) {
         eprintln!("[recent_files] не удалось обновить список: {}", e);
       }
@@ -504,8 +635,14 @@ pub async fn save_file_as(
 #[specta::specta]
 pub async fn read_settings(app: tauri::AppHandle) -> Result<Settings, String> {
   let path = settings_path(&app)?;
+  read_settings_strict(&path)
+}
+
+/// Строгое чтение настроек с диска: битый JSON — ошибка (в отличие от
+/// толерантной read_settings_from_path, которая сохраняет бэкап).
+fn read_settings_strict(path: &std::path::Path) -> Result<Settings, String> {
   if path.exists() {
-    let data = fs::read_to_string(&path).map_err(|e| format!("Ошибка чтения настроек: {}", e))?;
+    let data = fs::read_to_string(path).map_err(|e| format!("Ошибка чтения настроек: {}", e))?;
     let mut settings: Settings =
       serde_json::from_str(&data).map_err(|e| format!("Ошибка парсинга настроек: {}", e))?;
     settings.enabled_plugins = normalize_enabled_plugins(settings.enabled_plugins);
@@ -521,9 +658,7 @@ pub async fn read_settings(app: tauri::AppHandle) -> Result<Settings, String> {
 #[specta::specta]
 pub async fn write_settings(app: tauri::AppHandle, settings: Settings) -> Result<bool, String> {
   let path = settings_path(&app)?;
-  let json =
-    serde_json::to_string_pretty(&settings).map_err(|e| format!("Ошибка сериализации: {}", e))?;
-  atomic_write(&path, &json)?;
+  write_settings_to_path(&path, settings)?;
   Ok(true)
 }
 
@@ -531,14 +666,17 @@ async fn update_settings_after_plugin_install(
   app: &tauri::AppHandle,
   plugin_id: &str,
 ) -> Result<(), String> {
-  let mut settings = read_settings(app.clone()).await?;
+  let path = settings_path(app)?;
+  // Вся связка read-modify-write под процессным мьютексом (см. settings_lock);
+  // await внутри критической секции нет.
+  let _guard = settings_lock().lock().unwrap_or_else(|e| e.into_inner());
+  let mut settings = read_settings_strict(&path)?;
   settings
     .removed_bundled_plugins
     .retain(|id| id != plugin_id);
   settings.removed_bundled_plugins =
     normalize_removed_bundled_plugins(settings.removed_bundled_plugins);
-  write_settings(app.clone(), settings).await?;
-  Ok(())
+  write_settings_to_path_unlocked(&path, settings)
 }
 
 async fn update_settings_after_plugin_uninstall(
@@ -546,7 +684,11 @@ async fn update_settings_after_plugin_uninstall(
   plugin_id: &str,
   is_bundled: bool,
 ) -> Result<(), String> {
-  let mut settings = read_settings(app.clone()).await?;
+  let path = settings_path(app)?;
+  // Вся связка read-modify-write под процессным мьютексом (см. settings_lock);
+  // await внутри критической секции нет.
+  let _guard = settings_lock().lock().unwrap_or_else(|e| e.into_inner());
+  let mut settings = read_settings_strict(&path)?;
   settings.enabled_plugins.retain(|id| id != plugin_id);
 
   if is_bundled && !plugin_id_in_list(&settings.removed_bundled_plugins, plugin_id) {
@@ -556,8 +698,7 @@ async fn update_settings_after_plugin_uninstall(
   settings.enabled_plugins = normalize_enabled_plugins(settings.enabled_plugins);
   settings.removed_bundled_plugins =
     normalize_removed_bundled_plugins(settings.removed_bundled_plugins);
-  write_settings(app.clone(), settings).await?;
-  Ok(())
+  write_settings_to_path_unlocked(&path, settings)
 }
 
 #[tauri::command]
@@ -1306,8 +1447,10 @@ mod tests {
 
   #[test]
   fn removed_bundled_plugin_without_installed_folder_is_not_restored() {
-    let mut settings = super::Settings::default();
-    settings.removed_bundled_plugins = vec!["export-pdf".to_string()];
+    let settings = super::Settings {
+      removed_bundled_plugins: vec!["export-pdf".to_string()],
+      ..Default::default()
+    };
 
     assert!(!super::should_restore_bundled_plugin(
       &settings,
@@ -1320,8 +1463,10 @@ mod tests {
 
   #[test]
   fn disabled_missing_bundled_plugin_is_not_restored() {
-    let mut settings = super::Settings::default();
-    settings.enabled_plugins = Vec::new();
+    let settings = super::Settings {
+      enabled_plugins: Vec::new(),
+      ..Default::default()
+    };
 
     assert!(!super::should_restore_bundled_plugin(
       &settings,
@@ -1399,6 +1544,313 @@ mod tests {
       .unwrap_err();
 
     assert!(err.contains("unsupported_extension"), "got: {}", err);
+    fs::remove_dir_all(&dir).ok();
+  }
+
+  #[test]
+  fn write_settings_keeps_recent_files_from_disk() {
+    let dir = unique_temp_dir();
+    fs::create_dir_all(&dir).expect("Не удалось создать временную директорию");
+    let path = dir.join("settings.json");
+
+    // На диске уже лежат настройки с недавними файлами
+    let on_disk = super::Settings {
+      recent_files: vec!["C:\\docs\\a.md".to_string()],
+      ..Default::default()
+    };
+    let json = serde_json::to_string_pretty(&on_disk).expect("Сериализация должна пройти");
+    super::atomic_write(&path, &json).expect("Начальная запись должна пройти");
+
+    // Фронтенд шлёт слепок, в котором recent_files — устаревший снимок стора
+    let payload = super::Settings {
+      theme: "dark".to_string(),
+      ..Default::default()
+    };
+    super::write_settings_to_path(&path, payload).expect("Запись должна пройти");
+
+    let saved: super::Settings =
+      serde_json::from_str(&fs::read_to_string(&path).expect("Файл должен читаться"))
+        .expect("JSON должен парситься");
+    assert_eq!(saved.theme, "dark");
+    assert_eq!(saved.recent_files, vec!["C:\\docs\\a.md".to_string()]);
+    fs::remove_dir_all(&dir).ok();
+  }
+
+  #[test]
+  fn write_settings_backs_up_corrupt_file_before_overwrite() {
+    let dir = unique_temp_dir();
+    fs::create_dir_all(&dir).expect("Не удалось создать временную директорию");
+    let path = dir.join("settings.json");
+    fs::write(&path, "{ битый json").expect("Не удалось записать битый settings.json");
+
+    let payload = super::Settings {
+      recent_files: vec!["C:\\docs\\from-payload.md".to_string()],
+      ..Default::default()
+    };
+    super::write_settings_to_path(&path, payload).expect("Запись должна пройти");
+
+    // Перед перезаписью исходное содержимое сохранено в бэкап
+    let backup = fs::read_to_string(dir.join("settings.corrupt.bak"))
+      .expect("Должен быть создан бэкап повреждённого файла");
+    assert_eq!(backup, "{ битый json");
+
+    // settings.json перезаписан валидными настройками; диск не читался,
+    // поэтому recent_files взяты из payload
+    let saved: super::Settings =
+      serde_json::from_str(&fs::read_to_string(&path).expect("Файл должен читаться"))
+        .expect("JSON должен парситься");
+    assert_eq!(saved.recent_files, vec!["C:\\docs\\from-payload.md".to_string()]);
+    fs::remove_dir_all(&dir).ok();
+  }
+
+  #[test]
+  fn add_to_recent_in_path_backs_up_corrupt_file() {
+    let dir = unique_temp_dir();
+    fs::create_dir_all(&dir).expect("Не удалось создать временную директорию");
+    let path = dir.join("settings.json");
+    fs::write(&path, "not json").expect("Не удалось записать битый settings.json");
+
+    super::add_to_recent_in_path(&path, "C:\\docs\\new.md").expect("Добавление должно пройти");
+
+    let backup = fs::read_to_string(dir.join("settings.corrupt.bak"))
+      .expect("Должен быть создан бэкап повреждённого файла");
+    assert_eq!(backup, "not json");
+
+    let saved: super::Settings =
+      serde_json::from_str(&fs::read_to_string(&path).expect("Файл должен читаться"))
+        .expect("JSON должен парситься");
+    assert_eq!(saved.recent_files, vec!["C:\\docs\\new.md".to_string()]);
+    fs::remove_dir_all(&dir).ok();
+  }
+
+  #[test]
+  fn add_to_recent_in_path_prepends_without_duplicates() {
+    let dir = unique_temp_dir();
+    fs::create_dir_all(&dir).expect("Не удалось создать временную директорию");
+    let path = dir.join("settings.json");
+
+    super::add_to_recent_in_path(&path, "C:\\a.md").expect("Первое добавление должно пройти");
+    super::add_to_recent_in_path(&path, "C:\\b.md").expect("Второе добавление должно пройти");
+    super::add_to_recent_in_path(&path, "C:\\a.md").expect("Повторное добавление должно пройти");
+
+    let saved: super::Settings =
+      serde_json::from_str(&fs::read_to_string(&path).expect("Файл должен читаться"))
+        .expect("JSON должен парситься");
+    assert_eq!(
+      saved.recent_files,
+      vec!["C:\\a.md".to_string(), "C:\\b.md".to_string()]
+    );
+    fs::remove_dir_all(&dir).ok();
+  }
+
+  #[tokio::test]
+  async fn save_file_writes_atomically_without_temp_files() {
+    let dir = unique_temp_dir();
+    fs::create_dir_all(&dir).expect("Не удалось создать временную директорию");
+    let path = dir.join("doc.md");
+
+    super::save_file(path.to_string_lossy().to_string(), "# Привет".to_string())
+      .await
+      .expect("Сохранение должно пройти");
+
+    assert_eq!(
+      fs::read_to_string(&path).expect("Файл должен читаться"),
+      "# Привет"
+    );
+    // Временных файлов рядом не остаётся
+    let entries: Vec<_> = fs::read_dir(&dir)
+      .expect("Директория должна читаться")
+      .collect::<Result<Vec<_>, _>>()
+      .expect("Элементы директории должны читаться");
+    assert_eq!(entries.len(), 1, "Остались временные файлы");
+    assert_eq!(entries[0].file_name(), "doc.md");
+    fs::remove_dir_all(&dir).ok();
+  }
+
+  #[test]
+  fn settings_recent_files_survive_concurrent_writes() {
+    let dir = unique_temp_dir();
+    fs::create_dir_all(&dir).expect("Не удалось создать временную директорию");
+    let path = dir.join("settings.json");
+    atomic_write(
+      &path,
+      &serde_json::to_string_pretty(&super::Settings::default()).expect("Сериализация должна пройти"),
+    )
+    .expect("Начальная запись должна пройти");
+
+    let writer_path = path.clone();
+    let adder_path = path.clone();
+    let barrier = std::sync::Barrier::new(2);
+    std::thread::scope(|scope| {
+      let barrier = &barrier;
+      // Писатель: шлёт слепки с пустым recent_files — как persist фронтенда
+      let writer_path = &writer_path;
+      let adder_path = &adder_path;
+      scope.spawn(move || {
+        barrier.wait();
+        for _ in 0..50 {
+          let payload = super::Settings {
+            theme: "dark".to_string(),
+            ..Default::default()
+          };
+          super::write_settings_to_path(writer_path, payload).expect("Запись должна пройти");
+        }
+      });
+      // Добавляющий: 10 недавних файлов подряд
+      scope.spawn(move || {
+        barrier.wait();
+        for index in 0..10 {
+          super::add_to_recent_in_path(adder_path, &format!("C:\\docs\\{index}.md"))
+            .expect("Добавление должно пройти");
+        }
+      });
+    });
+
+    // Контрольное добавление после завершения гонки
+    super::add_to_recent_in_path(&path, "C:\\docs\\final.md").expect("Добавление должно пройти");
+
+    let saved: super::Settings =
+      serde_json::from_str(&fs::read_to_string(&path).expect("Файл должен читаться"))
+        .expect("JSON должен парситься");
+
+    // Ни один успешно завершённый add_to_recent не потерян:
+    // [final, 9, 8, ..., 1] (0-й вытеснен контрольным добавлением)
+    let mut expected: Vec<String> = vec!["C:\\docs\\final.md".to_string()];
+    for index in (1..10).rev() {
+      expected.push(format!("C:\\docs\\{index}.md"));
+    }
+    assert_eq!(saved.recent_files, expected);
+    fs::remove_dir_all(&dir).ok();
+  }
+
+  #[test]
+  fn resolve_document_write_target_keeps_plain_path() {
+    let dir = unique_temp_dir();
+    fs::create_dir_all(&dir).expect("Не удалось создать временную директорию");
+    let path = dir.join("plain.md");
+    fs::write(&path, "x").expect("Не удалось записать файл");
+
+    let resolved =
+      super::resolve_document_write_target(&path).expect("Разрешение цели должно пройти");
+
+    assert_eq!(resolved, path);
+    fs::remove_dir_all(&dir).ok();
+  }
+
+  #[tokio::test]
+  async fn save_file_through_symlink_writes_to_target() {
+    let dir = unique_temp_dir();
+    fs::create_dir_all(&dir).expect("Не удалось создать временную директорию");
+    let target = dir.join("target.md");
+    fs::write(&target, "старое").expect("Не удалось записать целевой файл");
+    let link = dir.join("link.md");
+
+    let symlink_result = {
+      #[cfg(windows)]
+      {
+        std::os::windows::fs::symlink_file(&target, &link)
+      }
+      #[cfg(unix)]
+      {
+        std::os::unix::fs::symlink(&target, &link)
+      }
+    };
+    // На Windows создание symlink может требовать прав разработчика/админа —
+    // в этом случае тест пропускаем, а не роняем прогон
+    if let Err(e) = symlink_result {
+      eprintln!("[test] пропуск: не удалось создать symlink ({})", e);
+      fs::remove_dir_all(&dir).ok();
+      return;
+    }
+
+    super::save_file(link.to_string_lossy().to_string(), "новое".to_string())
+      .await
+      .expect("Сохранение должно пройти");
+
+    // Ссылка осталась ссылкой, содержимое ушло в целевой файл
+    assert!(
+      fs::symlink_metadata(&link)
+        .expect("Ссылка должна существовать")
+        .file_type()
+        .is_symlink(),
+      "symlink не должен подменяться обычным файлом"
+    );
+    assert_eq!(fs::read_to_string(&target).expect("Цель должна читаться"), "новое");
+    fs::remove_dir_all(&dir).ok();
+  }
+
+  #[test]
+  fn corrupt_settings_backup_rotates_names() {
+    let dir = unique_temp_dir();
+    fs::create_dir_all(&dir).expect("Не удалось создать временную директорию");
+    let path = dir.join("settings.json");
+
+    fs::write(&path, "первая порча").expect("Не удалось записать битый settings.json");
+    assert!(super::read_settings_from_path(&path).is_none());
+    fs::write(&path, "вторая порча").expect("Не удалось записать битый settings.json");
+    assert!(super::read_settings_from_path(&path).is_none());
+
+    // Первый бэкап не затёрт второй порчей
+    assert_eq!(
+      fs::read_to_string(dir.join("settings.corrupt.bak")).expect("Первый бэкап должен существовать"),
+      "первая порча"
+    );
+    assert_eq!(
+      fs::read_to_string(dir.join("settings.corrupt-2.bak")).expect("Второй бэкап должен существовать"),
+      "вторая порча"
+    );
+    fs::remove_dir_all(&dir).ok();
+  }
+
+  #[tokio::test]
+  async fn save_file_through_symlink_chain_writes_to_final_target() {
+    let dir = unique_temp_dir();
+    fs::create_dir_all(&dir).expect("Не удалось создать временную директорию");
+    let real = dir.join("real.md");
+    fs::write(&real, "старое").expect("Не удалось записать целевой файл");
+    let link2 = dir.join("link2.md");
+    let link1 = dir.join("link1.md");
+
+    // Цепочка link1 -> link2 -> real
+    let symlink_result = {
+      #[cfg(windows)]
+      {
+        std::os::windows::fs::symlink_file(&real, &link2)
+          .and_then(|()| std::os::windows::fs::symlink_file(&link2, &link1))
+      }
+      #[cfg(unix)]
+      {
+        std::os::unix::fs::symlink(&real, &link2)
+          .and_then(|()| std::os::unix::fs::symlink(&link2, &link1))
+      }
+    };
+    // Как и в одиночном symlink-тесте: нет прав — пропускаем, не роняем прогон
+    if let Err(e) = symlink_result {
+      eprintln!("[test] пропуск: не удалось создать symlink ({})", e);
+      fs::remove_dir_all(&dir).ok();
+      return;
+    }
+
+    super::save_file(link1.to_string_lossy().to_string(), "новое".to_string())
+      .await
+      .expect("Сохранение должно пройти");
+
+    // Обе ссылки остались ссылками, содержимое ушло в конечный файл
+    assert!(
+      fs::symlink_metadata(&link1)
+        .expect("link1 должен существовать")
+        .file_type()
+        .is_symlink(),
+      "link1 не должен подменяться обычным файлом"
+    );
+    assert!(
+      fs::symlink_metadata(&link2)
+        .expect("link2 должен существовать")
+        .file_type()
+        .is_symlink(),
+      "link2 не должен подменяться обычным файлом"
+    );
+    assert_eq!(fs::read_to_string(&real).expect("Цель должна читаться"), "новое");
     fs::remove_dir_all(&dir).ok();
   }
 }
