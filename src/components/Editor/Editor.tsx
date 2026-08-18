@@ -11,6 +11,7 @@ import { renderMermaidPreview } from '../../utils/mermaid';
 import { resolveImageSrc, resolveMarkdownImageBaseDir } from '../../utils/paths';
 import { createHeadingBackspaceTransaction } from './headingBackspace';
 import { htmlTableView } from './htmlTableView';
+import { removeConflictingStrikethroughKeymap } from './crepeKeymap';
 import { installLocalImageResolver } from './localImageResolver';
 import { denormalizeMarkdownForEditor, normalizeMarkdownForSource } from './sourceMarkdown';
 import { useS3Upload } from '../../hooks/useS3Upload';
@@ -220,6 +221,9 @@ export function Editor() {
       ...createCrepeConfig(visualBody, currentImageBaseDir),
     });
     crepe.editor.use(htmlTableView);
+    // Снимаем GFM-биндинг Mod-Alt-x (strikethrough) — он конфликтует
+    // с задокументированным Ctrl+Alt+X (чекбокс) в App.tsx
+    removeConflictingStrikethroughKeymap(crepe.editor);
 
     crepe.on((listener) => {
       listener.markdownUpdated((_ctx, markdown) => {

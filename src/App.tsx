@@ -14,6 +14,7 @@ import { PluginHost } from './plugins/PluginHost';
 import * as tauri from './utils/tauri';
 import { findBaseDir } from './utils/paths';
 import { confirmUnsavedChanges } from './utils/dialogs';
+import { shouldHandleGlobalShortcut } from './utils/shortcuts';
 import './App.css';
 
 function App() {
@@ -78,6 +79,14 @@ function App() {
 
   // Горячие клавиши
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    // Событие уже обработано ниже по дереву (keymap Crepe/Milkdown ставит
+    // preventDefault, но не stopPropagation) — иначе форматирование применится
+    // второй раз и отменит эффект первого.
+    if (e.defaultPrevented) return;
+    // Поля ввода вне редактора (диалоги S3/плагинов, тулбар) не должны
+    // триггерить шорткаты документа.
+    if (!shouldHandleGlobalShortcut(e)) return;
+
     const { code } = e;
     const isCtrl = e.ctrlKey;
     const isShift = e.shiftKey;
