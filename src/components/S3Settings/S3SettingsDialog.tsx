@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useAppStore } from '../../stores/appStore';
 import { getTranslations } from '../../i18n';
 import * as tauri from '../../utils/tauri';
@@ -37,6 +37,24 @@ export function S3SettingsDialog({ onClose }: Props) {
   // зелёную подсветку кнопки S3 в Toolbar. Любое изменение поля сбрасывает флаг.
   const [testedOk, setTestedOk] = useState(false);
 
+  // Защита от гонок «Тест соединения»:
+  // mountedRef — диалог ещё смонтирован (позднее завершение после закрытия
+  // не должно менять глобальное состояние и показывать тосты);
+  // testGenRef — поколение запущенного теста: любое изменение поля или новый
+  // запуск инвалидирует результат предыдущего (снапшот-семантика).
+  const mountedRef = useRef(true);
+  const testGenRef = useRef(0);
+
+  // Setup перевзводит mountedRef: StrictMode в dev прогоняет
+  // setup→cleanup→setup на том же инстансе ref'а, и без этого guard
+  // остался бы «выключенным» навсегда (тест молча перестал бы работать).
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
   // Проверяем при монтировании, есть ли уже сохранённый secret в keyring
   useEffect(() => {
     tauri.s3SecretExists().then(setSecretExists).catch(() => setSecretExists(false));
@@ -52,10 +70,12 @@ export function S3SettingsDialog({ onClose }: Props) {
   }, [onClose]);
 
   // Универсальный обработчик полей формы (опциональные поля → null при пустой строке).
-  // При любом изменении поля сбрасываем testedOk — старый тест больше не релевантен.
+  // При любом изменении поля сбрасываем testedOk — старый тест больше не релевантен,
+  // и инвалидируем летящий тест (поколение++) — его результат не применится.
   const handleField =
     (key: keyof S3Config) => (e: React.ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value;
+      testGenRef.current += 1;
       setForm((prev) => ({
         ...prev,
         [key]:
@@ -67,6 +87,10 @@ export function S3SettingsDialog({ onClose }: Props) {
   const handleClearSecret = async () => {
     try {
       await tauri.s3ClearSecret();
+      // Инвалидируем летящий тест: он мог тестировать уже удалённый секрет.
+      // Инкремент именно после await — тест, запущенный вслед за кликом
+      // «Очистить» (пока удаление в полёте), тоже будет отброшен.
+      testGenRef.current += 1;
       setSecretExists(false);
       setTestedOk(false);
       setS3Verified(false);
@@ -77,28 +101,31 @@ export function S3SettingsDialog({ onClose }: Props) {
   };
 
   const handleSecretChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    testGenRef.current += 1;
     setSecretInput(e.target.value);
     setTestedOk(false);
   };
 
   const handleTest = async () => {
+    // Поколение этого запуска: если за время await форма изменилась (поле,
+    // секрет) — результат не применяем, он относится к устаревшему снапшоту.
+    const gen = ++testGenRef.current;
     setTesting(true);
     try {
-      // Если в форме введён новый secret — сначала сохраняем его временно
-      if (secretInput) {
-        setS3Verified(false);
-        await tauri.s3SetSecret(secretInput);
-        setSecretExists(true);
-      }
-      await tauri.s3TestConnection(form);
+      // Введённый секрет передаём напрямую в тест, БЕЗ записи в keyring.
+      // Запись в keyring — только по «Сохранить» (handleSave).
+      // Пустое поле → null → Rust возьмёт ранее сохранённый секрет из keyring.
+      await tauri.s3TestConnection(form, secretInput || null);
+      if (!mountedRef.current || testGenRef.current !== gen) return;
       setTestedOk(true);
       toast.show(t.s3TestSuccess, 'success');
     } catch (e) {
+      if (!mountedRef.current || testGenRef.current !== gen) return;
       setTestedOk(false);
       setS3Verified(false);
       toast.show(`${t.s3TestFail}: ${e}`, 'error');
     } finally {
-      setTesting(false);
+      if (mountedRef.current) setTesting(false);
     }
   };
 
@@ -140,6 +167,7 @@ export function S3SettingsDialog({ onClose }: Props) {
             type="text"
             value={form.endpoint}
             onChange={handleField('endpoint')}
+            disabled={testing}
             placeholder={t.s3EndpointHint}
           />
         </label>
@@ -150,13 +178,19 @@ export function S3SettingsDialog({ onClose }: Props) {
             type="text"
             value={form.region}
             onChange={handleField('region')}
+            disabled={testing}
             placeholder={t.s3RegionHint}
           />
         </label>
 
         <label className="s3-field">
           <span>{t.s3Bucket}</span>
-          <input type="text" value={form.bucket} onChange={handleField('bucket')} />
+          <input
+            type="text"
+            value={form.bucket}
+            onChange={handleField('bucket')}
+            disabled={testing}
+          />
         </label>
 
         <label className="s3-field">
@@ -165,6 +199,7 @@ export function S3SettingsDialog({ onClose }: Props) {
             type="text"
             value={form.access_key_id}
             onChange={handleField('access_key_id')}
+            disabled={testing}
           />
         </label>
 
@@ -175,6 +210,7 @@ export function S3SettingsDialog({ onClose }: Props) {
               type="password"
               value={secretInput}
               onChange={handleSecretChange}
+              disabled={testing}
               placeholder={secretExists ? t.s3SecretSaved : ''}
             />
             {secretExists && (
@@ -182,6 +218,7 @@ export function S3SettingsDialog({ onClose }: Props) {
                 type="button"
                 className="s3-btn s3-btn-ghost"
                 onClick={handleClearSecret}
+                disabled={testing}
               >
                 {t.s3SecretClear}
               </button>
@@ -195,6 +232,7 @@ export function S3SettingsDialog({ onClose }: Props) {
             type="text"
             value={form.public_url_prefix ?? ''}
             onChange={handleField('public_url_prefix')}
+            disabled={testing}
             placeholder={t.s3PublicUrlPrefixHint}
           />
         </label>
@@ -205,6 +243,7 @@ export function S3SettingsDialog({ onClose }: Props) {
             type="text"
             value={form.path_prefix ?? ''}
             onChange={handleField('path_prefix')}
+            disabled={testing}
             placeholder={t.s3PathPrefixHint}
           />
         </label>
@@ -218,7 +257,12 @@ export function S3SettingsDialog({ onClose }: Props) {
           >
             {testing ? '...' : t.s3TestConnection}
           </button>
-          <button type="button" className="s3-btn s3-btn-primary" onClick={handleSave}>
+          <button
+            type="button"
+            className="s3-btn s3-btn-primary"
+            onClick={handleSave}
+            disabled={testing}
+          >
             {t.s3SaveSettings}
           </button>
           <button type="button" className="s3-btn" onClick={onClose}>

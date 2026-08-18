@@ -1178,8 +1178,13 @@ pub async fn s3_secret_exists() -> Result<bool, String> {
 /// Проверить соединение с S3-хранилищем (bucket-level ListObjectsV2).
 #[tauri::command]
 #[specta::specta]
-pub async fn s3_test_connection(config: S3Config) -> Result<(), String> {
-  let secret = s3::get_secret().map_err(|_| "secret_not_set".to_string())?;
+pub async fn s3_test_connection(config: S3Config, secret: Option<String>) -> Result<(), String> {
+  // Если секрет введён в форме — тестируем его напрямую, keyring не трогаем.
+  // Иначе (поле пустое) используем секрет, сохранённый в keyring ранее.
+  let secret = match secret {
+    Some(secret) => secret,
+    None => s3::get_secret().map_err(|_| "secret_not_set".to_string())?,
+  };
   s3::test_connection_with_secret(&config, &secret).await
 }
 
@@ -1852,5 +1857,39 @@ mod tests {
     );
     assert_eq!(fs::read_to_string(&real).expect("Цель должна читаться"), "новое");
     fs::remove_dir_all(&dir).ok();
+  }
+
+  #[tokio::test]
+  async fn s3_test_connection_with_explicit_secret_skips_keyring() {
+    use wiremock::matchers::method;
+    use wiremock::{Mock, MockServer, ResponseTemplate};
+
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+      .respond_with(ResponseTemplate::new(200).set_body_string(
+        r#"<?xml version="1.0" encoding="UTF-8"?>
+<ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+  <Name>test-bucket</Name>
+  <Prefix></Prefix>
+  <KeyCount>0</KeyCount>
+  <MaxKeys>1</MaxKeys>
+  <IsTruncated>false</IsTruncated>
+</ListBucketResult>"#,
+      ))
+      .mount(&server)
+      .await;
+
+    let config = super::S3Config {
+      endpoint: server.uri(),
+      region: "ru-central1".to_string(),
+      bucket: "test-bucket".to_string(),
+      access_key_id: "key".to_string(),
+      public_url_prefix: None,
+      path_prefix: None,
+    };
+    // Секрет передан из формы — keyring участвовать не должен. В тестовом
+    // окружении keyring недоступен: обращение к нему дало бы secret_not_set.
+    let result = super::s3_test_connection(config, Some("secret".to_string())).await;
+    assert!(result.is_ok(), "got: {:?}", result);
   }
 }

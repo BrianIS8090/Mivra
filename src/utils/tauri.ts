@@ -110,8 +110,10 @@ export async function s3SecretExists(): Promise<boolean> {
 }
 
 // Проверить соединение с S3-хранилищем (bucket-level ListObjectsV2).
-export async function s3TestConnection(config: S3Config): Promise<void> {
-  await unwrap(commands.s3TestConnection(config));
+// secret: если передан — тестируется он напрямую, без записи в keyring;
+// если null/не задан — берётся секрет, сохранённый в keyring ранее.
+export async function s3TestConnection(config: S3Config, secret?: string | null): Promise<void> {
+  await unwrap(commands.s3TestConnection(config, secret ?? null));
 }
 
 // Загрузить файл с диска в S3 и вернуть публичный URL.
