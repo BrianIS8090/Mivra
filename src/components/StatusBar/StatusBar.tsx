@@ -8,6 +8,9 @@ export function StatusBar() {
   const content = useAppStore((s) => s.content);
   const editorMode = useAppStore((s) => s.editorMode);
   const language = useAppStore((s) => s.language);
+  const s3 = useAppStore((s) => s.s3);
+  const s3Verified = useAppStore((s) => s.s3Verified);
+  const autosave = useAppStore((s) => s.autosave);
   const t = getTranslations(language);
 
   // Подсчёт слов и символов на отложенном значении content —
@@ -37,6 +40,16 @@ export function StatusBar() {
         <span className="statusbar-item">
           {modeLabel}
         </span>
+        {s3 && s3Verified && (
+          <span className="statusbar-item statusbar-indicator-ok" title={s3.bucket}>
+            S3 ✓
+          </span>
+        )}
+        {autosave && (
+          <span className="statusbar-item">
+            {t.statusAutosaveOn}
+          </span>
+        )}
         <span className="statusbar-item">
           {wordCount} {wordLabelStr} · {charCount} {charLabelStr}
         </span>

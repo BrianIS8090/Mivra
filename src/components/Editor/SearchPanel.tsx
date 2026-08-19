@@ -184,12 +184,12 @@ export function SearchPanel({ showReplace, focusSignal, onClose }: SearchPanelPr
   }, [query, caseSensitive, content, editorMode, computeMatches, applyResult, readCaretAnchor]);
 
   // Esc закрывает панель независимо от того, где фокус.
-  // Координация слоёв: диалоги (document-listeners) срабатывают раньше
-  // window-listener'а панели и помечают свой Esc через preventDefault —
+  // Координация слоёв: диалоги и меню-бар (document-listeners) срабатывают
+  // раньше window-listener'а панели и помечают свой Esc через preventDefault —
   // тогда панель не реагирует. Свой Esc панель тоже помечает, чтобы
-  // нижележащие слои не закрывались следом. Остаточный кейс: меню тулбара
-  // закрывается по Esc без preventDefault (Toolbar вне скоупа F1) — при
-  // одновременно открытых панели и меню Esc закроет оба.
+  // нижележащие слои не закрывались следом. Поэтому при одновременно
+  // открытых меню и панели первый Esc закроет только меню (его слой гасит
+  // событие на document-уровне), второй Esc — панель.
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key !== 'Escape' || e.defaultPrevented) return;

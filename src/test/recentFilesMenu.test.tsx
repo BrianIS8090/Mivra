@@ -1,13 +1,20 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { invoke } from '@tauri-apps/api/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { Toolbar } from '../components/Toolbar/Toolbar';
+import { MenuBar } from '../components/MenuBar/MenuBar';
 import { useAppStore } from '../stores/appStore';
 import { usePluginStore } from '../plugins/pluginStore';
 
 const mockedInvoke = vi.mocked(invoke);
 
-describe('Toolbar — меню недавних файлов', () => {
+// Открыть подменю «Файл ▸ Недавние» и вернуть его
+function openRecentSubmenu() {
+  fireEvent.click(screen.getByRole('button', { name: 'Файл' }));
+  fireEvent.click(screen.getByRole('menuitem', { name: 'Недавние' }));
+  return screen.getByRole('menu', { name: 'Недавние' });
+}
+
+describe('MenuBar — меню недавних файлов', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     Object.defineProperty(window, 'matchMedia', {
@@ -38,6 +45,7 @@ describe('Toolbar — меню недавних файлов', () => {
       filePath: null,
       content: '',
       isDirty: false,
+      autosave: false,
       s3: null,
       s3Verified: false,
     });
@@ -52,10 +60,10 @@ describe('Toolbar — меню недавних файлов', () => {
     const paths = Array.from({ length: 12 }, (_, i) => `C:\\docs\\file${i}.md`);
     useAppStore.setState({ recentFiles: paths });
 
-    render(<Toolbar />);
-    fireEvent.click(screen.getByRole('button', { name: 'Недавние' }));
+    render(<MenuBar onFind={vi.fn()} onReplace={vi.fn()} />);
+    const submenu = openRecentSubmenu();
 
-    const items = screen.getAllByRole('menuitem');
+    const items = within(submenu).getAllByRole('menuitem');
     expect(items).toHaveLength(10);
     expect(items[0]).toHaveTextContent('file0.md');
     expect(items[0]).toHaveAttribute('title', 'C:\\docs\\file0.md');
@@ -63,11 +71,11 @@ describe('Toolbar — меню недавних файлов', () => {
   });
 
   it('пустой список — неактивный пункт «Нет недавних файлов»', () => {
-    render(<Toolbar />);
-    fireEvent.click(screen.getByRole('button', { name: 'Недавние' }));
+    render(<MenuBar onFind={vi.fn()} onReplace={vi.fn()} />);
+    const submenu = openRecentSubmenu();
 
-    expect(screen.getByText('Нет недавних файлов')).toBeInTheDocument();
-    expect(screen.queryByRole('menuitem')).not.toBeInTheDocument();
+    expect(within(submenu).getByText('Нет недавних файлов')).toBeInTheDocument();
+    expect(within(submenu).queryByRole('menuitem')).not.toBeInTheDocument();
   });
 
   it('дедуплицирует пути с разным регистром/слэшами, показывая первое вхождение', () => {
@@ -77,10 +85,10 @@ describe('Toolbar — меню недавних файлов', () => {
       recentFiles: ['C:\\docs\\a.md', 'c:\\docs\\a.md', 'C:/docs/a.md', 'C:\\docs\\b.md'],
     });
 
-    render(<Toolbar />);
-    fireEvent.click(screen.getByRole('button', { name: 'Недавние' }));
+    render(<MenuBar onFind={vi.fn()} onReplace={vi.fn()} />);
+    const submenu = openRecentSubmenu();
 
-    const items = screen.getAllByRole('menuitem');
+    const items = within(submenu).getAllByRole('menuitem');
     expect(items).toHaveLength(2);
     // Остаётся первое вхождение в исходном написании
     expect(items[0]).toHaveAttribute('title', 'C:\\docs\\a.md');
@@ -99,9 +107,9 @@ describe('Toolbar — меню недавних файлов', () => {
       return Promise.resolve(null);
     });
 
-    render(<Toolbar />);
-    fireEvent.click(screen.getByRole('button', { name: 'Недавние' }));
-    fireEvent.click(screen.getByRole('menuitem', { name: 'alpha.md' }));
+    render(<MenuBar onFind={vi.fn()} onReplace={vi.fn()} />);
+    const submenu = openRecentSubmenu();
+    fireEvent.click(within(submenu).getByRole('menuitem', { name: 'alpha.md' }));
 
     await waitFor(() => {
       expect(useAppStore.getState().content).toBe('# Альфа');
@@ -110,28 +118,28 @@ describe('Toolbar — меню недавних файлов', () => {
     expect(useAppStore.getState().filePath).toBe('C:\\docs\\alpha.md');
     expect(useAppStore.getState().isDirty).toBe(false);
     // Меню закрыто после клика
-    expect(screen.queryByRole('menuitem')).not.toBeInTheDocument();
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
   });
 
   it('меню закрывается по Esc', () => {
     useAppStore.setState({ recentFiles: ['C:\\docs\\alpha.md'] });
 
-    render(<Toolbar />);
-    fireEvent.click(screen.getByRole('button', { name: 'Недавние' }));
-    expect(screen.getByRole('menuitem', { name: 'alpha.md' })).toBeInTheDocument();
+    render(<MenuBar onFind={vi.fn()} onReplace={vi.fn()} />);
+    const submenu = openRecentSubmenu();
+    expect(within(submenu).getByRole('menuitem', { name: 'alpha.md' })).toBeInTheDocument();
 
     fireEvent.keyDown(document, { key: 'Escape' });
-    expect(screen.queryByRole('menuitem')).not.toBeInTheDocument();
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
   });
 
   it('меню закрывается по клику вне', () => {
     useAppStore.setState({ recentFiles: ['C:\\docs\\alpha.md'] });
 
-    render(<Toolbar />);
-    fireEvent.click(screen.getByRole('button', { name: 'Недавние' }));
-    expect(screen.getByRole('menuitem', { name: 'alpha.md' })).toBeInTheDocument();
+    render(<MenuBar onFind={vi.fn()} onReplace={vi.fn()} />);
+    const submenu = openRecentSubmenu();
+    expect(within(submenu).getByRole('menuitem', { name: 'alpha.md' })).toBeInTheDocument();
 
     fireEvent.pointerDown(document.body);
-    expect(screen.queryByRole('menuitem')).not.toBeInTheDocument();
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
   });
 });

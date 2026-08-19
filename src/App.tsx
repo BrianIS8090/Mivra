@@ -1,6 +1,7 @@
 import { useEffect, useCallback, useRef, useState } from 'react';
 
 import { TitleBar } from './components/TitleBar/TitleBar';
+import { MenuBar } from './components/MenuBar/MenuBar';
 import { Toolbar } from './components/Toolbar/Toolbar';
 import { Editor } from './components/Editor/Editor';
 import { SearchPanel } from './components/Editor/SearchPanel';
@@ -34,6 +35,14 @@ function App() {
   // Счётчик нажатий Ctrl+F/Ctrl+H: по его изменению открытая панель
   // возвращает фокус в поле запроса и применяет режим (с заменой/без).
   const [searchFocusSignal, setSearchFocusSignal] = useState(0);
+
+  // Открытие панели поиска: общий вход для шорткатов (Ctrl+F/Ctrl+H)
+  // и пунктов меню «Правка» (onFind/onReplace).
+  const openSearch = useCallback((withReplace: boolean) => {
+    setSearchWithReplace(withReplace);
+    setSearchOpen(true);
+    setSearchFocusSignal((n) => n + 1);
+  }, []);
 
   // StrictMode-защита: эффект ниже выполняется дважды на mount.
   // Сейчас get_pending_file на Rust-стороне делает Mutex.take() — поэтому
@@ -124,16 +133,12 @@ function App() {
     // Ctrl+F — Поиск по документу (preventDefault подавляет поиск браузера)
     if (isCtrl && !isShift && !isAlt && code === 'KeyF') {
       e.preventDefault();
-      setSearchWithReplace(false);
-      setSearchOpen(true);
-      setSearchFocusSignal((n) => n + 1);
+      openSearch(false);
     }
     // Ctrl+H — Поиск с развёрнутой строкой замены
     if (isCtrl && !isShift && !isAlt && code === 'KeyH') {
       e.preventDefault();
-      setSearchWithReplace(true);
-      setSearchOpen(true);
-      setSearchFocusSignal((n) => n + 1);
+      openSearch(true);
     }
     // Ctrl+Shift+T — Переключить тему
     if (isCtrl && isShift && !isAlt && code === 'KeyT') {
@@ -257,7 +262,7 @@ function App() {
       e.preventDefault();
       insertAssetAction();
     }
-  }, [open, save, saveAs, toggleTheme, editorMode, setEditorMode, changeFontSize, fontSize, applyMarkdownAction, insertAssetAction, placeholders]);
+  }, [open, save, saveAs, toggleTheme, editorMode, setEditorMode, changeFontSize, fontSize, applyMarkdownAction, insertAssetAction, placeholders, openSearch]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
@@ -267,6 +272,7 @@ function App() {
   return (
     <div className="app">
       <TitleBar />
+      <MenuBar onFind={() => openSearch(false)} onReplace={() => openSearch(true)} />
       <Toolbar />
       <PluginHost />
       {searchOpen && (

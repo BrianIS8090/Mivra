@@ -1,13 +1,7 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
-import { useFile } from '../../hooks/useFile';
+import { useState, useEffect } from 'react';
 import { useSettings } from '../../hooks/useSettings';
-import { useTheme } from '../../hooks/useTheme';
 import { useAppStore } from '../../stores/appStore';
-import { usePluginStore } from '../../plugins/pluginStore';
 import { getTranslations } from '../../i18n';
-import { HelpDialog } from '../Help/HelpDialog';
-import { PluginManagerDialog } from '../PluginManager/PluginManagerDialog';
-import { S3SettingsDialog } from '../S3Settings/S3SettingsDialog';
 import './toolbar.css';
 
 const FONT_OPTIONS = [
@@ -20,38 +14,13 @@ const FONT_OPTIONS = [
   'Courier New',
 ];
 
-// Максимум пунктов в меню «Недавние»
-const MAX_RECENT_ITEMS = 10;
-
-// Имя файла из полного пути (разделитель и '/', и '\' — пути приходят с Windows)
-function recentFileName(path: string): string {
-  return path.split(/[\\/]/).pop() || path;
-}
-
-// Дедупликация recent-списка для рендера: settings.json можно править руками,
-// а на Windows один и тот же путь встречается с разным регистром и слэшами.
-// Показываем первое вхождение в исходном написании.
-function dedupeRecentFiles(paths: string[]): string[] {
-  const seen = new Set<string>();
-  return paths.filter((path) => {
-    const key = path.replace(/\//g, '\\').toLowerCase();
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
-}
-
+// Тулбар после слимминга (спека M1): только редактура документа —
+// шрифт, размер, ширина страницы, режим редактора, автосохранение.
+// Файловые действия, тема, плагины, S3, справка и язык переехали в MenuBar,
+// диалоги Help/S3/PluginManager принадлежат ему же.
 export function Toolbar() {
-  const [showHelp, setShowHelp] = useState(false);
-  const [showS3, setShowS3] = useState(false);
-  const [showPlugins, setShowPlugins] = useState(false);
   const [isFontMenuOpen, setIsFontMenuOpen] = useState(false);
-  const [isPluginMenuOpen, setIsPluginMenuOpen] = useState(false);
-  const [isRecentMenuOpen, setIsRecentMenuOpen] = useState(false);
-  const pluginMenuRef = useRef<HTMLDivElement>(null);
-  const recentMenuRef = useRef<HTMLDivElement>(null);
-  const { open, openPath, save, saveAs, reload, filePath } = useFile();
-  const { fontFamily, fontSize, language, pageWidth, autosave, changeFontFamily, changeFontSize, changeLanguage, changePageWidth, changeAutosave } = useSettings();
+  const { fontFamily, fontSize, language, pageWidth, autosave, changeFontFamily, changeFontSize, changePageWidth, changeAutosave } = useSettings();
   const [pageWidthDraft, setPageWidthDraft] = useState(String(pageWidth));
 
   // Синхронизация при внешнем изменении (загрузка настроек)
@@ -68,357 +37,116 @@ export function Toolbar() {
       setPageWidthDraft(String(pageWidth));
     }
   };
-  const { theme, toggleTheme } = useTheme();
   const editorMode = useAppStore((s) => s.editorMode);
   const setEditorMode = useAppStore((s) => s.setEditorMode);
-  const recentFiles = useAppStore((s) => s.recentFiles);
-  // Дедупликация до обрезки: в меню максимум MAX_RECENT_ITEMS уникальных путей
-  const recentItems = useMemo(
-    () => dedupeRecentFiles(recentFiles).slice(0, MAX_RECENT_ITEMS),
-    [recentFiles],
-  );
-  const s3 = useAppStore((s) => s.s3);
-  const s3Verified = useAppStore((s) => s.s3Verified);
-  const pluginButtons = usePluginStore((s) => s.toolbarButtons);
-  const sortedPluginButtons = useMemo(
-    () => pluginButtons.slice().sort((a, b) => (a.order ?? 100) - (b.order ?? 100)),
-    [pluginButtons],
-  );
-  
+
   const t = getTranslations(language);
 
-  const themeLabel = theme === 'light' ? t.themeLight : theme === 'dark' ? t.themeDark : t.themeSystem;
   const modeLabel = editorMode === 'visual' ? t.visualMode : t.sourceMode;
-  const langLabel = language === 'ru' ? 'RU' : 'EN';
-
-  const toggleLanguage = () => {
-    changeLanguage(language === 'ru' ? 'en' : 'ru');
-  };
 
   const selectFontFamily = (family: string) => {
     changeFontFamily(family);
     setIsFontMenuOpen(false);
   };
 
-  useEffect(() => {
-    if (!isPluginMenuOpen) return;
-
-    const closeOnPointerDown = (event: PointerEvent) => {
-      if (!pluginMenuRef.current?.contains(event.target as Node)) {
-        setIsPluginMenuOpen(false);
-      }
-    };
-
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setIsPluginMenuOpen(false);
-      }
-    };
-
-    document.addEventListener('pointerdown', closeOnPointerDown);
-    document.addEventListener('keydown', closeOnEscape);
-
-    return () => {
-      document.removeEventListener('pointerdown', closeOnPointerDown);
-      document.removeEventListener('keydown', closeOnEscape);
-    };
-  }, [isPluginMenuOpen]);
-
-  // Закрытие меню «Недавние» по Esc и по клику вне — как у меню плагинов
-  useEffect(() => {
-    if (!isRecentMenuOpen) return;
-
-    const closeOnPointerDown = (event: PointerEvent) => {
-      if (!recentMenuRef.current?.contains(event.target as Node)) {
-        setIsRecentMenuOpen(false);
-      }
-    };
-
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setIsRecentMenuOpen(false);
-      }
-    };
-
-    document.addEventListener('pointerdown', closeOnPointerDown);
-    document.addEventListener('keydown', closeOnEscape);
-
-    return () => {
-      document.removeEventListener('pointerdown', closeOnPointerDown);
-      document.removeEventListener('keydown', closeOnEscape);
-    };
-  }, [isRecentMenuOpen]);
-
   return (
-    <>
-      <div className="toolbar">
-        <div className="toolbar-group">
-          <button className="toolbar-btn" onClick={open} title={t.openTooltip}>
-            {t.open}
-          </button>
-          <div
-            className="toolbar-plugin-menu"
-            ref={recentMenuRef}
-            onBlur={(e) => {
-              if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
-                setIsRecentMenuOpen(false);
-              }
+    <div className="toolbar">
+      <div className="toolbar-group">
+        <div
+          className="toolbar-font-select"
+          onBlur={(e) => {
+            if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
+              setIsFontMenuOpen(false);
+            }
+          }}
+        >
+          <button
+            type="button"
+            className="toolbar-font-select-trigger"
+            title={t.fontTooltip}
+            aria-haspopup="listbox"
+            aria-expanded={isFontMenuOpen}
+            onClick={() => setIsFontMenuOpen((open) => !open)}
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') setIsFontMenuOpen(false);
             }}
           >
-            <button
-              type="button"
-              className="toolbar-btn"
-              onClick={() => setIsRecentMenuOpen((open) => !open)}
-              title={t.recentFilesTooltip}
-              aria-haspopup="menu"
-              aria-expanded={isRecentMenuOpen}
-            >
-              {t.recentFiles}
-            </button>
-            {isRecentMenuOpen && (
-              // Классы переиспользованы от меню плагинов; поповер плагинов
-              // прибит вправо (меню справа тулбара), поэтому здесь inline-сдвиг влево
-              <div
-                className="toolbar-plugin-menu-popover"
-                style={{ left: 0, right: 'auto' }}
-                role="menu"
-                aria-label={t.recentFiles}
-              >
-                {recentItems.length > 0 ? (
-                  recentItems.map((path) => (
-                    <button
-                      key={path}
-                      type="button"
-                      className="toolbar-plugin-menu-item"
-                      role="menuitem"
-                      onMouseDown={(e) => e.preventDefault()}
-                      onClick={() => {
-                        setIsRecentMenuOpen(false);
-                        void openPath(path);
-                      }}
-                      title={path}
-                    >
-                      {recentFileName(path)}
-                    </button>
-                  ))
-                ) : (
-                  <div className="toolbar-plugin-menu-empty">{t.recentFilesEmpty}</div>
-                )}
-              </div>
-            )}
-          </div>
-          <button className="toolbar-btn" onClick={save} title={t.saveTooltip}>
-            {t.save}
+            {fontFamily}
           </button>
-          <button className="toolbar-btn" onClick={saveAs} title={t.saveAsTooltip}>
-            {t.saveAs}
-          </button>
-          <button className="toolbar-btn" onClick={() => window.print()} title={t.printTooltip}>
-            {t.print}
-          </button>
-          <button
-            className="toolbar-btn toolbar-btn-icon"
-            onClick={reload}
-            disabled={!filePath}
-            title={t.reloadTooltip}
-          >
-            ↻
-          </button>
-        </div>
-
-        <div className="toolbar-separator" />
-
-        <div className="toolbar-group">
-          <div
-            className="toolbar-font-select"
-            onBlur={(e) => {
-              if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
-                setIsFontMenuOpen(false);
-              }
-            }}
-          >
-            <button
-              type="button"
-              className="toolbar-font-select-trigger"
-              title={t.fontTooltip}
-              aria-haspopup="listbox"
-              aria-expanded={isFontMenuOpen}
-              onClick={() => setIsFontMenuOpen((open) => !open)}
-              onKeyDown={(e) => {
-                if (e.key === 'Escape') setIsFontMenuOpen(false);
-              }}
-            >
-              {fontFamily}
-            </button>
-            {isFontMenuOpen && (
-              <div className="toolbar-font-select-menu" role="listbox" aria-label={t.fontTooltip}>
-                {FONT_OPTIONS.map((font) => (
-                  <button
-                    key={font}
-                    type="button"
-                    className={`toolbar-font-select-option${font === fontFamily ? ' toolbar-font-select-option-active' : ''}`}
-                    role="option"
-                    aria-selected={font === fontFamily}
-                    onMouseDown={(e) => e.preventDefault()}
-                    onClick={() => selectFontFamily(font)}
-                  >
-                    {font}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="toolbar-font-size">
-            <button
-              className="toolbar-btn-sm"
-              onClick={() => changeFontSize(fontSize - 1)}
-              title={t.decreaseFontTooltip}
-            >
-              −
-            </button>
-            <span className="toolbar-font-size-value">{fontSize}</span>
-            <button
-              className="toolbar-btn-sm"
-              onClick={() => changeFontSize(fontSize + 1)}
-              title={t.increaseFontTooltip}
-            >
-              +
-            </button>
-          </div>
-
-          <div className="toolbar-page-width-group">
-            <input
-              className="toolbar-page-width"
-              type="text"
-              inputMode="numeric"
-              value={pageWidthDraft}
-              onChange={(e) => setPageWidthDraft(e.target.value.replace(/[^0-9]/g, ''))}
-              onBlur={commitPageWidth}
-              onKeyDown={(e) => { if (e.key === 'Enter') commitPageWidth(); }}
-              title={t.pageWidthTooltip}
-            />
-            <span className="toolbar-page-width-unit">px</span>
-          </div>
-        </div>
-
-        <div className="toolbar-separator" />
-
-        <div className="toolbar-group">
-          <button
-            className="toolbar-btn"
-            onClick={toggleTheme}
-            title={t.themeTooltip}
-          >
-            {themeLabel}
-          </button>
-
-          <button
-            className="toolbar-btn"
-            onClick={() => setEditorMode(editorMode === 'visual' ? 'source' : 'visual')}
-            title={t.modeTooltip}
-          >
-            {modeLabel}
-          </button>
-
-          <button
-            // Зелёная подсветка при включённом автосохранении — переиспользуем
-            // существующий класс «ok»-состояния (toolbar.css не входит в тикет)
-            className={`toolbar-btn${autosave ? ' toolbar-btn-s3-ok' : ''}`}
-            onClick={() => changeAutosave(!autosave)}
-            title={t.autosaveTooltip}
-            aria-pressed={autosave}
-          >
-            {t.autosave}
-          </button>
-        </div>
-
-        <div className="toolbar-spacer" />
-
-        <div className="toolbar-group">
-          <div
-            className="toolbar-plugin-menu"
-            ref={pluginMenuRef}
-            onBlur={(e) => {
-              if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
-                setIsPluginMenuOpen(false);
-              }
-            }}
-          >
-            <button
-              type="button"
-              className="toolbar-btn"
-              onClick={() => setIsPluginMenuOpen((open) => !open)}
-              title={t.pluginsTooltip}
-              aria-haspopup="menu"
-              aria-expanded={isPluginMenuOpen}
-            >
-              {t.plugins}
-            </button>
-            {isPluginMenuOpen && (
-              <div className="toolbar-plugin-menu-popover" role="menu" aria-label={t.plugins}>
-                {sortedPluginButtons.length > 0 ? (
-                  sortedPluginButtons.map((button) => (
-                    <button
-                      key={`${button.pluginId}:${button.id}`}
-                      type="button"
-                      className="toolbar-plugin-menu-item"
-                      role="menuitem"
-                      onMouseDown={(e) => e.preventDefault()}
-                      onClick={() => {
-                        setIsPluginMenuOpen(false);
-                        button.onClick();
-                      }}
-                      title={button.title}
-                    >
-                      {button.label}
-                    </button>
-                  ))
-                ) : (
-                  <div className="toolbar-plugin-menu-empty">{t.pluginMenuEmpty}</div>
-                )}
-                <div className="toolbar-plugin-menu-separator" />
+          {isFontMenuOpen && (
+            <div className="toolbar-font-select-menu" role="listbox" aria-label={t.fontTooltip}>
+              {FONT_OPTIONS.map((font) => (
                 <button
+                  key={font}
                   type="button"
-                  className="toolbar-plugin-menu-item"
-                  role="menuitem"
+                  className={`toolbar-font-select-option${font === fontFamily ? ' toolbar-font-select-option-active' : ''}`}
+                  role="option"
+                  aria-selected={font === fontFamily}
                   onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => {
-                    setIsPluginMenuOpen(false);
-                    setShowPlugins(true);
-                  }}
+                  onClick={() => selectFontFamily(font)}
                 >
-                  {t.pluginManagerTitle}
+                  {font}
                 </button>
-              </div>
-            )}
-          </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="toolbar-font-size">
           <button
-            className={`toolbar-btn${s3 && s3Verified ? ' toolbar-btn-s3-ok' : ''}`}
-            onClick={() => setShowS3(true)}
-            title={s3 && s3Verified ? `S3: ${s3.bucket}` : 'S3'}
+            className="toolbar-btn-sm"
+            onClick={() => changeFontSize(fontSize - 1)}
+            title={t.decreaseFontTooltip}
           >
-            {t.s3Button}
+            −
           </button>
+          <span className="toolbar-font-size-value">{fontSize}</span>
           <button
-            className="toolbar-btn"
-            onClick={() => setShowHelp(true)}
+            className="toolbar-btn-sm"
+            onClick={() => changeFontSize(fontSize + 1)}
+            title={t.increaseFontTooltip}
           >
-            {t.help}
+            +
           </button>
-          <button
-            className="toolbar-btn toolbar-lang-btn"
-            onClick={toggleLanguage}
-            title={language === 'ru' ? 'Switch to English' : 'Переключить на русский'}
-          >
-            {langLabel}
-          </button>
+        </div>
+
+        <div className="toolbar-page-width-group">
+          <input
+            className="toolbar-page-width"
+            type="text"
+            inputMode="numeric"
+            value={pageWidthDraft}
+            onChange={(e) => setPageWidthDraft(e.target.value.replace(/[^0-9]/g, ''))}
+            onBlur={commitPageWidth}
+            onKeyDown={(e) => { if (e.key === 'Enter') commitPageWidth(); }}
+            title={t.pageWidthTooltip}
+          />
+          <span className="toolbar-page-width-unit">px</span>
         </div>
       </div>
 
-      {showHelp && <HelpDialog onClose={() => setShowHelp(false)} />}
-      {showS3 && <S3SettingsDialog onClose={() => setShowS3(false)} />}
-      {showPlugins && <PluginManagerDialog onClose={() => setShowPlugins(false)} />}
-    </>
+      <div className="toolbar-separator" />
+
+      <div className="toolbar-group">
+        <button
+          className="toolbar-btn"
+          onClick={() => setEditorMode(editorMode === 'visual' ? 'source' : 'visual')}
+          title={t.modeTooltip}
+        >
+          {modeLabel}
+        </button>
+
+        <button
+          // Зелёная подсветка при включённом автосохранении — переиспользуем
+          // существующий класс «ok»-состояния
+          className={`toolbar-btn${autosave ? ' toolbar-btn-s3-ok' : ''}`}
+          onClick={() => changeAutosave(!autosave)}
+          title={t.autosaveTooltip}
+          aria-pressed={autosave}
+        >
+          {t.autosave}
+        </button>
+      </div>
+    </div>
   );
 }

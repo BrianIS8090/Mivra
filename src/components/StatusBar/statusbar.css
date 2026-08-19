@@ -31,3 +31,9 @@
 .statusbar-item {
   color: var(--text-secondary);
 }
+
+/* Индикатор верифицированного S3 — в зелёной гамме бывшей «ok»-кнопки тулбара */
+.statusbar-indicator-ok {
+  color: #2eb872;
+  font-weight: 600;
+}
