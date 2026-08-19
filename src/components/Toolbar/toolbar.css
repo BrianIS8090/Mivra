@@ -233,6 +233,12 @@
   font-size: 12px;
   text-align: left;
   cursor: pointer;
+  /* Длинные имена (меню «Недавние») обрезаются с многоточием по ширине
+     поповера; overflow:hidden заодно обнуляет automatic minimum size
+     flex-элемента, без него пункт не сжался бы ниже длины текста */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .toolbar-plugin-menu-item:hover,

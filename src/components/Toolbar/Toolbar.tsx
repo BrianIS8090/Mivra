@@ -20,14 +20,37 @@ const FONT_OPTIONS = [
   'Courier New',
 ];
 
+// Максимум пунктов в меню «Недавние»
+const MAX_RECENT_ITEMS = 10;
+
+// Имя файла из полного пути (разделитель и '/', и '\' — пути приходят с Windows)
+function recentFileName(path: string): string {
+  return path.split(/[\\/]/).pop() || path;
+}
+
+// Дедупликация recent-списка для рендера: settings.json можно править руками,
+// а на Windows один и тот же путь встречается с разным регистром и слэшами.
+// Показываем первое вхождение в исходном написании.
+function dedupeRecentFiles(paths: string[]): string[] {
+  const seen = new Set<string>();
+  return paths.filter((path) => {
+    const key = path.replace(/\//g, '\\').toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 export function Toolbar() {
   const [showHelp, setShowHelp] = useState(false);
   const [showS3, setShowS3] = useState(false);
   const [showPlugins, setShowPlugins] = useState(false);
   const [isFontMenuOpen, setIsFontMenuOpen] = useState(false);
   const [isPluginMenuOpen, setIsPluginMenuOpen] = useState(false);
+  const [isRecentMenuOpen, setIsRecentMenuOpen] = useState(false);
   const pluginMenuRef = useRef<HTMLDivElement>(null);
-  const { open, save, saveAs, reload, filePath } = useFile();
+  const recentMenuRef = useRef<HTMLDivElement>(null);
+  const { open, openPath, save, saveAs, reload, filePath } = useFile();
   const { fontFamily, fontSize, language, pageWidth, changeFontFamily, changeFontSize, changeLanguage, changePageWidth } = useSettings();
   const [pageWidthDraft, setPageWidthDraft] = useState(String(pageWidth));
 
@@ -48,6 +71,12 @@ export function Toolbar() {
   const { theme, toggleTheme } = useTheme();
   const editorMode = useAppStore((s) => s.editorMode);
   const setEditorMode = useAppStore((s) => s.setEditorMode);
+  const recentFiles = useAppStore((s) => s.recentFiles);
+  // Дедупликация до обрезки: в меню максимум MAX_RECENT_ITEMS уникальных путей
+  const recentItems = useMemo(
+    () => dedupeRecentFiles(recentFiles).slice(0, MAX_RECENT_ITEMS),
+    [recentFiles],
+  );
   const s3 = useAppStore((s) => s.s3);
   const s3Verified = useAppStore((s) => s.s3Verified);
   const pluginButtons = usePluginStore((s) => s.toolbarButtons);
@@ -95,6 +124,31 @@ export function Toolbar() {
     };
   }, [isPluginMenuOpen]);
 
+  // Закрытие меню «Недавние» по Esc и по клику вне — как у меню плагинов
+  useEffect(() => {
+    if (!isRecentMenuOpen) return;
+
+    const closeOnPointerDown = (event: PointerEvent) => {
+      if (!recentMenuRef.current?.contains(event.target as Node)) {
+        setIsRecentMenuOpen(false);
+      }
+    };
+
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsRecentMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('pointerdown', closeOnPointerDown);
+    document.addEventListener('keydown', closeOnEscape);
+
+    return () => {
+      document.removeEventListener('pointerdown', closeOnPointerDown);
+      document.removeEventListener('keydown', closeOnEscape);
+    };
+  }, [isRecentMenuOpen]);
+
   return (
     <>
       <div className="toolbar">
@@ -102,6 +156,57 @@ export function Toolbar() {
           <button className="toolbar-btn" onClick={open} title={t.openTooltip}>
             {t.open}
           </button>
+          <div
+            className="toolbar-plugin-menu"
+            ref={recentMenuRef}
+            onBlur={(e) => {
+              if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
+                setIsRecentMenuOpen(false);
+              }
+            }}
+          >
+            <button
+              type="button"
+              className="toolbar-btn"
+              onClick={() => setIsRecentMenuOpen((open) => !open)}
+              title={t.recentFilesTooltip}
+              aria-haspopup="menu"
+              aria-expanded={isRecentMenuOpen}
+            >
+              {t.recentFiles}
+            </button>
+            {isRecentMenuOpen && (
+              // Классы переиспользованы от меню плагинов; поповер плагинов
+              // прибит вправо (меню справа тулбара), поэтому здесь inline-сдвиг влево
+              <div
+                className="toolbar-plugin-menu-popover"
+                style={{ left: 0, right: 'auto' }}
+                role="menu"
+                aria-label={t.recentFiles}
+              >
+                {recentItems.length > 0 ? (
+                  recentItems.map((path) => (
+                    <button
+                      key={path}
+                      type="button"
+                      className="toolbar-plugin-menu-item"
+                      role="menuitem"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => {
+                        setIsRecentMenuOpen(false);
+                        void openPath(path);
+                      }}
+                      title={path}
+                    >
+                      {recentFileName(path)}
+                    </button>
+                  ))
+                ) : (
+                  <div className="toolbar-plugin-menu-empty">{t.recentFilesEmpty}</div>
+                )}
+              </div>
+            )}
+          </div>
           <button className="toolbar-btn" onClick={save} title={t.saveTooltip}>
             {t.save}
           </button>
