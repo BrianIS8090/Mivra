@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { MenuBar } from '../components/MenuBar/MenuBar';
+import { MenuBar, computeSubmenuPlacement, shouldFlipSubmenu } from '../components/MenuBar/MenuBar';
 import { useFile } from '../hooks/useFile';
 import { useAppStore } from '../stores/appStore';
 import { usePluginStore } from '../plugins/pluginStore';
@@ -400,5 +400,52 @@ describe('MenuBar', () => {
     fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'ArrowRight' });
     expect(screen.queryByRole('menu', { name: 'Файл' })).not.toBeInTheDocument();
     expect(screen.getByRole('menu', { name: 'Правка' })).toBeInTheDocument();
+  });
+
+  it('jsdom: без реального layout подменю не флипуется (rect нулевые)', () => {
+    useAppStore.setState({ recentFiles: ['C:\\docs\\alpha.md'] });
+    renderMenuBar();
+    fireEvent.click(screen.getByRole('button', { name: 'Файл' }));
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Недавние' }));
+
+    const submenu = screen.getByRole('menu', { name: 'Недавние' });
+    expect(submenu).toHaveClass('menubar-subpopover');
+    expect(submenu).not.toHaveClass('menubar-subpopover-flipped');
+    expect(submenu.style.transform).toBe('');
+  });
+});
+
+describe('shouldFlipSubmenu', () => {
+  it('false, когда подменю помещается в окно (включая впритык)', () => {
+    expect(shouldFlipSubmenu(500, 800)).toBe(false);
+    expect(shouldFlipSubmenu(800, 800)).toBe(false);
+  });
+
+  it('true, когда правый край подменю за краем окна', () => {
+    expect(shouldFlipSubmenu(801, 800)).toBe(true);
+    expect(shouldFlipSubmenu(475, 390)).toBe(true);
+  });
+});
+
+describe('computeSubmenuPlacement', () => {
+  // Раскладка узкого окна 390px: поповер ~240px у левого края,
+  // родительский пункт x≈9, подменю шириной 240
+  it('помещается справа — без флипа и без клампа', () => {
+    expect(computeSubmenuPlacement(9, 475, 240, 1440)).toEqual({ flipped: false, clampOffset: 0 });
+  });
+
+  it('не помещается справа, но помещается влево — флип без клампа', () => {
+    // parentLeft=300: flippedLeft = 300 + 4 - 240 = 64 >= 0
+    expect(computeSubmenuPlacement(300, 700, 240, 640)).toEqual({ flipped: true, clampOffset: 0 });
+  });
+
+  it('не помещается ни справа, ни слева — флип с клампом к краю окна', () => {
+    // parentLeft=9: flippedLeft = 9 + 4 - 240 = -227 → кламп вправо до 4px от края
+    expect(computeSubmenuPlacement(9, 475, 240, 390)).toEqual({ flipped: true, clampOffset: 231 });
+  });
+
+  it('флип впритык слева (flippedLeft === 0) — без клампа', () => {
+    // parentLeft=236: flippedLeft = 236 + 4 - 240 = 0
+    expect(computeSubmenuPlacement(236, 700, 240, 500)).toEqual({ flipped: true, clampOffset: 0 });
   });
 });

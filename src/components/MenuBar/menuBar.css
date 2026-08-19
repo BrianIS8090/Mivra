@@ -65,6 +65,14 @@
   left: calc(100% - 4px);
 }
 
+/* Флип на узких окнах: подменю открывается влево от поповера.
+   Если и влево оно не помещается — дополнительный кламп к краю окна
+   делает inline transform из MenuBar.tsx. */
+.menubar-subpopover-flipped {
+  left: auto;
+  right: calc(100% - 4px);
+}
+
 .menubar-item {
   display: flex;
   align-items: center;

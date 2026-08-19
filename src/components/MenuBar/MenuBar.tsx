@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useFile } from '../../hooks/useFile';
 import { useSettings } from '../../hooks/useSettings';
 import { useTheme } from '../../hooks/useTheme';
@@ -39,6 +39,38 @@ function dedupeRecentFiles(paths: string[]): string[] {
   });
 }
 
+// Подменю вылезло за правый край окна? Чистая функция — порог покрыт
+// юнит-тестом; реальные значения подставляются из getBoundingClientRect
+// и window.innerWidth.
+export function shouldFlipSubmenu(submenuRight: number, viewportWidth: number): boolean {
+  return submenuRight > viewportWidth;
+}
+
+// Решение о раскладке подменю: флип влево от поповера при переполнении
+// правого края окна + кламп к левому краю, когда не помещается и влево
+// (узкие окна: поповер сам у левого края, flipped-позиция ушла бы в минус).
+export interface SubmenuPlacement {
+  flipped: boolean;
+  // Сдвиг вправо (px, inline transform) после флипа — подменю прижато
+  // к левому краю окна с отступом 4px; 0 — кламп не нужен
+  clampOffset: number;
+}
+
+export function computeSubmenuPlacement(
+  parentLeft: number,
+  submenuRight: number,
+  submenuWidth: number,
+  viewportWidth: number,
+): SubmenuPlacement {
+  if (!shouldFlipSubmenu(submenuRight, viewportWidth)) {
+    return { flipped: false, clampOffset: 0 };
+  }
+  // Флип: правый край подменю у левого края поповера (нахлёст 4px, как справа)
+  const flippedLeft = parentLeft + 4 - submenuWidth;
+  const clampOffset = flippedLeft < 0 ? 4 - flippedLeft : 0;
+  return { flipped: true, clampOffset };
+}
+
 interface MenuBarProps {
   // Открыть панель поиска (F1): обычную / с раскрытой строкой замены
   onFind: () => void;
@@ -48,6 +80,11 @@ interface MenuBarProps {
 export function MenuBar({ onFind, onReplace }: MenuBarProps) {
   const [openMenu, setOpenMenu] = useState<MenuId | null>(null);
   const [openSubmenu, setOpenSubmenu] = useState<SubmenuId | null>(null);
+  // Раскладка открытого подменю (флип/кламп) — пересчитывается измерением
+  const [submenuPlacement, setSubmenuPlacement] = useState<SubmenuPlacement>({
+    flipped: false,
+    clampOffset: 0,
+  });
   // Диалоги переехали из Toolbar — меню-бар их новый владелец
   const [showHelp, setShowHelp] = useState(false);
   const [showS3, setShowS3] = useState(false);
@@ -110,6 +147,22 @@ export function MenuBar({ onFind, onReplace }: MenuBarProps) {
       document.removeEventListener('keydown', closeOnEscape);
     };
   }, [openMenu]);
+
+  // Флип/кламп подменю: измерение после рендера (useLayoutEffect — патч
+  // применится до paint, мерцания нет). На jsdom rect нулевые — флипа нет.
+  useLayoutEffect(() => {
+    if (!openSubmenu) return;
+    const el = barRef.current?.querySelector('.menubar-subpopover');
+    const parent = el?.closest('.menubar-item-parent');
+    if (!el || !parent) return;
+    const rect = el.getBoundingClientRect();
+    setSubmenuPlacement(computeSubmenuPlacement(
+      parent.getBoundingClientRect().left,
+      rect.right,
+      rect.width,
+      window.innerWidth,
+    ));
+  }, [openSubmenu]);
 
   // Клавиатурная навигация: Down/Up — по пунктам открытого меню (включая
   // пункты раскрытого подменю), Left/Right — между топ-меню.
@@ -222,7 +275,14 @@ export function MenuBar({ onFind, onReplace }: MenuBarProps) {
         <span className="menubar-item-arrow" aria-hidden="true">▸</span>
       </button>
       {openSubmenu === id && (
-        <div className="menubar-popover menubar-subpopover" role="menu" aria-label={label}>
+        <div
+          className={`menubar-popover menubar-subpopover${submenuPlacement.flipped ? ' menubar-subpopover-flipped' : ''}`}
+          style={submenuPlacement.clampOffset
+            ? { transform: `translateX(${submenuPlacement.clampOffset}px)` }
+            : undefined}
+          role="menu"
+          aria-label={label}
+        >
           {children}
         </div>
       )}
