@@ -228,6 +228,21 @@ export const ru = {
   recentFilesTooltip: 'Недавние файлы',
   recentFilesEmpty: 'Нет недавних файлов',
   openRecentError: 'Не удалось открыть файл',
+
+  // Меню-бар
+  menuFile: 'Файл',
+  menuEdit: 'Правка',
+  menuView: 'Вид',
+  menuService: 'Сервис',
+  menuFind: 'Найти…',
+  menuReplace: 'Заменить…',
+  menuReload: 'Обновить с диска',
+  menuTheme: 'Тема',
+  menuEditorMode: 'Режим редактора',
+  menuLanguage: 'Язык',
+  langRu: 'Русский',
+  langEn: 'English',
+  statusAutosaveOn: 'Автосохранение ✓',
 };
 
 export type Translations = typeof ru;

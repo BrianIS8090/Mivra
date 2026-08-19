@@ -225,4 +225,19 @@ export const en: Translations = {
   recentFilesTooltip: 'Recent files',
   recentFilesEmpty: 'No recent files',
   openRecentError: 'Failed to open file',
+
+  // Menu bar
+  menuFile: 'File',
+  menuEdit: 'Edit',
+  menuView: 'View',
+  menuService: 'Tools',
+  menuFind: 'Find…',
+  menuReplace: 'Replace…',
+  menuReload: 'Reload from disk',
+  menuTheme: 'Theme',
+  menuEditorMode: 'Editor mode',
+  menuLanguage: 'Language',
+  langRu: 'Русский',
+  langEn: 'English',
+  statusAutosaveOn: 'Autosave ✓',
 };
