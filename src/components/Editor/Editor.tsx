@@ -7,6 +7,7 @@ import { getCurrentWindow } from '@tauri-apps/api/window';
 import { stat } from '@tauri-apps/plugin-fs';
 import { useAppStore } from '../../stores/appStore';
 import { useEditorHandle } from './EditorContext';
+import type { Language } from '../../i18n';
 import { renderMermaidPreview } from '../../utils/mermaid';
 import { resolveImageSrc, resolveMarkdownImageBaseDir } from '../../utils/paths';
 import { createHeadingBackspaceTransaction } from './headingBackspace';
@@ -97,6 +98,24 @@ function createCrepeConfig(defaultValue: string, baseDir: string | null) {
   };
 }
 
+// F4: явные атрибуты проверки орфографии на ProseMirror-элементе.
+// В конфиге окна Tauri 2.10.3 опции spellcheck нет — WebView2 держит
+// IsSpellCheckEnabled=true по умолчанию, поэтому достаточно явных атрибутов.
+// Известные ограничения:
+// 1) Варианты исправления живут в нативном контекстном меню WebView2,
+//    которое в Tauri отключено (WebView2Feedback #3758), — пользователь
+//    увидит только подчёркивания, без подсказок по правому клику.
+// 2) Атрибуты lang выставлены по HTML5-спеке, но WebView2 выбирает словарь
+//    по языку ОС/Environment и игнорирует lang на contenteditable/textarea
+//    (WebView2Feedback #5294), — переключение language в приложении может
+//    не сменить словарь подчёркивания.
+export function applySpellcheckAttributes(root: HTMLElement, language: Language): void {
+  root.querySelectorAll('.ProseMirror').forEach((el) => {
+    el.setAttribute('spellcheck', 'true');
+    el.setAttribute('lang', language);
+  });
+}
+
 export function Editor() {
   const containerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<HTMLDivElement>(null);
@@ -113,6 +132,7 @@ export function Editor() {
   const fontSize = useAppStore((s) => s.fontSize);
   const pageWidth = useAppStore((s) => s.pageWidth);
   const editorMode = useAppStore((s) => s.editorMode);
+  const language = useAppStore((s) => s.language);
   const [sourceContent, setSourceContent] = useState(() => normalizeMarkdownForSource(content));
 
   // Refs для стабильных колбэков
@@ -124,6 +144,10 @@ export function Editor() {
   // Текущий режим редактора (для доступа из listener без пересоздания)
   const editorModeRef = useRef(editorMode);
   editorModeRef.current = editorMode;
+
+  // Текущий язык — для post-create колбэков с async-замыканием (F4)
+  const languageRef = useRef(language);
+  languageRef.current = language;
 
   // Флаг: пользователь взаимодействовал с visual-редактором после его создания.
   // Пока false — markdownUpdated игнорируется (защита от нормализации при парсинге).
@@ -245,6 +269,15 @@ export function Editor() {
     return crepe;
   }, []);
 
+  // F4: выставить spellcheck/lang на актуальном .ProseMirror. Вызывается
+  // после каждого create() ниже и при смене языка — Crepe пересоздаётся
+  // при смене режима/контента, и атрибуты нужно ставить заново.
+  const applySpellcheck = useCallback(() => {
+    const root = editorRef.current;
+    if (!root) return;
+    applySpellcheckAttributes(root, languageRef.current);
+  }, []);
+
   // Инициализация Milkdown Crepe
   useEffect(() => {
     if (!editorRef.current) return;
@@ -263,6 +296,7 @@ export function Editor() {
       }
       crepeRef.current = crepe;
       handleRef.current.editor = crepe.editor;
+      applySpellcheck();
     });
 
     return () => {
@@ -312,10 +346,11 @@ export function Editor() {
           }
           crepeRef.current = newCrepe;
           handleRef.current.editor = newCrepe.editor;
+          applySpellcheck();
         });
       });
     }
-  }, [content, imageBaseDir, buildCrepe, handleRef]);
+  }, [content, imageBaseDir, buildCrepe, handleRef, applySpellcheck]);
 
   // Публикуем способ пометить программное изменение как пользовательское:
   // без этого markdownUpdated отфильтрует замены из панели поиска (F1).
@@ -348,11 +383,12 @@ export function Editor() {
           }
           crepeRef.current = newCrepe;
           handleRef.current.editor = newCrepe.editor;
+          applySpellcheck();
         });
       });
     }
     prevMode.current = editorMode;
-  }, [editorMode, imageBaseDir, buildCrepe, handleRef]);
+  }, [editorMode, imageBaseDir, buildCrepe, handleRef, applySpellcheck]);
 
   useEffect(() => {
     if (editorMode !== 'source') return;
@@ -373,6 +409,12 @@ export function Editor() {
       containerRef.current.style.setProperty('--page-max-width', `${pageWidth}px`);
     }
   }, [pageWidth]);
+
+  // F4: смена языка в настройках — перевыставить lang на живом редакторе
+  // без пересоздания (source-textarea берёт lang из пропса и обновится сама).
+  useEffect(() => {
+    applySpellcheck();
+  }, [language, applySpellcheck]);
 
   const toast = useToast();
 
@@ -506,13 +548,16 @@ export function Editor() {
         className="editor-root"
         style={{ display: editorMode === 'visual' ? 'block' : 'none' }}
       />
+      {/* F4: явная орфография в source-режиме; вариантов исправления нет —
+          нативное контекстное меню WebView2 в Tauri отключено, только подчёркивания. */}
       {editorMode === 'source' && (
         <textarea
           ref={setSourceRef}
           className="editor-source"
           value={sourceContent}
           onChange={handleSourceChange}
-          spellCheck={false}
+          spellCheck
+          lang={language}
         />
       )}
     </div>
