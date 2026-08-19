@@ -13,9 +13,13 @@ interface Props {
 export function UnsavedChangesDialog({ language, onChoice }: Props) {
   const t = getTranslations(language);
 
-  // Esc — отмена; клик по подложке — тоже отмена
+  // Esc — отмена; клик по подложке — тоже отмена.
+  // Координация слоёв (F1): Esc, уже обработанный другим слоем, игнорируем;
+  // свой Esc помечаем preventDefault — нижележащие слои (панель поиска,
+  // window-listener срабатывает после document-listener'ов) не закроются следом.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (e.defaultPrevented) return;
       if (e.key === 'Escape') {
         e.preventDefault();
         onChoice('cancel');

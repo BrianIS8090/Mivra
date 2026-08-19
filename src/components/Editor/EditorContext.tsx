@@ -7,6 +7,10 @@ import type { Editor } from '@milkdown/kit/core';
 export interface EditorHandle {
   editor: Editor | null;
   sourceTextarea: HTMLTextAreaElement | null;
+  // Пометить документ как отредактированный пользователем. Нужно программным
+  // заменам (панель поиска): без этого markdownUpdated в Editor.tsx
+  // отфильтрует изменение гейтом userInteractedRef и оно не попадёт в store.
+  markUserInteracted: () => void;
 }
 
 interface EditorContextValue {
@@ -16,7 +20,9 @@ interface EditorContextValue {
 const EditorContext = createContext<EditorContextValue | null>(null);
 
 export function EditorProvider({ children }: { children: ReactNode }) {
-  const handleRef = useRef<EditorHandle>({ editor: null, sourceTextarea: null });
+  // no-op по умолчанию: реальную реализацию присваивает Editor.tsx при монтировании
+  const noop = () => {};
+  const handleRef = useRef<EditorHandle>({ editor: null, sourceTextarea: null, markUserInteracted: noop });
   const value = useMemo(() => ({ handleRef }), []);
   return <EditorContext.Provider value={value}>{children}</EditorContext.Provider>;
 }

@@ -60,10 +60,16 @@ export function S3SettingsDialog({ onClose }: Props) {
     tauri.s3SecretExists().then(setSecretExists).catch(() => setSecretExists(false));
   }, []);
 
-  // Esc закрывает диалог
+  // Esc закрывает диалог.
+  // Координация слоёв (F1): Esc, уже обработанный другим слоем, игнорируем;
+  // свой Esc помечаем preventDefault — см. комментарий в UnsavedChangesDialog.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.defaultPrevented) return;
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onClose();
+      }
     };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);

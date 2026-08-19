@@ -212,4 +212,28 @@ describe('S3SettingsDialog', () => {
 
     expect(toastMessages()).not.toContain('Соединение работает');
   });
+
+  it('Esc закрывает диалог и помечает событие обработанным (координация слоёв, F1)', async () => {
+    const onClose = vi.fn();
+    render(<S3SettingsDialog onClose={onClose} />);
+    await act(() => Promise.resolve());
+
+    const event = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true });
+    document.dispatchEvent(event);
+
+    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(event.defaultPrevented).toBe(true);
+  });
+
+  it('Esc, уже обработанный другим слоем (defaultPrevented), диалог игнорирует', async () => {
+    const onClose = vi.fn();
+    render(<S3SettingsDialog onClose={onClose} />);
+    await act(() => Promise.resolve());
+
+    const event = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true });
+    event.preventDefault();
+    document.dispatchEvent(event);
+
+    expect(onClose).not.toHaveBeenCalled();
+  });
 });

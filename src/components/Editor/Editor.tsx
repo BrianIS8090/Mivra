@@ -11,6 +11,8 @@ import { renderMermaidPreview } from '../../utils/mermaid';
 import { resolveImageSrc, resolveMarkdownImageBaseDir } from '../../utils/paths';
 import { createHeadingBackspaceTransaction } from './headingBackspace';
 import { htmlTableView } from './htmlTableView';
+import { $prose } from '@milkdown/kit/utils';
+import { createSearchHighlightPlugin } from './editorSearch';
 import { removeConflictingStrikethroughKeymap } from './crepeKeymap';
 import { installLocalImageResolver } from './localImageResolver';
 import { denormalizeMarkdownForEditor, normalizeMarkdownForSource } from './sourceMarkdown';
@@ -221,6 +223,9 @@ export function Editor() {
       ...createCrepeConfig(visualBody, currentImageBaseDir),
     });
     crepe.editor.use(htmlTableView);
+    // Плагин подсветки совпадений панели поиска (F1): панель передаёт список
+    // совпадений через tr.setMeta, плагин рисует inline-декорации.
+    crepe.editor.use($prose(() => createSearchHighlightPlugin()));
     // Снимаем GFM-биндинг Mod-Alt-x (strikethrough) — он конфликтует
     // с задокументированным Ctrl+Alt+X (чекбокс) в App.tsx
     removeConflictingStrikethroughKeymap(crepe.editor);
@@ -311,6 +316,13 @@ export function Editor() {
       });
     }
   }, [content, imageBaseDir, buildCrepe, handleRef]);
+
+  // Публикуем способ пометить программное изменение как пользовательское:
+  // без этого markdownUpdated отфильтрует замены из панели поиска (F1).
+  useEffect(() => {
+    handleRef.current.markUserInteracted = () => { userInteractedRef.current = true; };
+    return () => { handleRef.current.markUserInteracted = () => {}; };
+  }, [handleRef]);
 
   // Синхронизация source → store при переключении обратно в visual
   const prevMode = useRef(editorMode);

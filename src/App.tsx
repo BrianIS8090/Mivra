@@ -1,8 +1,9 @@
-import { useEffect, useCallback, useRef } from 'react';
+import { useEffect, useCallback, useRef, useState } from 'react';
 
 import { TitleBar } from './components/TitleBar/TitleBar';
 import { Toolbar } from './components/Toolbar/Toolbar';
 import { Editor } from './components/Editor/Editor';
+import { SearchPanel } from './components/Editor/SearchPanel';
 import { StatusBar } from './components/StatusBar/StatusBar';
 import { useFile } from './hooks/useFile';
 import { useSettingsOwner } from './hooks/useSettings';
@@ -25,6 +26,12 @@ function App() {
   const { applyMarkdownAction, insertAssetAction, placeholders } = useMarkdownActions();
   const editorMode = useAppStore((s) => s.editorMode);
   const setEditorMode = useAppStore((s) => s.setEditorMode);
+  // Панель поиска/замены (F1): Ctrl+F — поиск, Ctrl+H — сразу со строкой замены
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchWithReplace, setSearchWithReplace] = useState(false);
+  // Счётчик нажатий Ctrl+F/Ctrl+H: по его изменению открытая панель
+  // возвращает фокус в поле запроса и применяет режим (с заменой/без).
+  const [searchFocusSignal, setSearchFocusSignal] = useState(0);
 
   // StrictMode-защита: эффект ниже выполняется дважды на mount.
   // Сейчас get_pending_file на Rust-стороне делает Mutex.take() — поэтому
@@ -111,6 +118,20 @@ function App() {
     if (isCtrl && !isShift && !isAlt && code === 'KeyP') {
       e.preventDefault();
       window.print();
+    }
+    // Ctrl+F — Поиск по документу (preventDefault подавляет поиск браузера)
+    if (isCtrl && !isShift && !isAlt && code === 'KeyF') {
+      e.preventDefault();
+      setSearchWithReplace(false);
+      setSearchOpen(true);
+      setSearchFocusSignal((n) => n + 1);
+    }
+    // Ctrl+H — Поиск с развёрнутой строкой замены
+    if (isCtrl && !isShift && !isAlt && code === 'KeyH') {
+      e.preventDefault();
+      setSearchWithReplace(true);
+      setSearchOpen(true);
+      setSearchFocusSignal((n) => n + 1);
     }
     // Ctrl+Shift+T — Переключить тему
     if (isCtrl && isShift && !isAlt && code === 'KeyT') {
@@ -246,6 +267,13 @@ function App() {
       <TitleBar />
       <Toolbar />
       <PluginHost />
+      {searchOpen && (
+        <SearchPanel
+          showReplace={searchWithReplace}
+          focusSignal={searchFocusSignal}
+          onClose={() => setSearchOpen(false)}
+        />
+      )}
       <Editor />
       <StatusBar />
     </div>
