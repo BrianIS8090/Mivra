@@ -113,6 +113,34 @@ describe('useSettings', () => {
     });
   });
 
+  it('persist включает autosave из загруженных настроек', async () => {
+    mockedInvoke.mockImplementation((cmd) => {
+      if (cmd === 'read_settings') {
+        return Promise.resolve({
+          font_family: 'Segoe UI Variable',
+          font_size: 15,
+          theme: 'system',
+          recent_files: [],
+          enabled_plugins: ['export-pdf'],
+          removed_bundled_plugins: [],
+          autosave: true,
+        });
+      }
+      return Promise.resolve(true);
+    });
+
+    renderHook(() => useSettingsOwner());
+    await vi.advanceTimersByTimeAsync(500);
+
+    // Значение попало в стор при загрузке и уходит обратно на диск при persist
+    expect(useAppStore.getState().autosave).toBe(true);
+    expect(mockedInvoke).toHaveBeenCalledWith('write_settings', {
+      settings: expect.objectContaining({
+        autosave: true,
+      }),
+    });
+  });
+
   it('persist не стартует до завершения первичной загрузки', async () => {
     // read_settings «завис»: резолвим его вручную в середине теста
     let resolveRead: (value: unknown) => void = () => {};

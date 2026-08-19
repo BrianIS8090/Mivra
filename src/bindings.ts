@@ -88,6 +88,7 @@ export type Settings = {
 	s3_verified?: boolean,
 	enabled_plugins?: string[],
 	removed_bundled_plugins?: string[],
+	autosave?: boolean,
 };
 
 /* Tauri Specta runtime */

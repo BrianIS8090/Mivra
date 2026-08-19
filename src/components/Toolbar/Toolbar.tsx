@@ -51,7 +51,7 @@ export function Toolbar() {
   const pluginMenuRef = useRef<HTMLDivElement>(null);
   const recentMenuRef = useRef<HTMLDivElement>(null);
   const { open, openPath, save, saveAs, reload, filePath } = useFile();
-  const { fontFamily, fontSize, language, pageWidth, changeFontFamily, changeFontSize, changeLanguage, changePageWidth } = useSettings();
+  const { fontFamily, fontSize, language, pageWidth, autosave, changeFontFamily, changeFontSize, changeLanguage, changePageWidth, changeAutosave } = useSettings();
   const [pageWidthDraft, setPageWidthDraft] = useState(String(pageWidth));
 
   // Синхронизация при внешнем изменении (загрузка настроек)
@@ -319,6 +319,17 @@ export function Toolbar() {
             title={t.modeTooltip}
           >
             {modeLabel}
+          </button>
+
+          <button
+            // Зелёная подсветка при включённом автосохранении — переиспользуем
+            // существующий класс «ok»-состояния (toolbar.css не входит в тикет)
+            className={`toolbar-btn${autosave ? ' toolbar-btn-s3-ok' : ''}`}
+            onClick={() => changeAutosave(!autosave)}
+            title={t.autosaveTooltip}
+            aria-pressed={autosave}
+          >
+            {t.autosave}
           </button>
         </div>
 

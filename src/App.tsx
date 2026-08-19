@@ -9,6 +9,7 @@ import { useFile } from './hooks/useFile';
 import { useSettingsOwner } from './hooks/useSettings';
 import { useTheme } from './hooks/useTheme';
 import { useExit } from './hooks/useExit';
+import { useAutosave } from './hooks/useAutosave';
 import { useMarkdownActions } from './hooks/useMarkdownActions';
 import { useAppStore } from './stores/appStore';
 import { PluginHost } from './plugins/PluginHost';
@@ -23,6 +24,7 @@ function App() {
   const { changeFontSize, fontSize } = useSettingsOwner();
   const { toggleTheme } = useTheme();
   useExit();
+  useAutosave();
   const { applyMarkdownAction, insertAssetAction, placeholders } = useMarkdownActions();
   const editorMode = useAppStore((s) => s.editorMode);
   const setEditorMode = useAppStore((s) => s.setEditorMode);

@@ -14,11 +14,13 @@ export function useSettings() {
   const language = useAppStore((s) => s.language);
   const pageWidth = useAppStore((s) => s.pageWidth);
   const enabledPlugins = useAppStore((s) => s.enabledPlugins);
+  const autosave = useAppStore((s) => s.autosave);
   const setFontFamily = useAppStore((s) => s.setFontFamily);
   const setFontSize = useAppStore((s) => s.setFontSize);
   const setTheme = useAppStore((s) => s.setTheme);
   const setLanguage = useAppStore((s) => s.setLanguage);
   const setPageWidth = useAppStore((s) => s.setPageWidth);
+  const setAutosave = useAppStore((s) => s.setAutosave);
 
   const changeFontFamily = useCallback((family: string) => {
     setFontFamily(family);
@@ -42,6 +44,10 @@ export function useSettings() {
     setPageWidth(clamped);
   }, [setPageWidth]);
 
+  const changeAutosave = useCallback((enabled: boolean) => {
+    setAutosave(enabled);
+  }, [setAutosave]);
+
   return {
     fontFamily,
     fontSize,
@@ -54,6 +60,8 @@ export function useSettings() {
     pageWidth,
     changePageWidth,
     enabledPlugins,
+    autosave,
+    changeAutosave,
   };
 }
 
@@ -107,6 +115,7 @@ export function useSettingsOwner() {
         s3_verified: state.s3Verified,
         enabled_plugins: state.enabledPlugins,
         removed_bundled_plugins: state.removedBundledPlugins,
+        autosave: state.autosave,
       });
     } catch (e) {
       console.error('Ошибка сохранения настроек:', e);
@@ -131,6 +140,7 @@ export function useSettingsOwner() {
     s3Verified,
     settings.enabledPlugins,
     removedBundledPlugins,
+    settings.autosave,
     persist,
   ]);
 

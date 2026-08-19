@@ -39,6 +39,10 @@ pub struct Settings {
   pub enabled_plugins: Vec<String>,
   #[serde(default)]
   pub removed_bundled_plugins: Vec<String>,
+  // Автосохранение документа (дебаунс 2с на фронте). По умолчанию выключено —
+  // у старых settings.json поля нет, подставится false.
+  #[serde(default)]
+  pub autosave: bool,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, Type)]
@@ -159,6 +163,7 @@ impl Default for Settings {
       s3_verified: false,
       enabled_plugins: default_enabled_plugins(),
       removed_bundled_plugins: Vec::new(),
+      autosave: false,
     }
   }
 }
@@ -1891,5 +1896,28 @@ mod tests {
     // окружении keyring недоступен: обращение к нему дало бы secret_not_set.
     let result = super::s3_test_connection(config, Some("secret".to_string())).await;
     assert!(result.is_ok(), "got: {:?}", result);
+  }
+
+  #[test]
+  fn settings_without_autosave_defaults_to_false() {
+    // Старый settings.json (до появления автосохранения) поля autosave
+    // не содержит — должен подставиться serde default (false), т.е.
+    // фича выключена, пока пользователь явно её не включил.
+    let settings: super::Settings = serde_json::from_str(r#"{"font_family":"Segoe UI Variable"}"#)
+      .expect("Старый settings.json должен парситься");
+    assert!(!settings.autosave);
+  }
+
+  #[test]
+  fn settings_autosave_roundtrip() {
+    // Включённое автосохранение переживает цикл serialize → deserialize
+    let settings: super::Settings =
+      serde_json::from_str(r#"{"autosave":true}"#).expect("JSON с autosave должен парситься");
+    assert!(settings.autosave);
+
+    let json = serde_json::to_string(&settings).expect("Сериализация должна пройти");
+    let parsed: super::Settings =
+      serde_json::from_str(&json).expect("Раундтрип должен парситься");
+    assert!(parsed.autosave);
   }
 }

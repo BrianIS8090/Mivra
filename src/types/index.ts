@@ -25,6 +25,8 @@ export interface AppState {
   s3: S3Config | null;
   enabledPlugins: string[];
   removedBundledPlugins: string[];
+  // Автосохранение документа (F2): дебаунс 2с в useAutosave
+  autosave: boolean;
   // Текущий S3-конфиг прошёл «Тест соединения» при последнем сохранении.
   // Используется для зелёной подсветки кнопки S3 в Toolbar.
   s3Verified: boolean;
@@ -47,5 +49,6 @@ export interface AppState {
   setEnabledPlugins: (pluginIds: string[]) => void;
   setPluginEnabled: (pluginId: string, enabled: boolean) => void;
   setBundledPluginRemoved: (pluginId: string, removed: boolean) => void;
+  setAutosave: (autosave: boolean) => void;
   updateSettings: (settings: Partial<Settings>) => void;
 }

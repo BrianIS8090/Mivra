@@ -27,6 +27,7 @@ export const useAppStore = create<AppState>((set) => ({
   s3Verified: false,
   enabledPlugins: ['export-pdf'],
   removedBundledPlugins: [],
+  autosave: false,
 
   // Действия
   setContent: (content) => set((state) =>
@@ -73,6 +74,7 @@ export const useAppStore = create<AppState>((set) => ({
     }
     return { removedBundledPlugins: [...current] };
   }),
+  setAutosave: (autosave) => set({ autosave }),
   updateSettings: (settings: Partial<Settings>) => set((state) => ({
     fontFamily: settings.font_family ?? state.fontFamily,
     fontSize: settings.font_size ?? state.fontSize,
@@ -91,5 +93,6 @@ export const useAppStore = create<AppState>((set) => ({
     removedBundledPlugins: settings.removed_bundled_plugins
       ? normalizePluginIds(settings.removed_bundled_plugins)
       : state.removedBundledPlugins,
+    autosave: settings.autosave ?? state.autosave,
   })),
 }));
